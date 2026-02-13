@@ -1,894 +1,270 @@
-# CLI Reference
+# CLI 参考
 
-The OpenSpec CLI (`openspec`) provides terminal commands for project setup, validation, status inspection, and management. These commands complement the AI slash commands (like `/opsx:new`) documented in [Commands](commands.md).
+OpenSpec CLI（`openspec`）提供项目初始化、校验、状态查看与管理等终端命令，与 [命令](commands.md) 中的 AI 斜杠命令（如 `/opsx:new`）配合使用。
 
-## Summary
+## 概览
 
-| Category | Commands | Purpose |
-|----------|----------|---------|
-| **Setup** | `init`, `update` | Initialize and update OpenSpec in your project |
-| **Browsing** | `list`, `view`, `show` | Explore changes and specs |
-| **Validation** | `validate` | Check changes and specs for issues |
-| **Lifecycle** | `archive` | Finalize completed changes |
-| **Workflow** | `status`, `instructions`, `templates`, `schemas` | Artifact-driven workflow support |
-| **Schemas** | `schema init`, `schema fork`, `schema validate`, `schema which` | Create and manage custom workflows |
-| **Config** | `config` | View and modify settings |
-| **Utility** | `feedback`, `completion` | Feedback and shell integration |
-
----
-
-## Human vs Agent Commands
-
-Most CLI commands are designed for **human use** in a terminal. Some commands also support **agent/script use** via JSON output.
-
-### Human-Only Commands
-
-These commands are interactive and designed for terminal use:
-
-| Command | Purpose |
-|---------|---------|
-| `openspec init` | Initialize project (interactive prompts) |
-| `openspec view` | Interactive dashboard |
-| `openspec config edit` | Open config in editor |
-| `openspec feedback` | Submit feedback via GitHub |
-| `openspec completion install` | Install shell completions |
-
-### Agent-Compatible Commands
-
-These commands support `--json` output for programmatic use by AI agents and scripts:
-
-| Command | Human Use | Agent Use |
-|---------|-----------|-----------|
-| `openspec list` | Browse changes/specs | `--json` for structured data |
-| `openspec show <item>` | Read content | `--json` for parsing |
-| `openspec validate` | Check for issues | `--all --json` for bulk validation |
-| `openspec status` | See artifact progress | `--json` for structured status |
-| `openspec instructions` | Get next steps | `--json` for agent instructions |
-| `openspec templates` | Find template paths | `--json` for path resolution |
-| `openspec schemas` | List available schemas | `--json` for schema discovery |
+| 类别           | 命令                                                            | 用途                          |
+| -------------- | --------------------------------------------------------------- | ----------------------------- |
+| **初始化**     | `init`、`update`                                                | 在项目中初始化与更新 OpenSpec |
+| **浏览**       | `list`、`view`、`show`                                          | 查看变更与规范                |
+| **校验**       | `validate`                                                      | 检查变更与规范问题            |
+| **生命周期**   | `archive`                                                       | 收尾已完成的变更              |
+| **工作流**     | `status`、`instructions`、`templates`、`schemas`                | 制品驱动工作流支持            |
+| **工作流模式** | `schema init`、`schema fork`、`schema validate`、`schema which` | 创建与管理自定义工作流        |
+| **配置**       | `config`                                                        | 查看与修改设置                |
+| **工具**       | `feedback`、`completion`                                        | 反馈与 Shell 补全             |
 
 ---
 
-## Global Options
+## 面向人 vs 面向 Agent
 
-These options work with all commands:
+多数 CLI 命令面向**人在终端使用**；部分命令支持通过 `--json` 输出供 **Agent/脚本** 使用。
 
-| Option | Description |
-|--------|-------------|
-| `--version`, `-V` | Show version number |
-| `--no-color` | Disable color output |
-| `--help`, `-h` | Display help for command |
+### 仅面向人的命令
+
+以下为交互式、适合终端使用：
+
+| 命令                          | 用途                     |
+| ----------------------------- | ------------------------ |
+| `openspec init`               | 初始化项目（交互式提示） |
+| `openspec view`               | 交互式总览               |
+| `openspec config edit`        | 在编辑器中打开配置       |
+| `openspec feedback`           | 通过 GitHub 提交反馈     |
+| `openspec completion install` | 安装 Shell 补全          |
+
+### 支持 Agent 的命令
+
+以下支持 `--json` 输出，供 AI Agent 与脚本解析：
+
+| 命令                    | 人工使用      | Agent 使用               |
+| ----------------------- | ------------- | ------------------------ |
+| `openspec list`         | 浏览变更/规范 | `--json` 获取结构化数据  |
+| `openspec show <item>`  | 查看内容      | `--json` 便于解析        |
+| `openspec validate`     | 检查问题      | `--all --json` 批量校验  |
+| `openspec status`       | 查看制品进度  | `--json` 获取结构化状态  |
+| `openspec instructions` | 获取下一步    | `--json` 获取 Agent 指引 |
+| `openspec templates`    | 查看模板路径  | `--json` 解析路径        |
+| `openspec schemas`      | 列出可用模式  | `--json` 发现模式        |
 
 ---
 
-## Setup Commands
+## 全局选项
+
+以下选项对所有命令有效：
+
+| 选项              | 说明         |
+| ----------------- | ------------ |
+| `--version`、`-V` | 显示版本号   |
+| `--no-color`      | 关闭彩色输出 |
+| `--help`、`-h`    | 显示命令帮助 |
+
+---
+
+## 初始化命令
 
 ### `openspec init`
 
-Initialize OpenSpec in your project. Creates the folder structure and configures AI tool integrations.
+在项目中初始化 OpenSpec，创建目录结构并配置 AI 工具集成。
 
 ```
 openspec init [path] [options]
 ```
 
-**Arguments:**
+**参数：** `path`（可选）— 目标目录，默认当前目录。
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `path` | No | Target directory (default: current directory) |
+**选项：** `--tools <list>` — 非交互配置 AI 工具，可选 `all`、`none` 或逗号分隔列表；`--force` — 自动清理旧文件且不提示。
 
-**Options:**
+**支持的工具 ID：** `amazon-q`、`antigravity`、`auggie`、`claude`、`cline`、`codex`、`codebuddy`、`continue`、`costrict`、`crush`、`cursor`、`devagent`、`factory`、`gemini`、`github-copilot`、`iflow`、`kilocode`、`opencode`、`qoder`、`qwen`、`roocode`、`windsurf`
 
-| Option | Description |
-|--------|-------------|
-| `--tools <list>` | Configure AI tools non-interactively. Use `all`, `none`, or comma-separated list |
-| `--force` | Auto-cleanup legacy files without prompting |
-
-**Supported tools:** `amazon-q`, `antigravity`, `auggie`, `claude`, `cline`, `codex`, `codebuddy`, `continue`, `costrict`, `crush`, `cursor`, `factory`, `gemini`, `github-copilot`, `iflow`, `kilocode`, `opencode`, `qoder`, `qwen`, `roocode`, `windsurf`
-
-**Examples:**
-
-```bash
-# Interactive initialization
-openspec init
-
-# Initialize in a specific directory
-openspec init ./my-project
-
-# Non-interactive: configure for Claude and Cursor
-openspec init --tools claude,cursor
-
-# Configure for all supported tools
-openspec init --tools all
-
-# Skip prompts and auto-cleanup legacy files
-openspec init --force
-```
-
-**What it creates:**
-
-```
-openspec/
-├── specs/              # Your specifications (source of truth)
-├── changes/            # Proposed changes
-└── config.yaml         # Project configuration
-
-.claude/skills/         # Claude Code skill files (if claude selected)
-.cursor/rules/          # Cursor rules (if cursor selected)
-... (other tool configs)
-```
+**会创建：** `openspec/specs/`、`openspec/changes/`、`openspec/config.yaml`，以及所选工具的 skills/commands 目录（如 `.claude/skills/`、`.cursor/commands/` 等）。
 
 ---
 
 ### `openspec update`
 
-Update OpenSpec instruction files after upgrading the CLI. Re-generates AI tool configuration files.
+升级 CLI 后更新 OpenSpec 指令文件，重新生成 AI 工具配置。
 
 ```
 openspec update [path] [options]
 ```
 
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `path` | No | Target directory (default: current directory) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--force` | Force update even when files are up to date |
-
-**Example:**
-
-```bash
-# Update instruction files after npm upgrade
-npm update @fission-ai/openspec
-openspec update
-```
+**选项：** `--force` — 即使文件已是最新也强制更新。
 
 ---
 
-## Browsing Commands
+## 浏览命令
 
 ### `openspec list`
 
-List changes or specs in your project.
+列出项目中的变更或规范。
 
-```
-openspec list [options]
-```
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--specs` | List specs instead of changes |
-| `--changes` | List changes (default) |
-| `--sort <order>` | Sort by `recent` (default) or `name` |
-| `--json` | Output as JSON |
-
-**Examples:**
-
-```bash
-# List all active changes
-openspec list
-
-# List all specs
-openspec list --specs
-
-# JSON output for scripts
-openspec list --json
-```
-
-**Output (text):**
-
-```
-Active changes:
-  add-dark-mode     UI theme switching support
-  fix-login-bug     Session timeout handling
-```
+**选项：** `--specs` 列出规范；`--changes` 列出变更（默认）；`--sort <order>` 按 `recent` 或 `name` 排序；`--json` 输出 JSON。
 
 ---
 
 ### `openspec view`
 
-Display an interactive dashboard for exploring specs and changes.
-
-```
-openspec view
-```
-
-Opens a terminal-based interface for navigating your project's specifications and changes.
+打开交互式总览，浏览规范与变更。
 
 ---
 
 ### `openspec show`
 
-Display details of a change or spec.
+显示某个变更或规范的详情。
 
-```
-openspec show [item-name] [options]
-```
+**参数：** `item-name`（可选）— 变更或规范名称，省略时提示选择。
 
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `item-name` | No | Name of change or spec (prompts if omitted) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--type <type>` | Specify type: `change` or `spec` (auto-detected if unambiguous) |
-| `--json` | Output as JSON |
-| `--no-interactive` | Disable prompts |
-
-**Change-specific options:**
-
-| Option | Description |
-|--------|-------------|
-| `--deltas-only` | Show only delta specs (JSON mode) |
-
-**Spec-specific options:**
-
-| Option | Description |
-|--------|-------------|
-| `--requirements` | Show only requirements, exclude scenarios (JSON mode) |
-| `--no-scenarios` | Exclude scenario content (JSON mode) |
-| `-r, --requirement <id>` | Show specific requirement by 1-based index (JSON mode) |
-
-**Examples:**
-
-```bash
-# Interactive selection
-openspec show
-
-# Show a specific change
-openspec show add-dark-mode
-
-# Show a specific spec
-openspec show auth --type spec
-
-# JSON output for parsing
-openspec show add-dark-mode --json
-```
+**选项：** `--type <type>` 指定 `change` 或 `spec`；`--json`；`--no-interactive` 关闭提示。变更专用：`--deltas-only` 仅显示增量规范（JSON）。规范专用：`--requirements`、`--no-scenarios`、`-r, --requirement <id>`。
 
 ---
 
-## Validation Commands
+## 校验命令
 
 ### `openspec validate`
 
-Validate changes and specs for structural issues.
+校验变更与规范的结构问题。
 
-```
-openspec validate [item-name] [options]
-```
-
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `item-name` | No | Specific item to validate (prompts if omitted) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--all` | Validate all changes and specs |
-| `--changes` | Validate all changes |
-| `--specs` | Validate all specs |
-| `--type <type>` | Specify type when name is ambiguous: `change` or `spec` |
-| `--strict` | Enable strict validation mode |
-| `--json` | Output as JSON |
-| `--concurrency <n>` | Max parallel validations (default: 6, or `OPENSPEC_CONCURRENCY` env) |
-| `--no-interactive` | Disable prompts |
-
-**Examples:**
-
-```bash
-# Interactive validation
-openspec validate
-
-# Validate a specific change
-openspec validate add-dark-mode
-
-# Validate all changes
-openspec validate --changes
-
-# Validate everything with JSON output (for CI/scripts)
-openspec validate --all --json
-
-# Strict validation with increased parallelism
-openspec validate --all --strict --concurrency 12
-```
-
-**Output (text):**
-
-```
-Validating add-dark-mode...
-  ✓ proposal.md valid
-  ✓ specs/ui/spec.md valid
-  ⚠ design.md: missing "Technical Approach" section
-
-1 warning found
-```
-
-**Output (JSON):**
-
-```json
-{
-  "version": "1.0.0",
-  "results": {
-    "changes": [
-      {
-        "name": "add-dark-mode",
-        "valid": true,
-        "warnings": ["design.md: missing 'Technical Approach' section"]
-      }
-    ]
-  },
-  "summary": {
-    "total": 1,
-    "valid": 1,
-    "invalid": 0
-  }
-}
-```
+**选项：** `--all` 校验全部；`--changes` 仅变更；`--specs` 仅规范；`--type <type>`；`--strict` 严格模式；`--json`；`--concurrency <n>` 最大并行数（默认 6 或 `OPENSPEC_CONCURRENCY`）；`--no-interactive`。
 
 ---
 
-## Lifecycle Commands
+## 生命周期命令
 
 ### `openspec archive`
 
-Archive a completed change and merge delta specs into main specs.
+归档已完成的变更，并将增量规范合并到主规范。
 
-```
-openspec archive [change-name] [options]
-```
+**选项：** `-y, --yes` 跳过确认；`--skip-specs` 不更新规范（仅基础设施/文档类变更）；`--no-validate` 跳过校验（需确认）。
 
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `change-name` | No | Change to archive (prompts if omitted) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `-y, --yes` | Skip confirmation prompts |
-| `--skip-specs` | Skip spec updates (for infrastructure/tooling/doc-only changes) |
-| `--no-validate` | Skip validation (requires confirmation) |
-
-**Examples:**
-
-```bash
-# Interactive archive
-openspec archive
-
-# Archive specific change
-openspec archive add-dark-mode
-
-# Archive without prompts (CI/scripts)
-openspec archive add-dark-mode --yes
-
-# Archive a tooling change that doesn't affect specs
-openspec archive update-ci-config --skip-specs
-```
-
-**What it does:**
-
-1. Validates the change (unless `--no-validate`)
-2. Prompts for confirmation (unless `--yes`)
-3. Merges delta specs into `openspec/specs/`
-4. Moves change folder to `openspec/changes/archive/YYYY-MM-DD-<name>/`
+**流程：** 1）校验变更（除非 `--no-validate`）；2）确认（除非 `--yes`）；3）将增量合并到 `openspec/specs/`；4）将变更目录移至 `openspec/changes/archive/YYYY-MM-DD-<name>/`。
 
 ---
 
-## Workflow Commands
-
-These commands support the artifact-driven OPSX workflow. They're useful for both humans checking progress and agents determining next steps.
+## 工作流命令
 
 ### `openspec status`
 
-Display artifact completion status for a change.
+显示某变更的制品完成状态。
 
-```
-openspec status [options]
-```
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--change <id>` | Change name (prompts if omitted) |
-| `--schema <name>` | Schema override (auto-detected from change's config) |
-| `--json` | Output as JSON |
-
-**Examples:**
-
-```bash
-# Interactive status check
-openspec status
-
-# Status for specific change
-openspec status --change add-dark-mode
-
-# JSON for agent use
-openspec status --change add-dark-mode --json
-```
-
-**Output (text):**
-
-```
-Change: add-dark-mode
-Schema: spec-driven
-
-Artifacts:
-  ✓ proposal     proposal.md exists
-  ✓ specs        specs/ exists
-  ◆ design       ready (requires: specs)
-  ○ tasks        blocked (requires: design)
-
-Next: Create design using /opsx:continue
-```
-
-**Output (JSON):**
-
-```json
-{
-  "change": "add-dark-mode",
-  "schema": "spec-driven",
-  "artifacts": [
-    {"id": "proposal", "status": "complete", "path": "proposal.md"},
-    {"id": "specs", "status": "complete", "path": "specs/"},
-    {"id": "design", "status": "ready", "requires": ["specs"]},
-    {"id": "tasks", "status": "blocked", "requires": ["design"]}
-  ],
-  "next": "design"
-}
-```
+**选项：** `--change <id>`；`--schema <name>`；`--json`。
 
 ---
 
 ### `openspec instructions`
 
-Get enriched instructions for creating an artifact or applying tasks. Used by AI agents to understand what to create next.
+获取创建某制品或实施任务的增强指引，供 AI Agent 确定下一步。
 
-```
-openspec instructions [artifact] [options]
-```
+**参数：** `artifact`（可选）— 制品 ID：`proposal`、`specs`、`design`、`tasks` 或 `apply`（获取实施任务指引）。
 
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `artifact` | No | Artifact ID: `proposal`, `specs`, `design`, `tasks`, or `apply` |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--change <id>` | Change name (required in non-interactive mode) |
-| `--schema <name>` | Schema override |
-| `--json` | Output as JSON |
-
-**Special case:** Use `apply` as the artifact to get task implementation instructions.
-
-**Examples:**
-
-```bash
-# Get instructions for next artifact
-openspec instructions --change add-dark-mode
-
-# Get specific artifact instructions
-openspec instructions design --change add-dark-mode
-
-# Get apply/implementation instructions
-openspec instructions apply --change add-dark-mode
-
-# JSON for agent consumption
-openspec instructions design --change add-dark-mode --json
-```
-
-**Output includes:**
-
-- Template content for the artifact
-- Project context from config
-- Content from dependency artifacts
-- Per-artifact rules from config
+**选项：** `--change <id>`；`--schema <name>`；`--json`。
 
 ---
 
 ### `openspec templates`
 
-Show resolved template paths for all artifacts in a schema.
+显示某工作流模式中所有制品的模板路径。
 
-```
-openspec templates [options]
-```
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--schema <name>` | Schema to inspect (default: `spec-driven`) |
-| `--json` | Output as JSON |
-
-**Examples:**
-
-```bash
-# Show template paths for default schema
-openspec templates
-
-# Show templates for custom schema
-openspec templates --schema my-workflow
-
-# JSON for programmatic use
-openspec templates --json
-```
-
-**Output (text):**
-
-```
-Schema: spec-driven
-
-Templates:
-  proposal  → ~/.openspec/schemas/spec-driven/templates/proposal.md
-  specs     → ~/.openspec/schemas/spec-driven/templates/specs.md
-  design    → ~/.openspec/schemas/spec-driven/templates/design.md
-  tasks     → ~/.openspec/schemas/spec-driven/templates/tasks.md
-```
+**选项：** `--schema <name>`（默认 `spec-driven`）；`--json`。
 
 ---
 
 ### `openspec schemas`
 
-List available workflow schemas with their descriptions and artifact flows.
+列出可用工作流模式及其描述与制品流。
 
-```
-openspec schemas [options]
-```
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--json` | Output as JSON |
-
-**Example:**
-
-```bash
-openspec schemas
-```
-
-**Output:**
-
-```
-Available schemas:
-
-  spec-driven (package)
-    The default spec-driven development workflow
-    Flow: proposal → specs → design → tasks
-
-  my-custom (project)
-    Custom workflow for this project
-    Flow: research → proposal → tasks
-```
+**选项：** `--json`。
 
 ---
 
-## Schema Commands
-
-Commands for creating and managing custom workflow schemas.
+## 工作流模式命令
 
 ### `openspec schema init`
 
-Create a new project-local schema.
+创建新的项目本地工作流模式。
 
-```
-openspec schema init <name> [options]
-```
+**参数：** `name`（必填）— 模式名（kebab-case）。
 
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `name` | Yes | Schema name (kebab-case) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--description <text>` | Schema description |
-| `--artifacts <list>` | Comma-separated artifact IDs (default: `proposal,specs,design,tasks`) |
-| `--default` | Set as project default schema |
-| `--no-default` | Don't prompt to set as default |
-| `--force` | Overwrite existing schema |
-| `--json` | Output as JSON |
-
-**Examples:**
-
-```bash
-# Interactive schema creation
-openspec schema init research-first
-
-# Non-interactive with specific artifacts
-openspec schema init rapid \
-  --description "Rapid iteration workflow" \
-  --artifacts "proposal,tasks" \
-  --default
-```
-
-**What it creates:**
-
-```
-openspec/schemas/<name>/
-├── schema.yaml           # Schema definition
-└── templates/
-    ├── proposal.md       # Template for each artifact
-    ├── specs.md
-    ├── design.md
-    └── tasks.md
-```
+**选项：** `--description <text>`；`--artifacts <list>` 逗号分隔制品 ID（默认 `proposal,specs,design,tasks`）；`--default` 设为项目默认；`--no-default`；`--force` 覆盖已有；`--json`。
 
 ---
 
 ### `openspec schema fork`
 
-Copy an existing schema to your project for customization.
+将已有模式复制到项目以便自定义。
 
-```
-openspec schema fork <source> [name] [options]
-```
+**参数：** `source`（必填）；`name`（可选，默认 `<source>-custom`）。
 
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `source` | Yes | Schema to copy |
-| `name` | No | New schema name (default: `<source>-custom`) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--force` | Overwrite existing destination |
-| `--json` | Output as JSON |
-
-**Example:**
-
-```bash
-# Fork the built-in spec-driven schema
-openspec schema fork spec-driven my-workflow
-```
+**选项：** `--force`；`--json`。
 
 ---
 
 ### `openspec schema validate`
 
-Validate a schema's structure and templates.
+校验工作流模式结构与模板。
 
-```
-openspec schema validate [name] [options]
-```
-
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `name` | No | Schema to validate (validates all if omitted) |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--verbose` | Show detailed validation steps |
-| `--json` | Output as JSON |
-
-**Example:**
-
-```bash
-# Validate a specific schema
-openspec schema validate my-workflow
-
-# Validate all schemas
-openspec schema validate
-```
+**选项：** `--verbose`；`--json`。
 
 ---
 
 ### `openspec schema which`
 
-Show where a schema resolves from (useful for debugging precedence).
+显示某模式解析自何处（用于调试优先级）。
 
-```
-openspec schema which [name] [options]
-```
+**选项：** `--all` 列出所有模式及来源；`--json`。
 
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `name` | No | Schema name |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--all` | List all schemas with their sources |
-| `--json` | Output as JSON |
-
-**Example:**
-
-```bash
-# Check where a schema comes from
-openspec schema which spec-driven
-```
-
-**Output:**
-
-```
-spec-driven resolves from: package
-  Source: /usr/local/lib/node_modules/@fission-ai/openspec/schemas/spec-driven
-```
-
-**Schema precedence:**
-
-1. Project: `openspec/schemas/<name>/`
-2. User: `~/.local/share/openspec/schemas/<name>/`
-3. Package: Built-in schemas
+**解析优先级：** 1）项目 `openspec/schemas/<name>/`；2）用户 `~/.local/share/openspec/schemas/<name>/`；3）包内置。
 
 ---
 
-## Configuration Commands
+## 配置命令
 
 ### `openspec config`
 
-View and modify global OpenSpec configuration.
+查看与修改全局 OpenSpec 配置。
 
-```
-openspec config <subcommand> [options]
-```
-
-**Subcommands:**
-
-| Subcommand | Description |
-|------------|-------------|
-| `path` | Show config file location |
-| `list` | Show all current settings |
-| `get <key>` | Get a specific value |
-| `set <key> <value>` | Set a value |
-| `unset <key>` | Remove a key |
-| `reset` | Reset to defaults |
-| `edit` | Open in `$EDITOR` |
-
-**Examples:**
-
-```bash
-# Show config file path
-openspec config path
-
-# List all settings
-openspec config list
-
-# Get a specific value
-openspec config get telemetry.enabled
-
-# Set a value
-openspec config set telemetry.enabled false
-
-# Set a string value explicitly
-openspec config set user.name "My Name" --string
-
-# Remove a custom setting
-openspec config unset user.name
-
-# Reset all configuration
-openspec config reset --all --yes
-
-# Edit config in your editor
-openspec config edit
-```
+**子命令：** `path` 显示配置文件路径；`list` 列出当前设置；`get <key>` 获取某值；`set <key> <value>` 设置；`unset <key>` 删除；`reset` 恢复默认；`edit` 用 `$EDITOR` 打开。
 
 ---
 
-## Utility Commands
+## 工具命令
 
 ### `openspec feedback`
 
-Submit feedback about OpenSpec. Creates a GitHub issue.
-
-```
-openspec feedback <message> [options]
-```
-
-**Arguments:**
-
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `message` | Yes | Feedback message |
-
-**Options:**
-
-| Option | Description |
-|--------|-------------|
-| `--body <text>` | Detailed description |
-
-**Requirements:** GitHub CLI (`gh`) must be installed and authenticated.
-
-**Example:**
-
-```bash
-openspec feedback "Add support for custom artifact types" \
-  --body "I'd like to define my own artifact types beyond the built-in ones."
-```
-
----
+提交 OpenSpec 相关反馈，会创建 GitHub issue。需安装并认证 GitHub CLI（`gh`）。**选项：** `--body <text>` 详细说明。
 
 ### `openspec completion`
 
-Manage shell completions for the OpenSpec CLI.
+管理 OpenSpec CLI 的 Shell 补全。
 
-```
-openspec completion <subcommand> [shell]
-```
+**子命令：** `generate [shell]` 输出补全脚本；`install [shell]` 安装；`uninstall [shell]` 卸载。
 
-**Subcommands:**
-
-| Subcommand | Description |
-|------------|-------------|
-| `generate [shell]` | Output completion script to stdout |
-| `install [shell]` | Install completion for your shell |
-| `uninstall [shell]` | Remove installed completions |
-
-**Supported shells:** `bash`, `zsh`, `fish`, `powershell`
-
-**Examples:**
-
-```bash
-# Install completions (auto-detects shell)
-openspec completion install
-
-# Install for specific shell
-openspec completion install zsh
-
-# Generate script for manual installation
-openspec completion generate bash > ~/.bash_completion.d/openspec
-
-# Uninstall
-openspec completion uninstall
-```
+**支持 Shell：** `bash`、`zsh`、`fish`、`powershell`。
 
 ---
 
-## Exit Codes
+## 退出码
 
-| Code | Meaning |
-|------|---------|
-| `0` | Success |
-| `1` | Error (validation failure, missing files, etc.) |
-
----
-
-## Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `OPENSPEC_CONCURRENCY` | Default concurrency for bulk validation (default: 6) |
-| `EDITOR` or `VISUAL` | Editor for `openspec config edit` |
-| `NO_COLOR` | Disable color output when set |
+| 码  | 含义                         |
+| --- | ---------------------------- |
+| `0` | 成功                         |
+| `1` | 错误（校验失败、缺少文件等） |
 
 ---
 
-## Related Documentation
+## 环境变量
 
-- [Commands](commands.md) - AI slash commands (`/opsx:new`, `/opsx:apply`, etc.)
-- [Workflows](workflows.md) - Common patterns and when to use each command
-- [Customization](customization.md) - Create custom schemas and templates
-- [Getting Started](getting-started.md) - First-time setup guide
+| 变量                   | 说明                                |
+| ---------------------- | ----------------------------------- |
+| `OPENSPEC_CONCURRENCY` | 批量校验默认并发数（默认 6）        |
+| `EDITOR` 或 `VISUAL`   | `openspec config edit` 使用的编辑器 |
+| `NO_COLOR`             | 设为非空时关闭彩色输出              |
+
+---
+
+## 相关文档
+
+- [命令](commands.md) - AI 斜杠命令（`/opsx:new`、`/opsx:apply` 等）
+- [工作流](workflows.md) - 常用模式与使用时机
+- [自定义](customization.md) - 自定义模式与模板
+- [入门](getting-started.md) - 首次配置

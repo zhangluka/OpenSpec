@@ -1,66 +1,65 @@
 name: spec-driven
 version: 1
-description: Default OpenSpec workflow - proposal → specs → design → tasks
+description: 默认 OpenSpec 工作流 - 提案 → 规范 → 设计 → 任务
 artifacts:
   - id: proposal
     generates: proposal.md
-    description: Initial proposal document outlining the change
+    description: 概述本变更的初始提案文档
     template: proposal.md
     instruction: |
-      Create the proposal document that establishes WHY this change is needed.
+      撰写建立「为何需要本变更」的提案文档。
 
-      Sections:
-      - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
-      - **What Changes**: Bullet list of changes. Be specific about new capabilities, modifications, or removals. Mark breaking changes with **BREAKING**.
-      - **Capabilities**: Identify which specs will be created or modified:
-        - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<name>/spec.md`. Use kebab-case names (e.g., `user-auth`, `data-export`).
-        - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Check `openspec/specs/` for existing spec names. Leave empty if no requirement changes.
-      - **Impact**: Affected code, APIs, dependencies, or systems.
+      章节：
+      - **动机**：用 1～2 句话说明问题或机会。解决什么问题？为什么是现在？
+      - **变更内容**：变更的要点列表。对新能力、修改或移除保持具体。破坏性变更用 **BREAKING** 标出。
+      - **能力**：标明将新增或修改的规范：
+        - **新增能力**：列出将要引入的能力。每项对应新的 `specs/<name>/spec.md`。使用 kebab-case 名称（如 `user-auth`、`data-export`）。
+        - **修改的能力**：其「需求」会发生变化的既有能力。仅当规范级行为变化时列入（而非仅实现细节）。每项需有对应的增量规范文件。在 `openspec/specs/` 中查看已有规范名称。若无需求级变化可留空。
+      - **影响**：受影响的代码、API、依赖或系统。
 
-      IMPORTANT: The Capabilities section is critical. It creates the contract between
-      proposal and specs phases. Research existing specs before filling this in.
-      Each capability listed here will need a corresponding spec file.
+      重要：能力一节是提案与规范阶段之间的契约，填写前请先查阅现有规范。
+      此处列出的每项能力都需有对应的规范文件。
 
-      Keep it concise (1-2 pages). Focus on the "why" not the "how" -
-      implementation details belong in design.md.
+      保持简洁（1～2 页）。聚焦「为什么」而非「怎么做」——
+      实现细节放在 design.md。
 
-      This is the foundation - specs, design, and tasks all build on this.
+      这是基础——规范、设计和任务都建立在此之上。
     requires: []
 
   - id: specs
     generates: "specs/**/*.md"
-    description: Detailed specifications for the change
+    description: 本变更的详细规范
     template: spec.md
     instruction: |
-      Create specification files that define WHAT the system should do.
+      创建定义「系统应做什么」的规范文件。
 
-      Create one spec file per capability listed in the proposal's Capabilities section.
-      - New capabilities: use the exact kebab-case name from the proposal (specs/<capability>/spec.md).
-      - Modified capabilities: use the existing spec folder name from openspec/specs/<capability>/ when creating the delta spec at specs/<capability>/spec.md.
+      按提案中「能力」一节列出的每项能力各写一个规范文件。
+      - 新增能力：使用提案中的 kebab-case 名称（specs/<capability>/spec.md）。
+      - 修改的能力：使用 openspec/specs/<capability>/ 下已有规范目录名，在变更目录下创建增量规范 specs/<capability>/spec.md。
 
-      Delta operations (use ## headers):
-      - **ADDED Requirements**: New capabilities
-      - **MODIFIED Requirements**: Changed behavior - MUST include full updated content
-      - **REMOVED Requirements**: Deprecated features - MUST include **Reason** and **Migration**
-      - **RENAMED Requirements**: Name changes only - use FROM:/TO: format
+      增量操作（使用 ## 标题）：
+      - **ADDED Requirements**：新增能力
+      - **MODIFIED Requirements**：行为变更——必须包含完整更新后的内容
+      - **REMOVED Requirements**：废弃项——必须包含 **Reason** 与 **Migration**
+      - **RENAMED Requirements**：仅名称变更——使用 FROM:/TO: 格式
 
-      Format requirements:
-      - Each requirement: `### Requirement: <name>` followed by description
-      - Use SHALL/MUST for normative requirements (avoid should/may)
-      - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
-      - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
-      - Every requirement MUST have at least one scenario.
+      需求格式：
+      - 每条需求：`### Requirement: <name>` 后跟描述
+      - 规范性需求使用 SHALL/MUST（避免 should/may）
+      - 每个场景：`#### Scenario: <name>`，采用 WHEN/THEN 格式
+      - **关键**：场景必须使用恰好 4 个井号（`####`）。使用 3 个井号或列表会导致静默失败。
+      - 每条需求至少有一个场景。
 
-      MODIFIED requirements workflow:
-      1. Locate the existing requirement in openspec/specs/<capability>/spec.md
-      2. Copy the ENTIRE requirement block (from `### Requirement:` through all scenarios)
-      3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
-      4. Ensure header text matches exactly (whitespace-insensitive)
+      MODIFIED 需求的操作步骤：
+      1. 在 openspec/specs/<capability>/spec.md 中找到现有需求
+      2. 复制整条需求块（从 `### Requirement:` 到其下所有场景）
+      3. 粘贴到 `## MODIFIED Requirements` 下并修改为新行为
+      4. 确保标题文字完全匹配（忽略首尾空白）
 
-      Common pitfall: Using MODIFIED with partial content loses detail at archive time.
-      If adding new concerns without changing existing behavior, use ADDED instead.
+      常见错误：MODIFIED 只写部分内容会在归档时丢失细节。
+      若只新增关注点而不改既有行为，请使用 ADDED。
 
-      Example:
+      示例：
       ```
       ## ADDED Requirements
 
@@ -78,55 +77,54 @@ artifacts:
       **Migration**: Use new export endpoint at /api/v2/export
       ```
 
-      Specs should be testable - each scenario is a potential test case.
+      规范应可检验——每个场景都是潜在测试用例。
     requires:
       - proposal
 
   - id: design
     generates: design.md
-    description: Technical design document with implementation details
+    description: 含实现细节的技术设计文档
     template: design.md
     instruction: |
-      Create the design document that explains HOW to implement the change.
+      撰写说明「如何实现本变更」的设计文档。
 
-      When to include design.md (create only if any apply):
-      - Cross-cutting change (multiple services/modules) or new architectural pattern
-      - New external dependency or significant data model changes
-      - Security, performance, or migration complexity
-      - Ambiguity that benefits from technical decisions before coding
+      何时需要 design.md（仅当符合下列任一情况时创建）：
+      - 跨模块变更（多服务/多模块）或新架构模式
+      - 新增外部依赖或显著数据模型变更
+      - 安全、性能或迁移复杂度
+      - 需要在编码前做技术决策以消除歧义
 
-      Sections:
-      - **Context**: Background, current state, constraints, stakeholders
-      - **Goals / Non-Goals**: What this design achieves and explicitly excludes
-      - **Decisions**: Key technical choices with rationale (why X over Y?). Include alternatives considered for each decision.
-      - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation
-      - **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
-      - **Open Questions**: Outstanding decisions or unknowns to resolve
+      章节：
+      - **背景**：背景、现状、约束、干系人
+      - **目标 / 非目标**：本设计要达成的结果及明确排除的内容
+      - **决策**：关键技术选择及理由（为何选 X 而非 Y？）。每项决策可简述考虑过的替代方案。
+      - **风险 / 权衡**：已知限制与可能问题。格式：[风险] → 缓解措施
+      - **迁移计划**：部署步骤、回滚策略（若适用）
+      - **待决问题**：尚未确定的决策或未知项
 
-      Focus on architecture and approach, not line-by-line implementation.
-      Reference the proposal for motivation and specs for requirements.
+      聚焦架构与方案，而非逐行实现。
+      动机参考提案，需求参考规范。
 
-      Good design docs explain the "why" behind technical decisions.
+      好的设计文档会解释技术决策背后的「为什么」。
     requires:
       - proposal
 
   - id: tasks
     generates: tasks.md
-    description: Implementation checklist with trackable tasks
+    description: 可跟踪的实施任务清单
     template: tasks.md
     instruction: |
-      Create the task list that breaks down the implementation work.
+      创建拆解实施工作的任务列表。
 
-      **IMPORTANT: Follow the template below exactly.** The apply phase parses
-      checkbox format to track progress. Tasks not using `- [ ]` won't be tracked.
+      **重要：请严格按下列模板书写。** 应用阶段会解析勾选格式以跟踪进度，未使用 `- [ ]` 的任务不会被跟踪。
 
-      Guidelines:
-      - Group related tasks under ## numbered headings
-      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
-      - Tasks should be small enough to complete in one session
-      - Order tasks by dependency (what must be done first?)
+      要点：
+      - 在 ## 编号标题下分组相关任务
+      - 每条任务必须是勾选项：`- [ ] X.Y 任务描述`
+      - 任务粒度以单次会话能完成为宜
+      - 按依赖顺序排列（什么必须先做？）
 
-      Example:
+      示例：
       ```
       ## 1. Setup
 
@@ -139,8 +137,8 @@ artifacts:
       - [ ] 2.2 Add CSV formatting utilities
       ```
 
-      Reference specs for what needs to be built, design for how to build it.
-      Each task should be verifiable - you know when it's done.
+      要做什么参考规范，怎么做参考设计。
+      每条任务应可验证——完成时能明确判断。
     requires:
       - specs
       - design
@@ -149,5 +147,5 @@ apply:
   requires: [tasks]
   tracks: tasks.md
   instruction: |
-    Read context files, work through pending tasks, mark complete as you go.
-    Pause if you hit blockers or need clarification.
+    阅读上下文文件，按顺序处理未完成任务，完成即勾选。
+    若遇阻塞或需要澄清，请先暂停。

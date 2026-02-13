@@ -23,8 +23,9 @@ export interface SkillTemplate {
  */
 export function getExploreSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-explore',
-    description: 'Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.',
+    name: "openspec-explore",
+    description:
+      "进入探索模式：作为思考伙伴梳理想法、排查问题、澄清需求。适用于用户在确定或进行变更前先理清思路时。",
     instructions: `Enter explore mode. Think deeply. Visualize freely. Follow the conversation wherever it goes.
 
 **IMPORTANT: Explore mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must NEVER write code or implement features. If the user asks you to implement something, remind them to exit explore mode first (e.g., start a change with \`/opsx:new\` or \`/opsx:ff\`). You MAY create OpenSpec artifacts (proposals, designs, specs) if the user asks—that's capturing thinking, not implementing.
@@ -304,9 +305,9 @@ But this summary is optional. Sometimes the thinking IS the value.
 - **Do visualize** - A good diagram is worth many paragraphs
 - **Do explore the codebase** - Ground discussions in reality
 - **Do question assumptions** - Including the user's and your own`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -316,8 +317,9 @@ But this summary is optional. Sometimes the thinking IS the value.
  */
 export function getNewChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-new-change',
-    description: 'Start a new OpenSpec change using the experimental artifact workflow. Use when the user wants to create a new feature, fix, or modification with a structured step-by-step approach.',
+    name: "openspec-new-change",
+    description:
+      "新建 OpenSpec 变更（制品工作流）。适用于用户想按步骤创建新功能、修复或改动时。",
     instructions: `Start a new change using the experimental artifact-driven approach.
 
 **Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
@@ -381,9 +383,9 @@ After completing the steps, summarize:
 - If the name is invalid (not kebab-case), ask for a valid name
 - If a change with that name already exists, suggest continuing that change instead
 - Pass --schema if using a non-default workflow`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -393,8 +395,9 @@ After completing the steps, summarize:
  */
 export function getContinueChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-continue-change',
-    description: 'Continue working on an OpenSpec change by creating the next artifact. Use when the user wants to progress their change, create the next artifact, or continue their workflow.',
+    name: "openspec-continue-change",
+    description:
+      "继续当前变更：创建下一个制品。适用于用户想推进变更、创建下一份制品或继续工作流时。",
     instructions: `Continue working on a change by creating the next artifact.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -502,9 +505,9 @@ For other schemas, follow the \`instruction\` field from the CLI output.
 - **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
   - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
   - These guide what you write, but should never appear in the output`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -514,8 +517,9 @@ For other schemas, follow the \`instruction\` field from the CLI output.
  */
 export function getApplyChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-apply-change',
-    description: 'Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.',
+    name: "openspec-apply-change",
+    description:
+      "按变更实施任务。适用于用户要开始实现、继续实现或逐项完成任务时。",
     instructions: `Implement tasks from an OpenSpec change.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -661,9 +665,9 @@ This skill supports the "actions on a change" model:
 
 - **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
 - **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -673,8 +677,9 @@ This skill supports the "actions on a change" model:
  */
 export function getFfChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-ff-change',
-    description: 'Fast-forward through OpenSpec artifact creation. Use when the user wants to quickly create all artifacts needed for implementation without stepping through each one individually.',
+    name: "openspec-ff-change",
+    description:
+      "快进式创建 OpenSpec 制品。适用于用户想一次性生成实施所需全部制品时。",
     instructions: `Fast-forward through artifact creation - generate everything needed to start implementation in one go.
 
 **Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
@@ -765,9 +770,9 @@ After completing all artifacts, summarize:
 - If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
 - If a change with that name already exists, suggest continuing that change instead
 - Verify each artifact file exists after writing before proceeding to next`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -777,8 +782,9 @@ After completing all artifacts, summarize:
  */
 export function getSyncSpecsSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-sync-specs',
-    description: 'Sync delta specs from a change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change.',
+    name: "openspec-sync-specs",
+    description:
+      "将变更中的增量规范同步到主规范。适用于用户想更新主规范但暂不归档变更时。",
     instructions: `Sync delta specs from a change to main specs.
 
 This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
@@ -906,9 +912,9 @@ Main specs are now updated. The change remains active - archive when implementat
 - If something is unclear, ask for clarification
 - Show what you're changing as you go
 - The operation should be idempotent - running twice should give same result`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -918,12 +924,13 @@ Main specs are now updated. The change remains active - archive when implementat
  */
 export function getOnboardSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-onboard',
-    description: 'Guided onboarding for OpenSpec - walk through a complete workflow cycle with narration and real codebase work.',
+    name: "openspec-onboard",
+    description:
+      "OpenSpec 引导入门：带讲解走完一整轮工作流，并基于真实代码库操作。",
     instructions: getOnboardInstructions(),
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -1478,10 +1485,10 @@ export interface CommandTemplate {
  */
 export function getOpsxExploreCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Explore',
-    description: 'Enter explore mode - think through ideas, investigate problems, clarify requirements',
-    category: 'Workflow',
-    tags: ['workflow', 'explore', 'experimental', 'thinking'],
+    name: "OPSX: Explore",
+    description: "进入探索模式：梳理想法、排查问题、澄清需求",
+    category: "Workflow",
+    tags: ["workflow", "explore", "experimental", "thinking"],
     content: `Enter explore mode. Think deeply. Visualize freely. Follow the conversation wherever it goes.
 
 **IMPORTANT: Explore mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must NEVER write code or implement features. If the user asks you to implement something, remind them to exit explore mode first (e.g., start a change with \`/opsx:new\` or \`/opsx:ff\`). You MAY create OpenSpec artifacts (proposals, designs, specs) if the user asks—that's capturing thinking, not implementing.
@@ -1648,7 +1655,7 @@ When things crystallize, you might offer a summary - but it's optional. Sometime
 - **Don't auto-capture** - Offer to save insights, don't just do it
 - **Do visualize** - A good diagram is worth many paragraphs
 - **Do explore the codebase** - Ground discussions in reality
-- **Do question assumptions** - Including the user's and your own`
+- **Do question assumptions** - Including the user's and your own`,
   };
 }
 
@@ -1657,10 +1664,10 @@ When things crystallize, you might offer a summary - but it's optional. Sometime
  */
 export function getOpsxNewCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: New',
-    description: 'Start a new change using the experimental artifact workflow (OPSX)',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
+    name: "OPSX: New",
+    description: "新建变更（OPSX 制品工作流）",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
     content: `Start a new change using the experimental artifact-driven approach.
 
 **Input**: The argument after \`/opsx:new\` is the change name (kebab-case), OR a description of what the user wants to build.
@@ -1722,7 +1729,7 @@ After completing the steps, summarize:
 - Do NOT advance beyond showing the first artifact template
 - If the name is invalid (not kebab-case), ask for a valid name
 - If a change with that name already exists, suggest using \`/opsx:continue\` instead
-- Pass --schema if using a non-default workflow`
+- Pass --schema if using a non-default workflow`,
   };
 }
 
@@ -1731,10 +1738,10 @@ After completing the steps, summarize:
  */
 export function getOpsxContinueCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Continue',
-    description: 'Continue working on a change - create the next artifact (Experimental)',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
+    name: "OPSX: Continue",
+    description: "继续变更：创建下一个制品",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
     content: `Continue working on a change by creating the next artifact.
 
 **Input**: Optionally specify a change name after \`/opsx:continue\` (e.g., \`/opsx:continue add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -1841,7 +1848,7 @@ For other schemas, follow the \`instruction\` field from the CLI output.
 - Use the schema's artifact sequence, don't assume specific artifact names
 - **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
   - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output`
+  - These guide what you write, but should never appear in the output`,
   };
 }
 
@@ -1850,10 +1857,10 @@ For other schemas, follow the \`instruction\` field from the CLI output.
  */
 export function getOpsxApplyCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Apply',
-    description: 'Implement tasks from an OpenSpec change (Experimental)',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
+    name: "OPSX: Apply",
+    description: "按 OpenSpec 变更实施任务",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
     content: `Implement tasks from an OpenSpec change.
 
 **Input**: Optionally specify a change name (e.g., \`/opsx:apply add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -1998,20 +2005,19 @@ What would you like to do?
 This skill supports the "actions on a change" model:
 
 - **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly`
+- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly`,
   };
 }
-
 
 /**
  * Template for /opsx:ff slash command
  */
 export function getOpsxFfCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Fast Forward',
-    description: 'Create a change and generate all artifacts needed for implementation in one go',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
+    name: "OPSX: Fast Forward",
+    description: "创建变更并一次性生成实施所需全部制品",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
     content: `Fast-forward through artifact creation - generate everything needed to start implementation.
 
 **Input**: The argument after \`/opsx:ff\` is the change name (kebab-case), OR a description of what the user wants to build.
@@ -2098,7 +2104,7 @@ After completing all artifacts, summarize:
 - Always read dependency artifacts before creating a new one
 - If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
 - If a change with that name already exists, ask if user wants to continue it or create a new one
-- Verify each artifact file exists after writing before proceeding to next`
+- Verify each artifact file exists after writing before proceeding to next`,
   };
 }
 
@@ -2108,8 +2114,8 @@ After completing all artifacts, summarize:
  */
 export function getArchiveChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-archive-change',
-    description: 'Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.',
+    name: "openspec-archive-change",
+    description: "归档已完成的变更。适用于实施完成后要收尾并归档变更时。",
     instructions: `Archive a completed change in the experimental workflow.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -2213,9 +2219,9 @@ All artifacts complete. All tasks complete.
 - Show clear summary of what happened
 - If sync is requested, use openspec-sync-specs approach (agent-driven)
 - If delta specs exist, always run the sync assessment and show the combined summary before prompting`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -2225,8 +2231,8 @@ All artifacts complete. All tasks complete.
  */
 export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-bulk-archive-change',
-    description: 'Archive multiple completed changes at once. Use when archiving several parallel changes.',
+    name: "openspec-bulk-archive-change",
+    description: "一次性归档多个已完成的变更。适用于并行多个变更一起收尾时。",
     instructions: `Archive multiple completed changes in a single operation.
 
 This skill allows you to batch-archive changes, handling spec conflicts intelligently by checking the codebase to determine what's actually implemented.
@@ -2462,9 +2468,9 @@ No active changes found. Use \`/opsx:new\` to create a new change.
 - Preserve .openspec.yaml when moving to archive
 - Archive directory target uses current date: YYYY-MM-DD-<name>
 - If archive target exists, fail that change but continue with others`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -2473,10 +2479,10 @@ No active changes found. Use \`/opsx:new\` to create a new change.
  */
 export function getOpsxSyncCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Sync',
-    description: 'Sync delta specs from a change to main specs',
-    category: 'Workflow',
-    tags: ['workflow', 'specs', 'experimental'],
+    name: "OPSX: Sync",
+    description: "将变更的增量规范同步到主规范",
+    category: "Workflow",
+    tags: ["workflow", "specs", "experimental"],
     content: `Sync delta specs from a change to main specs.
 
 This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
@@ -2603,7 +2609,7 @@ Main specs are now updated. The change remains active - archive when implementat
 - Preserve existing content not mentioned in delta
 - If something is unclear, ask for clarification
 - Show what you're changing as you go
-- The operation should be idempotent - running twice should give same result`
+- The operation should be idempotent - running twice should give same result`,
   };
 }
 
@@ -2613,8 +2619,9 @@ Main specs are now updated. The change remains active - archive when implementat
  */
 export function getVerifyChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-verify-change',
-    description: 'Verify implementation matches change artifacts. Use when the user wants to validate that implementation is complete, correct, and coherent before archiving.',
+    name: "openspec-verify-change",
+    description:
+      "校验实现与变更制品是否一致。适用于归档前确认实现完整、正确且一致时。",
     instructions: `Verify that an implementation matches the change artifacts (specs, tasks, design).
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -2772,9 +2779,9 @@ Use clear markdown with:
 - Code references in format: \`file.ts:123\`
 - Specific, actionable recommendations
 - No vague suggestions like "consider reviewing"`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires openspec CLI.",
+    metadata: { author: "openspec", version: "1.0" },
   };
 }
 
@@ -2783,10 +2790,10 @@ Use clear markdown with:
  */
 export function getOpsxArchiveCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Archive',
-    description: 'Archive a completed change in the experimental workflow',
-    category: 'Workflow',
-    tags: ['workflow', 'archive', 'experimental'],
+    name: "OPSX: Archive",
+    description: "归档已完成的变更",
+    category: "Workflow",
+    tags: ["workflow", "archive", "experimental"],
     content: `Archive a completed change in the experimental workflow.
 
 **Input**: Optionally specify a change name after \`/opsx:archive\` (e.g., \`/opsx:archive add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -2936,7 +2943,7 @@ Target archive directory already exists.
 - Preserve .openspec.yaml when moving to archive (it moves with the directory)
 - Show clear summary of what happened
 - If sync is requested, use the Skill tool to invoke \`openspec-sync-specs\` (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting`
+- If delta specs exist, always run the sync assessment and show the combined summary before prompting`,
   };
 }
 
@@ -2946,10 +2953,10 @@ Target archive directory already exists.
  */
 export function getOpsxOnboardCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Onboard',
-    description: 'Guided onboarding - walk through a complete OpenSpec workflow cycle with narration',
-    category: 'Workflow',
-    tags: ['workflow', 'onboarding', 'tutorial', 'learning'],
+    name: "OPSX: Onboard",
+    description: "引导入门：带讲解走完完整 OpenSpec 工作流",
+    category: "Workflow",
+    tags: ["workflow", "onboarding", "tutorial", "learning"],
     content: getOnboardInstructions(),
   };
 }
@@ -2959,10 +2966,10 @@ export function getOpsxOnboardCommandTemplate(): CommandTemplate {
  */
 export function getOpsxBulkArchiveCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Bulk Archive',
-    description: 'Archive multiple completed changes at once',
-    category: 'Workflow',
-    tags: ['workflow', 'archive', 'experimental', 'bulk'],
+    name: "OPSX: Bulk Archive",
+    description: "一次性归档多个已完成的变更",
+    category: "Workflow",
+    tags: ["workflow", "archive", "experimental", "bulk"],
     content: `Archive multiple completed changes in a single operation.
 
 This skill allows you to batch-archive changes, handling spec conflicts intelligently by checking the codebase to determine what's actually implemented.
@@ -3197,7 +3204,7 @@ No active changes found. Use \`/opsx:new\` to create a new change.
 - Track and report all outcomes (success/skip/fail)
 - Preserve .openspec.yaml when moving to archive
 - Archive directory target uses current date: YYYY-MM-DD-<name>
-- If archive target exists, fail that change but continue with others`
+- If archive target exists, fail that change but continue with others`,
   };
 }
 
@@ -3206,10 +3213,10 @@ No active changes found. Use \`/opsx:new\` to create a new change.
  */
 export function getOpsxVerifyCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Verify',
-    description: 'Verify implementation matches change artifacts before archiving',
-    category: 'Workflow',
-    tags: ['workflow', 'verify', 'experimental'],
+    name: "OPSX: Verify",
+    description: "归档前校验实现是否与变更制品一致",
+    category: "Workflow",
+    tags: ["workflow", "verify", "experimental"],
     content: `Verify that an implementation matches the change artifacts (specs, tasks, design).
 
 **Input**: Optionally specify a change name after \`/opsx:verify\` (e.g., \`/opsx:verify add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -3366,7 +3373,7 @@ Use clear markdown with:
 - Grouped lists for issues (CRITICAL/WARNING/SUGGESTION)
 - Code references in format: \`file.ts:123\`
 - Specific, actionable recommendations
-- No vague suggestions like "consider reviewing"`
+- No vague suggestions like "consider reviewing"`,
   };
 }
 /**
@@ -3375,8 +3382,8 @@ Use clear markdown with:
  */
 export function getFeedbackSkillTemplate(): SkillTemplate {
   return {
-    name: 'feedback',
-    description: 'Collect and submit user feedback about OpenSpec with context enrichment and anonymization.',
+    name: "feedback",
+    description: "收集并提交 OpenSpec 相关用户反馈（含上下文补充与匿名处理）。",
     instructions: `Help the user submit feedback about OpenSpec.
 
 **Goal**: Guide the user through collecting, enriching, and submitting feedback while ensuring privacy through anonymization.
@@ -3474,6 +3481,6 @@ Body:
 Does this look good? I can modify it if you'd like, or submit it as-is.
 \`\`\`
 
-Only proceed with submission after user confirms.`
+Only proceed with submission after user confirms.`,
   };
 }

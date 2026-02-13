@@ -1,10 +1,10 @@
-# Installation
+# 安装
 
-## Prerequisites
+## 环境要求
 
-- **Node.js 20.19.0 or higher** — Check your version: `node --version`
+- **Node.js 20.19.0 或更高** — 检查版本：`node --version`
 
-## Package Managers
+## 包管理器
 
 ### npm
 
@@ -32,19 +32,19 @@ bun add -g @fission-ai/openspec@latest
 
 ## Nix
 
-Run OpenSpec directly without installation:
+不安装即可直接运行 OpenSpec：
 
 ```bash
 nix run github:Fission-AI/OpenSpec -- init
 ```
 
-Or install to your profile:
+或安装到当前 profile：
 
 ```bash
 nix profile install github:Fission-AI/OpenSpec
 ```
 
-Or add to your development environment in `flake.nix`:
+或在 `flake.nix` 中加入开发环境：
 
 ```nix
 {
@@ -61,19 +61,19 @@ Or add to your development environment in `flake.nix`:
 }
 ```
 
-## Verify Installation
+## 验证安装
 
 ```bash
 openspec --version
 ```
 
-## Next Steps
+## 下一步
 
-After installing, initialize OpenSpec in your project:
+安装后，在项目中初始化 OpenSpec：
 
 ```bash
 cd your-project
 openspec init
 ```
 
-See [Getting Started](getting-started.md) for a full walkthrough.
+完整流程见 [入门](getting-started.md)。
