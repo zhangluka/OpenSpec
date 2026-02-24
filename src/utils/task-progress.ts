@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from "fs";
+import path from "path";
 
 const TASK_PATTERN = /^[-*]\s+\[[\sx]\]/i;
 const COMPLETED_TASK_PATTERN = /^[-*]\s+\[x\]/i;
@@ -10,7 +10,7 @@ export interface TaskProgress {
 }
 
 export function countTasksFromContent(content: string): TaskProgress {
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   let total = 0;
   let completed = 0;
   for (const line of lines) {
@@ -24,10 +24,13 @@ export function countTasksFromContent(content: string): TaskProgress {
   return { total, completed };
 }
 
-export async function getTaskProgressForChange(changesDir: string, changeName: string): Promise<TaskProgress> {
-  const tasksPath = path.join(changesDir, changeName, 'tasks.md');
+export async function getTaskProgressForChange(
+  changesDir: string,
+  changeName: string,
+): Promise<TaskProgress> {
+  const tasksPath = path.join(changesDir, changeName, "tasks.md");
   try {
-    const content = await fs.readFile(tasksPath, 'utf-8');
+    const content = await fs.readFile(tasksPath, "utf-8");
     return countTasksFromContent(content);
   } catch {
     return { total: 0, completed: 0 };
@@ -35,9 +38,7 @@ export async function getTaskProgressForChange(changesDir: string, changeName: s
 }
 
 export function formatTaskStatus(progress: TaskProgress): string {
-  if (progress.total === 0) return 'No tasks';
-  if (progress.completed === progress.total) return '✓ Complete';
-  return `${progress.completed}/${progress.total} tasks`;
+  if (progress.total === 0) return "无任务";
+  if (progress.completed === progress.total) return "✓ 已完成";
+  return `${progress.completed}/${progress.total} 项任务`;
 }
-
-

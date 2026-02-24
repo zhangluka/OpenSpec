@@ -5,21 +5,21 @@
  * Includes both artifact instructions and apply instructions.
  */
 
-import ora from 'ora';
-import path from 'path';
-import * as fs from 'fs';
+import ora from "ora";
+import path from "path";
+import * as fs from "fs";
 import {
   loadChangeContext,
   generateInstructions,
   resolveSchema,
   type ArtifactInstructions,
-} from '../../core/artifact-graph/index.js';
+} from "../../core/artifact-graph/index.js";
 import {
   validateChangeExists,
   validateSchemaExists,
   type TaskItem,
   type ApplyInstructions,
-} from './shared.js';
+} from "./shared.js";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -43,9 +43,9 @@ export interface ApplyInstructionsOptions {
 
 export async function instructionsCommand(
   artifactId: string | undefined,
-  options: InstructionsOptions
+  options: InstructionsOptions,
 ): Promise<void> {
-  const spinner = ora('Generating instructions...').start();
+  const spinner = ora("正在生成指令...").start();
 
   try {
     const projectRoot = process.cwd();
@@ -63,7 +63,7 @@ export async function instructionsCommand(
       spinner.stop();
       const validIds = context.graph.getAllArtifacts().map((a) => a.id);
       throw new Error(
-        `Missing required argument <artifact>. Valid artifacts:\n  ${validIds.join('\n  ')}`
+        `缺少必填参数 <artifact>。有效制品：\n  ${validIds.join("\n  ")}`,
       );
     }
 
@@ -73,7 +73,7 @@ export async function instructionsCommand(
       spinner.stop();
       const validIds = context.graph.getAllArtifacts().map((a) => a.id);
       throw new Error(
-        `Artifact '${artifactId}' not found in schema '${context.schemaName}'. Valid artifacts:\n  ${validIds.join('\n  ')}`
+        `工作流模式 '${context.schemaName}' 中未找到制品 '${artifactId}'。有效制品：\n  ${validIds.join("\n  ")}`,
       );
     }
 
@@ -94,7 +94,10 @@ export async function instructionsCommand(
   }
 }
 
-export function printInstructionsText(instructions: ArtifactInstructions, isBlocked: boolean): void {
+export function printInstructionsText(
+  instructions: ArtifactInstructions,
+  isBlocked: boolean,
+): void {
   const {
     artifactId,
     changeName,
@@ -111,100 +114,102 @@ export function printInstructionsText(instructions: ArtifactInstructions, isBloc
   } = instructions;
 
   // Opening tag
-  console.log(`<artifact id="${artifactId}" change="${changeName}" schema="${schemaName}">`);
+  console.log(
+    `<artifact id="${artifactId}" change="${changeName}" schema="${schemaName}">`,
+  );
   console.log();
 
   // Warning for blocked artifacts
   if (isBlocked) {
     const missing = dependencies.filter((d) => !d.done).map((d) => d.id);
-    console.log('<warning>');
-    console.log('This artifact has unmet dependencies. Complete them first or proceed with caution.');
-    console.log(`Missing: ${missing.join(', ')}`);
-    console.log('</warning>');
+    console.log("<warning>");
+    console.log("该制品存在未满足的依赖，请先完成依赖或谨慎继续。");
+    console.log(`缺失：${missing.join(", ")}`);
+    console.log("</warning>");
     console.log();
   }
 
   // Task directive
-  console.log('<task>');
-  console.log(`Create the ${artifactId} artifact for change "${changeName}".`);
+  console.log("<task>");
+  console.log(`为变更 "${changeName}" 创建制品 ${artifactId}。`);
   console.log(description);
-  console.log('</task>');
+  console.log("</task>");
   console.log();
 
   // Project context (AI constraint - do not include in output)
   if (context) {
-    console.log('<project_context>');
-    console.log('<!-- This is background information for you. Do NOT include this in your output. -->');
+    console.log("<project_context>");
+    console.log("<!-- 以下为背景信息，请勿写入你的输出。 -->");
     console.log(context);
-    console.log('</project_context>');
+    console.log("</project_context>");
     console.log();
   }
 
   // Rules (AI constraint - do not include in output)
   if (rules && rules.length > 0) {
-    console.log('<rules>');
-    console.log('<!-- These are constraints for you to follow. Do NOT include this in your output. -->');
+    console.log("<rules>");
+    console.log("<!-- 以下为须遵守的约束，请勿写入你的输出。 -->");
     for (const rule of rules) {
       console.log(`- ${rule}`);
     }
-    console.log('</rules>');
+    console.log("</rules>");
     console.log();
   }
 
   // Dependencies (files to read for context)
   if (dependencies.length > 0) {
-    console.log('<dependencies>');
-    console.log('Read these files for context before creating this artifact:');
+    console.log("<dependencies>");
+    console.log("创建该制品前请先阅读以下文件：");
     console.log();
     for (const dep of dependencies) {
-      const status = dep.done ? 'done' : 'missing';
+      const status = dep.done ? "done" : "missing";
       const fullPath = path.join(changeDir, dep.path);
       console.log(`<dependency id="${dep.id}" status="${status}">`);
       console.log(`  <path>${fullPath}</path>`);
       console.log(`  <description>${dep.description}</description>`);
-      console.log('</dependency>');
+      console.log("</dependency>");
     }
-    console.log('</dependencies>');
+    console.log("</dependencies>");
     console.log();
   }
 
   // Output location
-  console.log('<output>');
-  console.log(`Write to: ${path.join(changeDir, outputPath)}`);
-  console.log('</output>');
+  console.log("<output>");
+  console.log(`写入路径：${path.join(changeDir, outputPath)}`);
+  console.log("</output>");
   console.log();
 
   // Instruction (guidance)
   if (instruction) {
-    console.log('<instruction>');
+    console.log("<instruction>");
     console.log(instruction.trim());
-    console.log('</instruction>');
+    console.log("</instruction>");
     console.log();
   }
 
   // Template
-  console.log('<template>');
-  console.log('<!-- Use this as the structure for your output file. Fill in the sections. -->');
+  console.log("<template>");
+  console.log("<!-- 按此结构填写输出文件。 -->");
   console.log(template.trim());
-  console.log('</template>');
+  console.log("</template>");
   console.log();
 
   // Success criteria placeholder
-  console.log('<success_criteria>');
-  console.log('<!-- To be defined in schema validation rules -->');
-  console.log('</success_criteria>');
+  console.log("<success_criteria>");
+  console.log("<!-- 由工作流模式校验规则定义 -->");
+  console.log("</success_criteria>");
   console.log();
 
   // Unlocks
   if (unlocks.length > 0) {
-    console.log('<unlocks>');
-    console.log(`Completing this artifact enables: ${unlocks.join(', ')}`);
-    console.log('</unlocks>');
+    console.log("<unlocks>");
+    console.log(`完成该制品后可进行：${unlocks.join(", ")}`);
+    console.log("</unlocks>");
     console.log();
   }
 
   // Closing tag
-  console.log('</artifact>');
+  console.log("</artifact>");
 }
 
 // -----------------------------------------------------------------------------
@@ -216,7 +221,7 @@ export function printInstructionsText(instructions: ArtifactInstructions, isBloc
  */
 function parseTasksFile(content: string): TaskItem[] {
   const tasks: TaskItem[] = [];
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   let taskIndex = 0;
 
   for (const line of lines) {
@@ -224,7 +229,7 @@ function parseTasksFile(content: string): TaskItem[] {
     const checkboxMatch = line.match(/^[-*]\s*\[([ xX])\]\s*(.+)\s*$/);
     if (checkboxMatch) {
       taskIndex++;
-      const done = checkboxMatch[1].toLowerCase() === 'x';
+      const done = checkboxMatch[1].toLowerCase() === "x";
       const description = checkboxMatch[2].trim();
       tasks.push({
         id: `${taskIndex}`,
@@ -243,17 +248,17 @@ function parseTasksFile(content: string): TaskItem[] {
  */
 function artifactOutputExists(changeDir: string, generates: string): boolean {
   // Normalize the generates path to use platform-specific separators
-  const normalizedGenerates = generates.split('/').join(path.sep);
+  const normalizedGenerates = generates.split("/").join(path.sep);
   const fullPath = path.join(changeDir, normalizedGenerates);
 
   // If it's a glob pattern (contains ** or *), check for matching files
-  if (generates.includes('*')) {
+  if (generates.includes("*")) {
     // Extract the directory part before the glob pattern
     const parts = normalizedGenerates.split(path.sep);
     const dirParts: string[] = [];
-    let patternPart = '';
+    let patternPart = "";
     for (const part of parts) {
-      if (part.includes('*')) {
+      if (part.includes("*")) {
         patternPart = part;
         break;
       }
@@ -277,7 +282,10 @@ function artifactOutputExists(changeDir: string, generates: string): boolean {
         for (const entry of entries) {
           if (entry.isDirectory()) {
             // For ** patterns, recurse into subdirectories
-            if (generates.includes('**') && hasMatchingFiles(path.join(dir, entry.name))) {
+            if (
+              generates.includes("**") &&
+              hasMatchingFiles(path.join(dir, entry.name))
+            ) {
               return true;
             }
           } else if (entry.isFile()) {
@@ -307,11 +315,11 @@ function artifactOutputExists(changeDir: string, generates: string): boolean {
 export async function generateApplyInstructions(
   projectRoot: string,
   changeName: string,
-  schemaName?: string
+  schemaName?: string,
 ): Promise<ApplyInstructions> {
   // loadChangeContext will auto-detect schema from metadata if not provided
   const context = loadChangeContext(projectRoot, changeName, schemaName);
-  const changeDir = path.join(projectRoot, 'openspec', 'changes', changeName);
+  const changeDir = path.join(projectRoot, "openspec", "changes", changeName);
 
   // Get the full schema to access the apply phase configuration
   const schema = resolveSchema(context.schemaName, projectRoot);
@@ -319,7 +327,8 @@ export async function generateApplyInstructions(
 
   // Determine required artifacts and tracking file from schema
   // Fallback: if no apply block, require all artifacts
-  const requiredArtifactIds = applyConfig?.requires ?? schema.artifacts.map((a) => a.id);
+  const requiredArtifactIds =
+    applyConfig?.requires ?? schema.artifacts.map((a) => a.id);
   const tracksFile = applyConfig?.tracks ?? null;
   const schemaInstruction = applyConfig?.instruction ?? null;
 
@@ -347,7 +356,7 @@ export async function generateApplyInstructions(
     const tracksPath = path.join(changeDir, tracksFile);
     tracksFileExists = fs.existsSync(tracksPath);
     if (tracksFileExists) {
-      const tasksContent = await fs.promises.readFile(tracksPath, 'utf-8');
+      const tasksContent = await fs.promises.readFile(tracksPath, "utf-8");
       tasks = parseTasksFile(tasksContent);
     }
   }
@@ -358,32 +367,35 @@ export async function generateApplyInstructions(
   const remaining = total - complete;
 
   // Determine state and instruction
-  let state: ApplyInstructions['state'];
+  let state: ApplyInstructions["state"];
   let instruction: string;
 
   if (missingArtifacts.length > 0) {
-    state = 'blocked';
-    instruction = `Cannot apply this change yet. Missing artifacts: ${missingArtifacts.join(', ')}.\nUse the openspec-continue-change skill to create the missing artifacts first.`;
+    state = "blocked";
+    instruction = `Cannot apply this change yet. Missing artifacts: ${missingArtifacts.join(", ")}.\nUse the openspec-continue-change skill to create the missing artifacts first.`;
   } else if (tracksFile && !tracksFileExists) {
     // Tracking file configured but doesn't exist yet
     const tracksFilename = path.basename(tracksFile);
-    state = 'blocked';
-    instruction = `The ${tracksFilename} file is missing and must be created.\nUse openspec-continue-change to generate the tracking file.`;
+    state = "blocked";
+    instruction = `缺少 ${tracksFilename} 文件，需先创建。\n请使用 openspec-continue-change 生成跟踪文件。`;
   } else if (tracksFile && tracksFileExists && total === 0) {
     // Tracking file exists but contains no tasks
     const tracksFilename = path.basename(tracksFile);
-    state = 'blocked';
-    instruction = `The ${tracksFilename} file exists but contains no tasks.\nAdd tasks to ${tracksFilename} or regenerate it with openspec-continue-change.`;
+    state = "blocked";
+    instruction = `文件 ${tracksFilename} 存在但无任务。\n请在 ${tracksFilename} 中添加任务，或使用 openspec-continue-change 重新生成。`;
   } else if (tracksFile && remaining === 0 && total > 0) {
-    state = 'all_done';
-    instruction = 'All tasks are complete! This change is ready to be archived.\nConsider running tests and reviewing the changes before archiving.';
+    state = "all_done";
+    instruction =
+      "全部任务已完成！该变更可以归档。\n归档前建议运行测试并检查改动。";
   } else if (!tracksFile) {
     // No tracking file configured in schema - ready to apply
-    state = 'ready';
-    instruction = schemaInstruction?.trim() ?? 'All required artifacts complete. Proceed with implementation.';
+    state = "ready";
+    instruction = schemaInstruction?.trim() ?? "所需制品均已就绪，可开始实施。";
   } else {
-    state = 'ready';
-    instruction = schemaInstruction?.trim() ?? 'Read context files, work through pending tasks, mark complete as you go.\nPause if you hit blockers or need clarification.';
+    state = "ready";
+    instruction =
+      schemaInstruction?.trim() ??
+      "阅读上下文文件，按未完成任务逐项执行并勾选完成。\n若遇阻塞或需澄清请先暂停。";
   }
 
   return {
@@ -394,13 +406,16 @@ export async function generateApplyInstructions(
     progress: { total, complete, remaining },
     tasks,
     state,
-    missingArtifacts: missingArtifacts.length > 0 ? missingArtifacts : undefined,
+    missingArtifacts:
+      missingArtifacts.length > 0 ? missingArtifacts : undefined,
     instruction,
   };
 }
 
-export async function applyInstructionsCommand(options: ApplyInstructionsOptions): Promise<void> {
-  const spinner = ora('Generating apply instructions...').start();
+export async function applyInstructionsCommand(
+  options: ApplyInstructionsOptions,
+): Promise<void> {
+  const spinner = ora("正在生成 apply 指令...").start();
 
   try {
     const projectRoot = process.cwd();
@@ -412,7 +427,11 @@ export async function applyInstructionsCommand(options: ApplyInstructionsOptions
     }
 
     // generateApplyInstructions uses loadChangeContext which auto-detects schema
-    const instructions = await generateApplyInstructions(projectRoot, changeName, options.schema);
+    const instructions = await generateApplyInstructions(
+      projectRoot,
+      changeName,
+      options.schema,
+    );
 
     spinner.stop();
 
@@ -428,26 +447,37 @@ export async function applyInstructionsCommand(options: ApplyInstructionsOptions
   }
 }
 
-export function printApplyInstructionsText(instructions: ApplyInstructions): void {
-  const { changeName, schemaName, contextFiles, progress, tasks, state, missingArtifacts, instruction } = instructions;
+export function printApplyInstructionsText(
+  instructions: ApplyInstructions,
+): void {
+  const {
+    changeName,
+    schemaName,
+    contextFiles,
+    progress,
+    tasks,
+    state,
+    missingArtifacts,
+    instruction,
+  } = instructions;
 
   console.log(`## Apply: ${changeName}`);
-  console.log(`Schema: ${schemaName}`);
+  console.log(`工作流模式：${schemaName}`);
   console.log();
 
   // Warning for blocked state
-  if (state === 'blocked' && missingArtifacts) {
-    console.log('### ⚠️ Blocked');
+  if (state === "blocked" && missingArtifacts) {
+    console.log("### ⚠️ 受阻");
     console.log();
-    console.log(`Missing artifacts: ${missingArtifacts.join(', ')}`);
-    console.log('Use the openspec-continue-change skill to create these first.');
+    console.log(`缺失制品：${missingArtifacts.join(", ")}`);
+    console.log("请先用 openspec-continue-change 技能创建上述制品。");
     console.log();
   }
 
   // Context files (dynamically from schema)
   const contextFileEntries = Object.entries(contextFiles);
   if (contextFileEntries.length > 0) {
-    console.log('### Context Files');
+    console.log("### 上下文文件");
     for (const [artifactId, filePath] of contextFileEntries) {
       console.log(`- ${artifactId}: ${filePath}`);
     }
@@ -456,26 +486,26 @@ export function printApplyInstructionsText(instructions: ApplyInstructions): voi
 
   // Progress (only show if we have tracking)
   if (progress.total > 0 || tasks.length > 0) {
-    console.log('### Progress');
-    if (state === 'all_done') {
-      console.log(`${progress.complete}/${progress.total} complete ✓`);
+    console.log("### 进度");
+    if (state === "all_done") {
+      console.log(`${progress.complete}/${progress.total} 已完成 ✓`);
     } else {
-      console.log(`${progress.complete}/${progress.total} complete`);
+      console.log(`${progress.complete}/${progress.total} 已完成`);
     }
     console.log();
   }
 
   // Tasks
   if (tasks.length > 0) {
-    console.log('### Tasks');
+    console.log("### 任务");
     for (const task of tasks) {
-      const checkbox = task.done ? '[x]' : '[ ]';
+      const checkbox = task.done ? "[x]" : "[ ]";
       console.log(`- ${checkbox} ${task.description}`);
     }
     console.log();
   }
 
   // Instruction
-  console.log('### Instruction');
+  console.log("### 指令");
   console.log(instruction);
 }

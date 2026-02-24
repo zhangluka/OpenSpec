@@ -4,8 +4,8 @@
  * Lists available workflow schemas with descriptions.
  */
 
-import chalk from 'chalk';
-import { listSchemasWithInfo } from '../../core/artifact-graph/index.js';
+import chalk from "chalk";
+import { listSchemasWithInfo } from "../../core/artifact-graph/index.js";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -28,19 +28,19 @@ export async function schemasCommand(options: SchemasOptions): Promise<void> {
     return;
   }
 
-  console.log('Available schemas:');
+  console.log("可用工作流模式：");
   console.log();
 
   for (const schema of schemas) {
-    let sourceLabel = '';
-    if (schema.source === 'project') {
-      sourceLabel = chalk.cyan(' (project)');
-    } else if (schema.source === 'user') {
-      sourceLabel = chalk.dim(' (user override)');
+    let sourceLabel = "";
+    if (schema.source === "project") {
+      sourceLabel = chalk.cyan(" (项目)");
+    } else if (schema.source === "user") {
+      sourceLabel = chalk.dim(" (用户覆盖)");
     }
     console.log(`  ${chalk.bold(schema.name)}${sourceLabel}`);
     console.log(`    ${schema.description}`);
-    console.log(`    Artifacts: ${schema.artifacts.join(' → ')}`);
+    console.log(`    制品：${schema.artifacts.join(" → ")}`);
     console.log();
   }
 }

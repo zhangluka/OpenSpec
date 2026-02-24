@@ -4,19 +4,19 @@
  * Displays artifact completion status for a change.
  */
 
-import ora from 'ora';
-import chalk from 'chalk';
+import ora from "ora";
+import chalk from "chalk";
 import {
   loadChangeContext,
   formatChangeStatus,
   type ChangeStatus,
-} from '../../core/artifact-graph/index.js';
+} from "../../core/artifact-graph/index.js";
 import {
   validateChangeExists,
   validateSchemaExists,
   getStatusIndicator,
   getStatusColor,
-} from './shared.js';
+} from "./shared.js";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -33,7 +33,7 @@ export interface StatusOptions {
 // -----------------------------------------------------------------------------
 
 export async function statusCommand(options: StatusOptions): Promise<void> {
-  const spinner = ora('Loading change status...').start();
+  const spinner = ora("正在加载变更状态...").start();
 
   try {
     const projectRoot = process.cwd();
@@ -63,12 +63,12 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
 }
 
 export function printStatusText(status: ChangeStatus): void {
-  const doneCount = status.artifacts.filter((a) => a.status === 'done').length;
+  const doneCount = status.artifacts.filter((a) => a.status === "done").length;
   const total = status.artifacts.length;
 
-  console.log(`Change: ${status.changeName}`);
-  console.log(`Schema: ${status.schemaName}`);
-  console.log(`Progress: ${doneCount}/${total} artifacts complete`);
+  console.log(`变更：${status.changeName}`);
+  console.log(`工作流模式：${status.schemaName}`);
+  console.log(`进度：${doneCount}/${total} 项制品已完成`);
   console.log();
 
   for (const artifact of status.artifacts) {
@@ -76,8 +76,12 @@ export function printStatusText(status: ChangeStatus): void {
     const color = getStatusColor(artifact.status);
     let line = `${indicator} ${artifact.id}`;
 
-    if (artifact.status === 'blocked' && artifact.missingDeps && artifact.missingDeps.length > 0) {
-      line += color(` (blocked by: ${artifact.missingDeps.join(', ')})`);
+    if (
+      artifact.status === "blocked" &&
+      artifact.missingDeps &&
+      artifact.missingDeps.length > 0
+    ) {
+      line += color(` (blocked by: ${artifact.missingDeps.join(", ")})`);
     }
 
     console.log(line);
@@ -85,6 +89,6 @@ export function printStatusText(status: ChangeStatus): void {
 
   if (status.isComplete) {
     console.log();
-    console.log(chalk.green('All artifacts complete!'));
+    console.log(chalk.green("全部制品已完成！"));
   }
 }

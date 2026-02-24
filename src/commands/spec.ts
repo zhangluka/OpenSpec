@@ -1,13 +1,13 @@
-import { program } from 'commander';
-import { existsSync, readdirSync, readFileSync } from 'fs';
-import { join } from 'path';
-import { MarkdownParser } from '../core/parsers/markdown-parser.js';
-import { Validator } from '../core/validation/validator.js';
-import type { Spec } from '../core/schemas/index.js';
-import { isInteractive } from '../utils/interactive.js';
-import { getSpecIds } from '../utils/item-discovery.js';
+import { program } from "commander";
+import { existsSync, readdirSync, readFileSync } from "fs";
+import { join } from "path";
+import { MarkdownParser } from "../core/parsers/markdown-parser.js";
+import { Validator } from "../core/validation/validator.js";
+import type { Spec } from "../core/schemas/index.js";
+import { isInteractive } from "../utils/interactive.js";
+import { getSpecIds } from "../utils/item-discovery.js";
 
-const SPECS_DIR = 'openspec/specs';
+const SPECS_DIR = "openspec/specs";
 
 interface ShowOptions {
   json?: boolean;
@@ -19,16 +19,23 @@ interface ShowOptions {
 }
 
 function parseSpecFromFile(specPath: string, specId: string): Spec {
-  const content = readFileSync(specPath, 'utf-8');
+  const content = readFileSync(specPath, "utf-8");
   const parser = new MarkdownParser(content);
   return parser.parseSpec(specId);
 }
 
-function validateRequirementIndex(spec: Spec, requirementOpt?: string): number | undefined {
+function validateRequirementIndex(
+  spec: Spec,
+  requirementOpt?: string,
+): number | undefined {
   if (!requirementOpt) return undefined;
   const index = Number.parseInt(requirementOpt, 10);
-  if (!Number.isInteger(index) || index < 1 || index > spec.requirements.length) {
-    throw new Error(`Requirement ${requirementOpt} not found`);
+  if (
+    !Number.isInteger(index) ||
+    index < 1 ||
+    index > spec.requirements.length
+  ) {
+    throw new Error(`需求 ${requirementOpt} 未找到`);
   }
   return index - 1; // convert to 0-based
 }
@@ -37,15 +44,19 @@ function filterSpec(spec: Spec, options: ShowOptions): Spec {
   const requirementIndex = validateRequirementIndex(spec, options.requirement);
   const includeScenarios = options.scenarios !== false && !options.requirements;
 
-  const filteredRequirements = (requirementIndex !== undefined
-    ? [spec.requirements[requirementIndex]]
-    : spec.requirements
-  ).map(req => ({
+  const filteredRequirements = (
+    requirementIndex !== undefined
+      ? [spec.requirements[requirementIndex]]
+      : spec.requirements
+  ).map((req) => ({
     text: req.text,
     scenarios: includeScenarios ? req.scenarios : [],
   }));
 
-  const metadata = spec.metadata ?? { version: '1.0.0', format: 'openspec' as const };
+  const metadata = spec.metadata ?? {
+    version: "1.0.0",
+    format: "openspec" as const,
+  };
 
   return {
     name: spec.name,
@@ -60,36 +71,38 @@ function filterSpec(spec: Spec, options: ShowOptions): Spec {
  * Raw-first behavior ensures text mode is a passthrough for deterministic output.
  */
 function printSpecTextRaw(specPath: string): void {
-  const content = readFileSync(specPath, 'utf-8');
+  const content = readFileSync(specPath, "utf-8");
   console.log(content);
 }
 
 export class SpecCommand {
-  private SPECS_DIR = 'openspec/specs';
+  private SPECS_DIR = "openspec/specs";
 
   async show(specId?: string, options: ShowOptions = {}): Promise<void> {
     if (!specId) {
       const canPrompt = isInteractive(options);
       const specIds = await getSpecIds();
       if (canPrompt && specIds.length > 0) {
-        const { select } = await import('@inquirer/prompts');
+        const { select } = await import("@inquirer/prompts");
         specId = await select({
-          message: 'Select a spec to show',
-          choices: specIds.map(id => ({ name: id, value: id })),
+          message: "选择要查看的规范",
+          choices: specIds.map((id) => ({ name: id, value: id })),
         });
       } else {
-        throw new Error('Missing required argument <spec-id>');
+        throw new Error("缺少必填参数 <spec-id>");
       }
     }
 
-    const specPath = join(this.SPECS_DIR, specId, 'spec.md');
+    const specPath = join(this.SPECS_DIR, specId, "spec.md");
     if (!existsSync(specPath)) {
-      throw new Error(`Spec '${specId}' not found at openspec/specs/${specId}/spec.md`);
+      throw new Error(
+        `规范 '${specId}' 在 openspec/specs/${specId}/spec.md 未找到`,
+      );
     }
 
     if (options.json) {
       if (options.requirements && options.requirement) {
-        throw new Error('Options --requirements and --requirement cannot be used together');
+        throw new Error("选项 --requirements 与 --requirement 不能同时使用");
       }
       const parsed = parseSpecFromFile(specPath, specId);
       const filtered = filterSpec(parsed, options);
@@ -99,7 +112,10 @@ export class SpecCommand {
         overview: parsed.overview,
         requirementCount: filtered.requirements.length,
         requirements: filtered.requirements,
-        metadata: parsed.metadata ?? { version: '1.0.0', format: 'openspec' as const },
+        metadata: parsed.metadata ?? {
+          version: "1.0.0",
+          format: "openspec" as const,
+        },
       };
       console.log(JSON.stringify(output, null, 2));
       return;
@@ -110,142 +126,182 @@ export class SpecCommand {
 
 export function registerSpecCommand(rootProgram: typeof program) {
   const specCommand = rootProgram
-    .command('spec')
-    .description('Manage and view OpenSpec specifications');
+    .command("spec")
+    .description("管理与查看 OpenSpec 规范");
 
   // Deprecation notice for noun-based commands
-  specCommand.hook('preAction', () => {
-    console.error('Warning: The "openspec spec ..." commands are deprecated. Prefer verb-first commands (e.g., "openspec show", "openspec validate --specs").');
+  specCommand.hook("preAction", () => {
+    console.error(
+      '警告："openspec spec ..." 命令已弃用，请改用动词优先命令（如 "openspec show"、"openspec validate --specs"）。',
+    );
   });
 
   specCommand
-    .command('show [spec-id]')
-    .description('Display a specific specification')
-    .option('--json', 'Output as JSON')
-    .option('--requirements', 'JSON only: Show only requirements (exclude scenarios)')
-    .option('--no-scenarios', 'JSON only: Exclude scenario content')
-    .option('-r, --requirement <id>', 'JSON only: Show specific requirement by ID (1-based)')
-    .option('--no-interactive', 'Disable interactive prompts')
-    .action(async (specId: string | undefined, options: ShowOptions & { noInteractive?: boolean }) => {
-      try {
-        const cmd = new SpecCommand();
-        await cmd.show(specId, options as any);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        process.exitCode = 1;
-      }
-    });
+    .command("show [spec-id]")
+    .description("显示指定规范")
+    .option("--json", "以 JSON 输出")
+    .option("--requirements", "仅 JSON：仅显示需求（不含场景）")
+    .option("--no-scenarios", "仅 JSON：不包含场景内容")
+    .option(
+      "-r, --requirement <id>",
+      "仅 JSON：按 ID 显示指定需求（从 1 开始）",
+    )
+    .option("--no-interactive", "禁用交互式提示")
+    .action(
+      async (
+        specId: string | undefined,
+        options: ShowOptions & { noInteractive?: boolean },
+      ) => {
+        try {
+          const cmd = new SpecCommand();
+          await cmd.show(specId, options as any);
+        } catch (error) {
+          console.error(
+            `错误：${error instanceof Error ? error.message : "未知错误"}`,
+          );
+          process.exitCode = 1;
+        }
+      },
+    );
 
   specCommand
-    .command('list')
-    .description('List all available specifications')
-    .option('--json', 'Output as JSON')
-    .option('--long', 'Show id and title with counts')
+    .command("list")
+    .description("列出所有可用规范")
+    .option("--json", "以 JSON 输出")
+    .option("--long", "显示 id、标题与数量")
     .action((options: { json?: boolean; long?: boolean }) => {
       try {
         if (!existsSync(SPECS_DIR)) {
-          console.log('No items found');
+          console.log("未找到任何项");
           return;
         }
 
         const specs = readdirSync(SPECS_DIR, { withFileTypes: true })
-          .filter(dirent => dirent.isDirectory())
-          .map(dirent => {
-            const specPath = join(SPECS_DIR, dirent.name, 'spec.md');
+          .filter((dirent) => dirent.isDirectory())
+          .map((dirent) => {
+            const specPath = join(SPECS_DIR, dirent.name, "spec.md");
             if (existsSync(specPath)) {
               try {
                 const spec = parseSpecFromFile(specPath, dirent.name);
-                
+
                 return {
                   id: dirent.name,
                   title: spec.name,
-                  requirementCount: spec.requirements.length
+                  requirementCount: spec.requirements.length,
                 };
               } catch {
                 return {
                   id: dirent.name,
                   title: dirent.name,
-                  requirementCount: 0
+                  requirementCount: 0,
                 };
               }
             }
             return null;
           })
-          .filter((spec): spec is { id: string; title: string; requirementCount: number } => spec !== null)
+          .filter(
+            (
+              spec,
+            ): spec is {
+              id: string;
+              title: string;
+              requirementCount: number;
+            } => spec !== null,
+          )
           .sort((a, b) => a.id.localeCompare(b.id));
 
         if (options.json) {
           console.log(JSON.stringify(specs, null, 2));
         } else {
           if (specs.length === 0) {
-            console.log('No items found');
+            console.log("未找到任何项");
             return;
           }
           if (!options.long) {
-            specs.forEach(spec => console.log(spec.id));
+            specs.forEach((spec) => console.log(spec.id));
             return;
           }
-          specs.forEach(spec => {
-            console.log(`${spec.id}: ${spec.title} [requirements ${spec.requirementCount}]`);
+          specs.forEach((spec) => {
+            console.log(
+              `${spec.id}: ${spec.title} [requirements ${spec.requirementCount}]`,
+            );
           });
         }
       } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(
+          `错误：${error instanceof Error ? error.message : "未知错误"}`,
+        );
         process.exitCode = 1;
       }
     });
 
   specCommand
-    .command('validate [spec-id]')
-    .description('Validate a specification structure')
-    .option('--strict', 'Enable strict validation mode')
-    .option('--json', 'Output validation report as JSON')
-    .option('--no-interactive', 'Disable interactive prompts')
-    .action(async (specId: string | undefined, options: { strict?: boolean; json?: boolean; noInteractive?: boolean }) => {
-      try {
-        if (!specId) {
-          const canPrompt = isInteractive(options);
-          const specIds = await getSpecIds();
-          if (canPrompt && specIds.length > 0) {
-            const { select } = await import('@inquirer/prompts');
-            specId = await select({
-              message: 'Select a spec to validate',
-              choices: specIds.map(id => ({ name: id, value: id })),
-            });
-          } else {
-            throw new Error('Missing required argument <spec-id>');
+    .command("validate [spec-id]")
+    .description("校验规范结构")
+    .option("--strict", "启用严格校验模式")
+    .option("--json", "以 JSON 输出校验报告")
+    .option("--no-interactive", "禁用交互式提示")
+    .action(
+      async (
+        specId: string | undefined,
+        options: { strict?: boolean; json?: boolean; noInteractive?: boolean },
+      ) => {
+        try {
+          if (!specId) {
+            const canPrompt = isInteractive(options);
+            const specIds = await getSpecIds();
+            if (canPrompt && specIds.length > 0) {
+              const { select } = await import("@inquirer/prompts");
+              specId = await select({
+                message: "选择要校验的规范",
+                choices: specIds.map((id) => ({ name: id, value: id })),
+              });
+            } else {
+              throw new Error("缺少必填参数 <spec-id>");
+            }
           }
-        }
 
-        const specPath = join(SPECS_DIR, specId, 'spec.md');
-        
-        if (!existsSync(specPath)) {
-          throw new Error(`Spec '${specId}' not found at openspec/specs/${specId}/spec.md`);
-        }
+          const specPath = join(SPECS_DIR, specId, "spec.md");
 
-        const validator = new Validator(options.strict);
-        const report = await validator.validateSpec(specPath);
-
-        if (options.json) {
-          console.log(JSON.stringify(report, null, 2));
-        } else {
-          if (report.valid) {
-            console.log(`Specification '${specId}' is valid`);
-          } else {
-            console.error(`Specification '${specId}' has issues`);
-            report.issues.forEach(issue => {
-              const label = issue.level === 'ERROR' ? 'ERROR' : issue.level;
-              const prefix = issue.level === 'ERROR' ? '✗' : issue.level === 'WARNING' ? '⚠' : 'ℹ';
-              console.error(`${prefix} [${label}] ${issue.path}: ${issue.message}`);
-            });
+          if (!existsSync(specPath)) {
+            throw new Error(
+              `规范 '${specId}' 在 openspec/specs/${specId}/spec.md 未找到`,
+            );
           }
+
+          const validator = new Validator(options.strict);
+          const report = await validator.validateSpec(specPath);
+
+          if (options.json) {
+            console.log(JSON.stringify(report, null, 2));
+          } else {
+            if (report.valid) {
+              console.log(`规范 '${specId}' 校验通过`);
+            } else {
+              console.error(`规范 '${specId}' 存在问题`);
+              report.issues.forEach((issue) => {
+                const label = issue.level === "ERROR" ? "ERROR" : issue.level;
+                const prefix =
+                  issue.level === "ERROR"
+                    ? "✗"
+                    : issue.level === "WARNING"
+                      ? "⚠"
+                      : "ℹ";
+                console.error(
+                  `${prefix} [${label}] ${issue.path}: ${issue.message}`,
+                );
+              });
+            }
+          }
+          process.exitCode = report.valid ? 0 : 1;
+        } catch (error) {
+          console.error(
+            `错误：${error instanceof Error ? error.message : "未知错误"}`,
+          );
+          process.exitCode = 1;
         }
-        process.exitCode = report.valid ? 0 : 1;
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        process.exitCode = 1;
-      }
-    });
+      },
+    );
 
   return specCommand;
 }

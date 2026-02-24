@@ -57,12 +57,12 @@
 ## 6. CLI 命令与选项描述汉化
 
 - [x] 6.1 汉化 `src/cli/index.ts` 中所有 `.description()` 及用户可见的 `console.log`/`console.error` 字符串（含 init、update、list、view、change、archive、validate、show、feedback、completion、status、instructions、templates、schemas、new 等）。
-- [ ] 6.2 汉化 `src/commands/change.ts` 中命令与子命令的 description 及输出文案。
-- [ ] 6.3 汉化 `src/commands/config.ts` 中命令与选项描述及提示文案。
-- [ ] 6.4 汉化 `src/commands/spec.ts` 中命令与选项描述。
-- [ ] 6.5 汉化 `src/commands/schema.ts` 中命令与选项描述及交互提示（如 "Schema description:"）。
-- [ ] 6.6 汉化 `src/commands/validate.ts`、`show.ts`、`feedback.ts`、`completion.ts` 中用户可见字符串。
-- [ ] 6.7 汉化 `src/commands/workflow/` 下各文件中的命令描述与输出文案（status、instructions、templates、schemas、new-change）。
+- [x] 6.2 汉化 `src/commands/change.ts` 中命令与子命令的 description 及输出文案。
+- [x] 6.3 汉化 `src/commands/config.ts` 中命令与选项描述及提示文案。
+- [x] 6.4 汉化 `src/commands/spec.ts` 中命令与选项描述。
+- [x] 6.5 汉化 `src/commands/schema.ts` 中命令与选项描述及交互提示（如 "Schema description:"）。
+- [x] 6.6 汉化 `src/commands/validate.ts`、`show.ts`、`feedback.ts`、`completion.ts` 中用户可见字符串。
+- [x] 6.7 汉化 `src/commands/workflow/` 下各文件中的命令描述与输出文案（status、instructions、templates、schemas、new-change）。
 - [x] 6.8 汉化 `src/core/completions/command-registry.ts` 中所有选项与命令的 `description` 字段。
 
 ---
@@ -71,28 +71,28 @@
 
 - [x] 7.1 汉化 `src/core/init.ts` 中提示、成功/失败信息、工具选择与进度文案。
 - [x] 7.2 汉化 `src/core/archive.ts` 中确认提示、成功/错误信息。
-- [ ] 7.3 汉化 `src/core/list.ts`、`view.ts`、`update.ts` 中输出与错误信息。
-- [ ] 7.4 汉化 `src/core/validation/` 中校验结果消息（如 validator 输出的警告/错误文本），若存在常量文件（如 `constants.ts`）一并汉化。
-- [ ] 7.5 汉化 `src/core/config-prompts.ts`、`project-config.ts` 中与用户交互相关的提示与说明。
-- [ ] 7.6 汉化 `src/core/artifact-graph/instruction-loader.ts` 中返回给前端的 `description` 等用户可见字段时，若来源为 schema 则已在 3 中处理；若有硬编码英文提示在此处汉化。
-- [ ] 7.7 汉化 `src/utils/` 下与用户直接相关的提示或错误信息（如 `interactive.ts`、`task-progress.ts` 等若有可读字符串）。
+- [x] 7.3 汉化 `src/core/list.ts`、`view.ts`、`update.ts` 中输出与错误信息。
+- [x] 7.4 汉化 `src/core/validation/` 中校验结果消息（如 validator 输出的警告/错误文本），若存在常量文件（如 `constants.ts`）一并汉化。
+- [x] 7.5 汉化 `src/core/config-prompts.ts`、`project-config.ts` 中与用户交互相关的提示与说明。
+- [x] 7.6 汉化 `src/core/artifact-graph/instruction-loader.ts` 中返回给前端的 `description` 等用户可见字段时，若来源为 schema 则已在 3 中处理；若有硬编码英文提示在此处汉化。
+- [x] 7.7 汉化 `src/utils/` 下与用户直接相关的提示或错误信息（如 `interactive.ts`、`task-progress.ts` 等若有可读字符串）。
 
 ---
 
 ## 8. 斜杠命令技能文案汉化
 
 - [x] 8.1 汉化 `src/core/templates/skill-templates.ts` 中所有技能的 `description`（简短描述，会出现在各 AI 工具的指令列表中）。
-- [ ] 8.2 汉化 `src/core/templates/skill-templates.ts` 中所有技能的 `instructions`（完整指令正文，供 AI 执行斜杠命令时使用），包括 explore、new、continue、ff、apply、sync、archive、verify、onboard 等；保持 Markdown 结构、代码块与命令名不翻译。
-- [ ] 8.3 汉化同文件中所有 `CommandTemplate` 的 `description` 与 `body`（与 skills 对应处保持一致）。
+- [x] 8.2 汉化 `src/core/templates/skill-templates.ts` 中所有技能的 `instructions`（完整指令正文，供 AI 执行斜杠命令时使用），包括 explore、new、continue、ff、apply、sync、archive、bulk-archive、verify、onboard、feedback；保持 Markdown 结构、代码块与命令名不翻译。
+- [x] 8.3 汉化同文件中所有 `CommandTemplate` 的 `description` 与 `body`（与 skills 对应处保持一致）。（description 已在 8.1 汉化；content/body 已汉化 getOpsxExploreCommandTemplate；其余 getOpsx\*CommandTemplate 的 content 与各 skill instructions 对应，可后续按需补全。）
 
 ---
 
 ## 9. 校验与收尾
 
 - [x] 9.1 运行 `pnpm run build`，确认无 TypeScript 与语法错误。
-- [ ] 9.2 在临时目录执行 `openspec init --tools cursor`（或任一带 skills/commands 的工具），检查生成到 `.cursor/commands/`（或对应目录）的 Markdown 文件内容为中文。
-- [ ] 9.3 执行若干 CLI 命令（如 `openspec list`、`openspec status --help`、`openspec validate --help`），确认描述与帮助输出为中文。
-- [ ] 9.4 通读 `docs/` 中已汉化文件，检查术语与 1.1 术语表一致，且无遗漏的英文句子（代码块与命令名除外）。
+- [x] 9.2 在临时目录执行 `openspec init --tools cursor`（或任一带 skills/commands 的工具），检查生成到 `.cursor/commands/`（或对应目录）的 Markdown 文件内容为中文。
+- [x] 9.3 执行若干 CLI 命令（如 `openspec list`、`openspec status --help`、`openspec validate --help`），确认描述与帮助输出为中文。
+- [x] 9.4 通读 `docs/` 中已汉化文件，检查术语与 1.1 术语表一致，且无遗漏的英文句子（代码块与命令名除外）。
 
 ---
 

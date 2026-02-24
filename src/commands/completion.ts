@@ -1,9 +1,9 @@
-import ora from 'ora';
-import { CompletionFactory } from '../core/completions/factory.js';
-import { COMMAND_REGISTRY } from '../core/completions/command-registry.js';
-import { detectShell, SupportedShell } from '../utils/shell-detection.js';
-import { CompletionProvider } from '../core/completions/completion-provider.js';
-import { getArchivedChangeIds } from '../utils/item-discovery.js';
+import ora from "ora";
+import { CompletionFactory } from "../core/completions/factory.js";
+import { COMMAND_REGISTRY } from "../core/completions/command-registry.js";
+import { detectShell, SupportedShell } from "../utils/shell-detection.js";
+import { CompletionProvider } from "../core/completions/completion-provider.js";
+import { getArchivedChangeIds } from "../utils/item-discovery.js";
 
 interface GenerateOptions {
   shell?: string;
@@ -39,33 +39,45 @@ export class CompletionCommand {
    * @param operationName - Name of the operation (for error messages)
    * @returns Resolved shell or null if should exit
    */
-  private resolveShellOrExit(shell: string | undefined, operationName: string): SupportedShell | null {
+  private resolveShellOrExit(
+    shell: string | undefined,
+    operationName: string,
+  ): SupportedShell | null {
     const normalizedShell = this.normalizeShell(shell);
 
     if (!normalizedShell) {
       const detectionResult = detectShell();
 
-      if (detectionResult.shell && CompletionFactory.isSupported(detectionResult.shell)) {
+      if (
+        detectionResult.shell &&
+        CompletionFactory.isSupported(detectionResult.shell)
+      ) {
         return detectionResult.shell;
       }
 
       // Shell was detected but not supported
       if (detectionResult.detected && !detectionResult.shell) {
-        console.error(`Error: Shell '${detectionResult.detected}' is not supported yet. Currently supported: ${CompletionFactory.getSupportedShells().join(', ')}`);
+        console.error(
+          `错误：暂不支持 shell '${detectionResult.detected}'。当前支持：${CompletionFactory.getSupportedShells().join(", ")}`,
+        );
         process.exitCode = 1;
         return null;
       }
 
       // No shell specified and cannot auto-detect
-      console.error('Error: Could not auto-detect shell. Please specify shell explicitly.');
-      console.error(`Usage: openspec completion ${operationName} [shell]`);
-      console.error(`Currently supported: ${CompletionFactory.getSupportedShells().join(', ')}`);
+      console.error("错误：无法自动检测 shell，请显式指定。");
+      console.error(`用法：openspec completion ${operationName} [shell]`);
+      console.error(
+        `当前支持：${CompletionFactory.getSupportedShells().join(", ")}`,
+      );
       process.exitCode = 1;
       return null;
     }
 
     if (!CompletionFactory.isSupported(normalizedShell)) {
-      console.error(`Error: Shell '${normalizedShell}' is not supported yet. Currently supported: ${CompletionFactory.getSupportedShells().join(', ')}`);
+      console.error(
+        `错误：暂不支持 shell '${normalizedShell}'。当前支持：${CompletionFactory.getSupportedShells().join(", ")}`,
+      );
       process.exitCode = 1;
       return null;
     }
@@ -79,7 +91,7 @@ export class CompletionCommand {
    * @param options - Options for generation (shell type)
    */
   async generate(options: GenerateOptions = {}): Promise<void> {
-    const shell = this.resolveShellOrExit(options.shell, 'generate');
+    const shell = this.resolveShellOrExit(options.shell, "generate");
     if (!shell) return;
 
     await this.generateForShell(shell);
@@ -91,7 +103,7 @@ export class CompletionCommand {
    * @param options - Options for installation (shell type, verbose output)
    */
   async install(options: InstallOptions = {}): Promise<void> {
-    const shell = this.resolveShellOrExit(options.shell, 'install');
+    const shell = this.resolveShellOrExit(options.shell, "install");
     if (!shell) return;
 
     await this.installForShell(shell, options.verbose || false);
@@ -103,7 +115,7 @@ export class CompletionCommand {
    * @param options - Options for uninstallation (shell type, yes flag)
    */
   async uninstall(options: UninstallOptions = {}): Promise<void> {
-    const shell = this.resolveShellOrExit(options.shell, 'uninstall');
+    const shell = this.resolveShellOrExit(options.shell, "uninstall");
     if (!shell) return;
 
     await this.uninstallForShell(shell, options.yes || false);
@@ -121,11 +133,14 @@ export class CompletionCommand {
   /**
    * Install completion script for a specific shell
    */
-  private async installForShell(shell: SupportedShell, verbose: boolean): Promise<void> {
+  private async installForShell(
+    shell: SupportedShell,
+    verbose: boolean,
+  ): Promise<void> {
     const generator = CompletionFactory.createGenerator(shell);
     const installer = CompletionFactory.createInstaller(shell);
 
-    const spinner = ora(`Installing ${shell} completion script...`).start();
+    const spinner = ora(`正在安装 ${shell} 补全脚本...`).start();
 
     try {
       // Generate the completion script
@@ -140,29 +155,32 @@ export class CompletionCommand {
         console.log(`✓ ${result.message}`);
 
         if (verbose && result.installedPath) {
-          console.log(`  Installed to: ${result.installedPath}`);
+          console.log(`  安装路径：${result.installedPath}`);
           if (result.backupPath) {
-            console.log(`  Backup created: ${result.backupPath}`);
+            console.log(`  已创建备份：${result.backupPath}`);
           }
 
           // Check if any shell config was updated
-          const configWasUpdated = result.zshrcConfigured || result.bashrcConfigured || result.profileConfigured;
+          const configWasUpdated =
+            result.zshrcConfigured ||
+            result.bashrcConfigured ||
+            result.profileConfigured;
 
           if (configWasUpdated) {
             const configPaths: Record<string, string> = {
-              zsh: '~/.zshrc',
-              bash: '~/.bashrc',
-              fish: '~/.config/fish/config.fish',
-              powershell: '$PROFILE',
+              zsh: "~/.zshrc",
+              bash: "~/.bashrc",
+              fish: "~/.config/fish/config.fish",
+              powershell: "$PROFILE",
             };
-            const configPath = configPaths[shell] || 'config file';
-            console.log(`  ${configPath} configured automatically`);
+            const configPath = configPaths[shell] || "配置文件";
+            console.log(`  ${configPath} 已自动配置`);
           }
         }
 
         // Display warnings if present
         if (result.warnings && result.warnings.length > 0) {
-          console.log('');
+          console.log("");
           for (const warning of result.warnings) {
             console.log(warning);
           }
@@ -170,27 +188,30 @@ export class CompletionCommand {
 
         // Print instructions (only shown if .zshrc wasn't auto-configured)
         if (result.instructions && result.instructions.length > 0) {
-          console.log('');
+          console.log("");
           for (const instruction of result.instructions) {
             console.log(instruction);
           }
         } else {
           // Check if any shell config was updated (InstallationResult has: zshrcConfigured, bashrcConfigured, profileConfigured)
-          const configWasUpdated = result.zshrcConfigured || result.bashrcConfigured || result.profileConfigured;
+          const configWasUpdated =
+            result.zshrcConfigured ||
+            result.bashrcConfigured ||
+            result.profileConfigured;
 
           if (configWasUpdated) {
-            console.log('');
+            console.log("");
 
             // Shell-specific reload instructions
             const reloadCommands: Record<string, string> = {
-              zsh: 'exec zsh',
-              bash: 'exec bash',
-              fish: 'exec fish',
-              powershell: '. $PROFILE',
+              zsh: "exec zsh",
+              bash: "exec bash",
+              fish: "exec fish",
+              powershell: ". $PROFILE",
             };
-            const reloadCmd = reloadCommands[shell] || `restart your ${shell} shell`;
+            const reloadCmd = reloadCommands[shell] || `重启 ${shell} shell`;
 
-            console.log(`Restart your shell or run: ${reloadCmd}`);
+            console.log(`请重启 shell 或执行：${reloadCmd}`);
           }
         }
       } else {
@@ -199,7 +220,9 @@ export class CompletionCommand {
       }
     } catch (error) {
       spinner.stop();
-      console.error(`✗ Failed to install completion script: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `✗ 安装补全脚本失败：${error instanceof Error ? error.message : String(error)}`,
+      );
       process.exitCode = 1;
     }
   }
@@ -207,34 +230,37 @@ export class CompletionCommand {
   /**
    * Uninstall completion script for a specific shell
    */
-  private async uninstallForShell(shell: SupportedShell, skipConfirmation: boolean): Promise<void> {
+  private async uninstallForShell(
+    shell: SupportedShell,
+    skipConfirmation: boolean,
+  ): Promise<void> {
     const installer = CompletionFactory.createInstaller(shell);
 
     // Prompt for confirmation unless --yes flag is provided
     if (!skipConfirmation) {
-      const { confirm } = await import('@inquirer/prompts');
+      const { confirm } = await import("@inquirer/prompts");
 
       // Get shell-specific config file path
       const configPaths: Record<string, string> = {
-        zsh: '~/.zshrc',
-        bash: '~/.bashrc',
-        fish: 'Fish configuration',  // Fish doesn't modify profile, just removes script file
-        powershell: '$PROFILE',
+        zsh: "~/.zshrc",
+        bash: "~/.bashrc",
+        fish: "Fish configuration", // Fish doesn't modify profile, just removes script file
+        powershell: "$PROFILE",
       };
       const configPath = configPaths[shell] || `${shell} configuration`;
 
       const confirmed = await confirm({
-        message: `Remove OpenSpec configuration from ${configPath}?`,
+        message: `是否从 ${configPath} 移除 OpenSpec 配置？`,
         default: false,
       });
 
       if (!confirmed) {
-        console.log('Uninstall cancelled.');
+        console.log("已取消卸载。");
         return;
       }
     }
 
-    const spinner = ora(`Uninstalling ${shell} completion script...`).start();
+    const spinner = ora(`正在卸载 ${shell} 补全脚本...`).start();
 
     try {
       const result = await installer.uninstall();
@@ -249,7 +275,9 @@ export class CompletionCommand {
       }
     } catch (error) {
       spinner.stop();
-      console.error(`✗ Failed to uninstall completion script: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(
+        `✗ 卸载补全脚本失败：${error instanceof Error ? error.message : String(error)}`,
+      );
       process.exitCode = 1;
     }
   }
@@ -265,24 +293,24 @@ export class CompletionCommand {
 
     try {
       switch (type) {
-        case 'changes': {
+        case "changes": {
           const changeIds = await this.completionProvider.getChangeIds();
           for (const id of changeIds) {
-            console.log(`${id}\tactive change`);
+            console.log(`${id}\t进行中的变更`);
           }
           break;
         }
-        case 'specs': {
+        case "specs": {
           const specIds = await this.completionProvider.getSpecIds();
           for (const id of specIds) {
-            console.log(`${id}\tspecification`);
+            console.log(`${id}\t规范`);
           }
           break;
         }
-        case 'archived-changes': {
+        case "archived-changes": {
           const archivedIds = await getArchivedChangeIds();
           for (const id of archivedIds) {
-            console.log(`${id}\tarchived change`);
+            console.log(`${id}\t已归档变更`);
           }
           break;
         }

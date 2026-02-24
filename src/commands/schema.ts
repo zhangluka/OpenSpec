@@ -1,22 +1,25 @@
-import { Command } from 'commander';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import ora from 'ora';
-import { stringify as stringifyYaml } from 'yaml';
+import { Command } from "commander";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import ora from "ora";
+import { stringify as stringifyYaml } from "yaml";
 import {
   getSchemaDir,
   getProjectSchemasDir,
   getUserSchemasDir,
   getPackageSchemasDir,
   listSchemas,
-} from '../core/artifact-graph/resolver.js';
-import { parseSchema, SchemaValidationError } from '../core/artifact-graph/schema.js';
-import type { SchemaYaml, Artifact } from '../core/artifact-graph/types.js';
+} from "../core/artifact-graph/resolver.js";
+import {
+  parseSchema,
+  SchemaValidationError,
+} from "../core/artifact-graph/schema.js";
+import type { SchemaYaml, Artifact } from "../core/artifact-graph/types.js";
 
 /**
  * Schema source location type
  */
-type SchemaSource = 'project' | 'user' | 'package';
+type SchemaSource = "project" | "user" | "package";
 
 /**
  * Result of checking a schema location
@@ -41,7 +44,7 @@ interface SchemaResolution {
  * Validation issue structure
  */
 interface ValidationIssue {
-  level: 'error' | 'warning';
+  level: "error" | "warning";
   path: string;
   message: string;
 }
@@ -51,33 +54,33 @@ interface ValidationIssue {
  */
 function checkAllLocations(
   name: string,
-  projectRoot: string
+  projectRoot: string,
 ): SchemaLocation[] {
   const locations: SchemaLocation[] = [];
 
   // Project location
   const projectDir = path.join(getProjectSchemasDir(projectRoot), name);
-  const projectSchemaPath = path.join(projectDir, 'schema.yaml');
+  const projectSchemaPath = path.join(projectDir, "schema.yaml");
   locations.push({
-    source: 'project',
+    source: "project",
     path: projectDir,
     exists: fs.existsSync(projectSchemaPath),
   });
 
   // User location
   const userDir = path.join(getUserSchemasDir(), name);
-  const userSchemaPath = path.join(userDir, 'schema.yaml');
+  const userSchemaPath = path.join(userDir, "schema.yaml");
   locations.push({
-    source: 'user',
+    source: "user",
     path: userDir,
     exists: fs.existsSync(userSchemaPath),
   });
 
   // Package location
   const packageDir = path.join(getPackageSchemasDir(), name);
-  const packageSchemaPath = path.join(packageDir, 'schema.yaml');
+  const packageSchemaPath = path.join(packageDir, "schema.yaml");
   locations.push({
-    source: 'package',
+    source: "package",
     path: packageDir,
     exists: fs.existsSync(packageSchemaPath),
   });
@@ -90,7 +93,7 @@ function checkAllLocations(
  */
 function getSchemaResolution(
   name: string,
-  projectRoot: string
+  projectRoot: string,
 ): SchemaResolution | null {
   const locations = checkAllLocations(name, projectRoot);
   const existingLocations = locations.filter((loc) => loc.exists);
@@ -116,9 +119,7 @@ function getSchemaResolution(
 /**
  * Get all schemas with resolution info.
  */
-function getAllSchemasWithResolution(
-  projectRoot: string
-): SchemaResolution[] {
+function getAllSchemasWithResolution(projectRoot: string): SchemaResolution[] {
   const schemaNames = listSchemas(projectRoot);
   const results: SchemaResolution[] = [];
 
@@ -137,43 +138,43 @@ function getAllSchemasWithResolution(
  */
 function validateSchema(
   schemaDir: string,
-  verbose: boolean = false
+  verbose: boolean = false,
 ): { valid: boolean; issues: ValidationIssue[] } {
   const issues: ValidationIssue[] = [];
-  const schemaPath = path.join(schemaDir, 'schema.yaml');
+  const schemaPath = path.join(schemaDir, "schema.yaml");
 
   // Check schema.yaml exists
   if (verbose) {
-    console.log('  Checking schema.yaml exists...');
+    console.log("  检查 schema.yaml 是否存在...");
   }
   if (!fs.existsSync(schemaPath)) {
     issues.push({
-      level: 'error',
-      path: 'schema.yaml',
-      message: 'schema.yaml not found',
+      level: "error",
+      path: "schema.yaml",
+      message: "未找到 schema.yaml",
     });
     return { valid: false, issues };
   }
 
   // Parse YAML
   if (verbose) {
-    console.log('  Parsing YAML...');
+    console.log("  解析 YAML...");
   }
   let content: string;
   try {
-    content = fs.readFileSync(schemaPath, 'utf-8');
+    content = fs.readFileSync(schemaPath, "utf-8");
   } catch (err) {
     issues.push({
-      level: 'error',
-      path: 'schema.yaml',
-      message: `Failed to read file: ${(err as Error).message}`,
+      level: "error",
+      path: "schema.yaml",
+      message: `读取文件失败：${(err as Error).message}`,
     });
     return { valid: false, issues };
   }
 
   // Validate against Zod schema
   if (verbose) {
-    console.log('  Validating schema structure...');
+    console.log("  校验 schema 结构...");
   }
   let schema: SchemaYaml;
   try {
@@ -181,15 +182,15 @@ function validateSchema(
   } catch (err) {
     if (err instanceof SchemaValidationError) {
       issues.push({
-        level: 'error',
-        path: 'schema.yaml',
+        level: "error",
+        path: "schema.yaml",
         message: err.message,
       });
     } else {
       issues.push({
-        level: 'error',
-        path: 'schema.yaml',
-        message: `Parse error: ${(err as Error).message}`,
+        level: "error",
+        path: "schema.yaml",
+        message: `解析错误：${(err as Error).message}`,
       });
     }
     return { valid: false, issues };
@@ -198,18 +199,25 @@ function validateSchema(
   // Check template files exist
   // Templates can be in schemaDir directly or in a templates/ subdirectory
   if (verbose) {
-    console.log('  Checking template files...');
+    console.log("  检查模板文件...");
   }
   for (const artifact of schema.artifacts) {
     // Try templates subdirectory first (standard location), then root
-    const templatePathInTemplates = path.join(schemaDir, 'templates', artifact.template);
+    const templatePathInTemplates = path.join(
+      schemaDir,
+      "templates",
+      artifact.template,
+    );
     const templatePathInRoot = path.join(schemaDir, artifact.template);
 
-    if (!fs.existsSync(templatePathInTemplates) && !fs.existsSync(templatePathInRoot)) {
+    if (
+      !fs.existsSync(templatePathInTemplates) &&
+      !fs.existsSync(templatePathInRoot)
+    ) {
       issues.push({
-        level: 'error',
+        level: "error",
         path: `artifacts.${artifact.id}.template`,
-        message: `Template file '${artifact.template}' not found for artifact '${artifact.id}'`,
+        message: `制品 '${artifact.id}' 的模板文件 '${artifact.template}' 未找到`,
       });
     }
   }
@@ -217,7 +225,7 @@ function validateSchema(
   // Dependency graph validation is already done by parseSchema
   // (it throws on cycles and invalid references)
   if (verbose) {
-    console.log('  Dependency graph validation passed (via parseSchema)');
+    console.log("  依赖图校验已通过（由 parseSchema 完成）");
   }
 
   return { valid: issues.length === 0, issues };
@@ -259,28 +267,28 @@ const DEFAULT_ARTIFACTS: Array<{
   template: string;
 }> = [
   {
-    id: 'proposal',
-    description: 'High-level description of the change, its motivation, and scope',
-    generates: 'proposal.md',
-    template: 'proposal.md',
+    id: "proposal",
+    description: "变更的高层描述、动机与范围",
+    generates: "proposal.md",
+    template: "proposal.md",
   },
   {
-    id: 'specs',
-    description: 'Detailed specifications with requirements and scenarios',
-    generates: 'specs/**/*.md',
-    template: 'specs/spec.md',
+    id: "specs",
+    description: "含需求与场景的详细规范",
+    generates: "specs/**/*.md",
+    template: "specs/spec.md",
   },
   {
-    id: 'design',
-    description: 'Technical design decisions and implementation approach',
-    generates: 'design.md',
-    template: 'design.md',
+    id: "design",
+    description: "技术设计决策与实现思路",
+    generates: "design.md",
+    template: "design.md",
   },
   {
-    id: 'tasks',
-    description: 'Implementation checklist with trackable tasks',
-    generates: 'tasks.md',
-    template: 'tasks.md',
+    id: "tasks",
+    description: "可跟踪的实施任务清单",
+    generates: "tasks.md",
+    template: "tasks.md",
   },
 ];
 
@@ -289,637 +297,797 @@ const DEFAULT_ARTIFACTS: Array<{
  */
 export function registerSchemaCommand(program: Command): void {
   const schemaCmd = program
-    .command('schema')
-    .description('Manage workflow schemas [experimental]');
+    .command("schema")
+    .description("管理工作流模式 [实验性]");
 
   // Experimental warning
-  schemaCmd.hook('preAction', () => {
-    console.error('Note: Schema commands are experimental and may change.');
+  schemaCmd.hook("preAction", () => {
+    console.error("说明：schema 相关命令为实验性，可能变更。");
   });
 
   // schema which
   schemaCmd
-    .command('which [name]')
-    .description('Show where a schema resolves from')
-    .option('--json', 'Output as JSON')
-    .option('--all', 'List all schemas with their resolution sources')
-    .action(async (name?: string, options?: { json?: boolean; all?: boolean }) => {
-      try {
-        const projectRoot = process.cwd();
+    .command("which [name]")
+    .description("显示工作流模式的解析来源")
+    .option("--json", "以 JSON 输出")
+    .option("--all", "列出所有工作流模式及其解析来源")
+    .action(
+      async (name?: string, options?: { json?: boolean; all?: boolean }) => {
+        try {
+          const projectRoot = process.cwd();
 
-        if (options?.all) {
-          // List all schemas
-          const schemas = getAllSchemasWithResolution(projectRoot);
+          if (options?.all) {
+            // List all schemas
+            const schemas = getAllSchemasWithResolution(projectRoot);
+
+            if (options?.json) {
+              console.log(JSON.stringify(schemas, null, 2));
+            } else {
+              if (schemas.length === 0) {
+                console.log("未找到任何工作流模式。");
+                return;
+              }
+
+              // Group by source
+              const bySource = {
+                project: schemas.filter((s) => s.source === "project"),
+                user: schemas.filter((s) => s.source === "user"),
+                package: schemas.filter((s) => s.source === "package"),
+              };
+
+              if (bySource.project.length > 0) {
+                console.log("\n项目工作流模式：");
+                for (const schema of bySource.project) {
+                  const shadowInfo =
+                    schema.shadows.length > 0
+                      ? ` (被遮蔽：${schema.shadows.map((s) => s.source).join(", ")})`
+                      : "";
+                  console.log(`  ${schema.name}${shadowInfo}`);
+                }
+              }
+
+              if (bySource.user.length > 0) {
+                console.log("\n用户工作流模式：");
+                for (const schema of bySource.user) {
+                  const shadowInfo =
+                    schema.shadows.length > 0
+                      ? ` (被遮蔽：${schema.shadows.map((s) => s.source).join(", ")})`
+                      : "";
+                  console.log(`  ${schema.name}${shadowInfo}`);
+                }
+              }
+
+              if (bySource.package.length > 0) {
+                console.log("\n包内工作流模式：");
+                for (const schema of bySource.package) {
+                  console.log(`  ${schema.name}`);
+                }
+              }
+            }
+            return;
+          }
+
+          if (!name) {
+            console.error(
+              "错误：请提供工作流模式名称（或使用 --all 列出全部）",
+            );
+            process.exitCode = 1;
+            return;
+          }
+
+          const resolution = getSchemaResolution(name, projectRoot);
+
+          if (!resolution) {
+            const available = listSchemas(projectRoot);
+            if (options?.json) {
+              console.log(
+                JSON.stringify(
+                  {
+                    error: `工作流模式 '${name}' 未找到`,
+                    available,
+                  },
+                  null,
+                  2,
+                ),
+              );
+            } else {
+              console.error(`错误：工作流模式 '${name}' 未找到`);
+              console.error(`可用工作流模式：${available.join(", ")}`);
+            }
+            process.exitCode = 1;
+            return;
+          }
 
           if (options?.json) {
-            console.log(JSON.stringify(schemas, null, 2));
+            console.log(JSON.stringify(resolution, null, 2));
           } else {
-            if (schemas.length === 0) {
-              console.log('No schemas found.');
-              return;
-            }
+            console.log(`工作流模式：${resolution.name}`);
+            console.log(`来源：${resolution.source}`);
+            console.log(`路径：${resolution.path}`);
 
-            // Group by source
-            const bySource = {
-              project: schemas.filter((s) => s.source === 'project'),
-              user: schemas.filter((s) => s.source === 'user'),
-              package: schemas.filter((s) => s.source === 'package'),
-            };
-
-            if (bySource.project.length > 0) {
-              console.log('\nProject schemas:');
-              for (const schema of bySource.project) {
-                const shadowInfo = schema.shadows.length > 0
-                  ? ` (shadows: ${schema.shadows.map((s) => s.source).join(', ')})`
-                  : '';
-                console.log(`  ${schema.name}${shadowInfo}`);
-              }
-            }
-
-            if (bySource.user.length > 0) {
-              console.log('\nUser schemas:');
-              for (const schema of bySource.user) {
-                const shadowInfo = schema.shadows.length > 0
-                  ? ` (shadows: ${schema.shadows.map((s) => s.source).join(', ')})`
-                  : '';
-                console.log(`  ${schema.name}${shadowInfo}`);
-              }
-            }
-
-            if (bySource.package.length > 0) {
-              console.log('\nPackage schemas:');
-              for (const schema of bySource.package) {
-                console.log(`  ${schema.name}`);
+            if (resolution.shadows.length > 0) {
+              console.log("\n被遮蔽的来源：");
+              for (const shadow of resolution.shadows) {
+                console.log(`  ${shadow.source}: ${shadow.path}`);
               }
             }
           }
-          return;
-        }
-
-        if (!name) {
-          console.error('Error: Schema name is required (or use --all to list all schemas)');
+        } catch (error) {
+          console.error(`错误：${(error as Error).message}`);
           process.exitCode = 1;
-          return;
         }
-
-        const resolution = getSchemaResolution(name, projectRoot);
-
-        if (!resolution) {
-          const available = listSchemas(projectRoot);
-          if (options?.json) {
-            console.log(JSON.stringify({
-              error: `Schema '${name}' not found`,
-              available,
-            }, null, 2));
-          } else {
-            console.error(`Error: Schema '${name}' not found`);
-            console.error(`Available schemas: ${available.join(', ')}`);
-          }
-          process.exitCode = 1;
-          return;
-        }
-
-        if (options?.json) {
-          console.log(JSON.stringify(resolution, null, 2));
-        } else {
-          console.log(`Schema: ${resolution.name}`);
-          console.log(`Source: ${resolution.source}`);
-          console.log(`Path: ${resolution.path}`);
-
-          if (resolution.shadows.length > 0) {
-            console.log('\nShadows:');
-            for (const shadow of resolution.shadows) {
-              console.log(`  ${shadow.source}: ${shadow.path}`);
-            }
-          }
-        }
-      } catch (error) {
-        console.error(`Error: ${(error as Error).message}`);
-        process.exitCode = 1;
-      }
-    });
+      },
+    );
 
   // schema validate
   schemaCmd
-    .command('validate [name]')
-    .description('Validate a schema structure and templates')
-    .option('--json', 'Output as JSON')
-    .option('--verbose', 'Show detailed validation steps')
-    .action(async (name?: string, options?: { json?: boolean; verbose?: boolean }) => {
-      try {
-        const projectRoot = process.cwd();
+    .command("validate [name]")
+    .description("校验工作流模式结构与模板")
+    .option("--json", "以 JSON 输出")
+    .option("--verbose", "显示详细校验步骤")
+    .action(
+      async (
+        name?: string,
+        options?: { json?: boolean; verbose?: boolean },
+      ) => {
+        try {
+          const projectRoot = process.cwd();
 
-        if (!name) {
-          // Validate all project schemas
-          const projectSchemasDir = getProjectSchemasDir(projectRoot);
+          if (!name) {
+            // Validate all project schemas
+            const projectSchemasDir = getProjectSchemasDir(projectRoot);
 
-          if (!fs.existsSync(projectSchemasDir)) {
-            if (options?.json) {
-              console.log(JSON.stringify({
-                valid: true,
-                message: 'No project schemas directory found',
-                schemas: [],
-              }, null, 2));
-            } else {
-              console.log('No project schemas directory found.');
-            }
-            return;
-          }
-
-          const entries = fs.readdirSync(projectSchemasDir, { withFileTypes: true });
-          const schemaResults: Array<{
-            name: string;
-            path: string;
-            valid: boolean;
-            issues: ValidationIssue[];
-          }> = [];
-
-          let anyInvalid = false;
-
-          for (const entry of entries) {
-            if (!entry.isDirectory()) continue;
-
-            const schemaDir = path.join(projectSchemasDir, entry.name);
-            const schemaPath = path.join(schemaDir, 'schema.yaml');
-
-            if (!fs.existsSync(schemaPath)) continue;
-
-            if (options?.verbose && !options?.json) {
-              console.log(`\nValidating ${entry.name}...`);
-            }
-
-            const result = validateSchema(schemaDir, options?.verbose && !options?.json);
-            schemaResults.push({
-              name: entry.name,
-              path: schemaDir,
-              valid: result.valid,
-              issues: result.issues,
-            });
-
-            if (!result.valid) {
-              anyInvalid = true;
-            }
-          }
-
-          if (options?.json) {
-            console.log(JSON.stringify({
-              valid: !anyInvalid,
-              schemas: schemaResults,
-            }, null, 2));
-          } else {
-            if (schemaResults.length === 0) {
-              console.log('No schemas found in project.');
+            if (!fs.existsSync(projectSchemasDir)) {
+              if (options?.json) {
+                console.log(
+                  JSON.stringify(
+                    {
+                      valid: true,
+                      message: "未找到项目工作流模式目录",
+                      schemas: [],
+                    },
+                    null,
+                    2,
+                  ),
+                );
+              } else {
+                console.log("未找到项目工作流模式目录。");
+              }
               return;
             }
 
-            console.log('\nValidation Results:');
-            for (const result of schemaResults) {
-              const status = result.valid ? '✓' : '✗';
-              console.log(`  ${status} ${result.name}`);
-              for (const issue of result.issues) {
-                console.log(`    ${issue.level}: ${issue.message}`);
+            const entries = fs.readdirSync(projectSchemasDir, {
+              withFileTypes: true,
+            });
+            const schemaResults: Array<{
+              name: string;
+              path: string;
+              valid: boolean;
+              issues: ValidationIssue[];
+            }> = [];
+
+            let anyInvalid = false;
+
+            for (const entry of entries) {
+              if (!entry.isDirectory()) continue;
+
+              const schemaDir = path.join(projectSchemasDir, entry.name);
+              const schemaPath = path.join(schemaDir, "schema.yaml");
+
+              if (!fs.existsSync(schemaPath)) continue;
+
+              if (options?.verbose && !options?.json) {
+                console.log(`\n正在校验 ${entry.name}...`);
+              }
+
+              const result = validateSchema(
+                schemaDir,
+                options?.verbose && !options?.json,
+              );
+              schemaResults.push({
+                name: entry.name,
+                path: schemaDir,
+                valid: result.valid,
+                issues: result.issues,
+              });
+
+              if (!result.valid) {
+                anyInvalid = true;
               }
             }
 
-            if (anyInvalid) {
+            if (options?.json) {
+              console.log(
+                JSON.stringify(
+                  {
+                    valid: !anyInvalid,
+                    schemas: schemaResults,
+                  },
+                  null,
+                  2,
+                ),
+              );
+            } else {
+              if (schemaResults.length === 0) {
+                console.log("项目中未找到工作流模式。");
+                return;
+              }
+
+              console.log("\n校验结果：");
+              for (const result of schemaResults) {
+                const status = result.valid ? "✓" : "✗";
+                console.log(`  ${status} ${result.name}`);
+                for (const issue of result.issues) {
+                  const levelLabel = issue.level === "error" ? "错误" : "警告";
+                  console.log(`    ${levelLabel}: ${issue.message}`);
+                }
+              }
+
+              if (anyInvalid) {
+                process.exitCode = 1;
+              }
+            }
+            return;
+          }
+
+          // Validate specific schema
+          const schemaDir = getSchemaDir(name, projectRoot);
+
+          if (!schemaDir) {
+            const available = listSchemas(projectRoot);
+            if (options?.json) {
+              console.log(
+                JSON.stringify(
+                  {
+                    valid: false,
+                    error: `工作流模式 '${name}' 未找到`,
+                    available,
+                  },
+                  null,
+                  2,
+                ),
+              );
+            } else {
+              console.error(`错误：工作流模式 '${name}' 未找到`);
+              console.error(`可用工作流模式：${available.join(", ")}`);
+            }
+            process.exitCode = 1;
+            return;
+          }
+
+          if (options?.verbose && !options?.json) {
+            console.log(`正在校验 ${name}...`);
+          }
+
+          const result = validateSchema(
+            schemaDir,
+            options?.verbose && !options?.json,
+          );
+
+          if (options?.json) {
+            console.log(
+              JSON.stringify(
+                {
+                  name,
+                  path: schemaDir,
+                  valid: result.valid,
+                  issues: result.issues,
+                },
+                null,
+                2,
+              ),
+            );
+          } else {
+            if (result.valid) {
+              console.log(`✓ 工作流模式 '${name}' 校验通过`);
+            } else {
+              console.log(`✗ 工作流模式 '${name}' 存在错误：`);
+              for (const issue of result.issues) {
+                const levelLabel = issue.level === "error" ? "错误" : "警告";
+                console.log(`  ${levelLabel}: ${issue.message}`);
+              }
               process.exitCode = 1;
             }
           }
-          return;
-        }
-
-        // Validate specific schema
-        const schemaDir = getSchemaDir(name, projectRoot);
-
-        if (!schemaDir) {
-          const available = listSchemas(projectRoot);
+        } catch (error) {
           if (options?.json) {
-            console.log(JSON.stringify({
-              valid: false,
-              error: `Schema '${name}' not found`,
-              available,
-            }, null, 2));
+            console.log(
+              JSON.stringify(
+                {
+                  valid: false,
+                  error: (error as Error).message,
+                },
+                null,
+                2,
+              ),
+            );
           } else {
-            console.error(`Error: Schema '${name}' not found`);
-            console.error(`Available schemas: ${available.join(', ')}`);
+            console.error(`错误：${(error as Error).message}`);
           }
           process.exitCode = 1;
-          return;
         }
-
-        if (options?.verbose && !options?.json) {
-          console.log(`Validating ${name}...`);
-        }
-
-        const result = validateSchema(schemaDir, options?.verbose && !options?.json);
-
-        if (options?.json) {
-          console.log(JSON.stringify({
-            name,
-            path: schemaDir,
-            valid: result.valid,
-            issues: result.issues,
-          }, null, 2));
-        } else {
-          if (result.valid) {
-            console.log(`✓ Schema '${name}' is valid`);
-          } else {
-            console.log(`✗ Schema '${name}' has errors:`);
-            for (const issue of result.issues) {
-              console.log(`  ${issue.level}: ${issue.message}`);
-            }
-            process.exitCode = 1;
-          }
-        }
-      } catch (error) {
-        if (options?.json) {
-          console.log(JSON.stringify({
-            valid: false,
-            error: (error as Error).message,
-          }, null, 2));
-        } else {
-          console.error(`Error: ${(error as Error).message}`);
-        }
-        process.exitCode = 1;
-      }
-    });
+      },
+    );
 
   // schema fork
   schemaCmd
-    .command('fork <source> [name]')
-    .description('Copy an existing schema to project for customization')
-    .option('--json', 'Output as JSON')
-    .option('--force', 'Overwrite existing destination')
-    .action(async (source: string, name?: string, options?: { json?: boolean; force?: boolean }) => {
-      const spinner = options?.json ? null : ora();
+    .command("fork <source> [name]")
+    .description("将已有工作流模式复制到项目中以便自定义")
+    .option("--json", "以 JSON 输出")
+    .option("--force", "覆盖已存在的目标")
+    .action(
+      async (
+        source: string,
+        name?: string,
+        options?: { json?: boolean; force?: boolean },
+      ) => {
+        const spinner = options?.json ? null : ora();
 
-      try {
-        const projectRoot = process.cwd();
-        const destinationName = name || `${source}-custom`;
+        try {
+          const projectRoot = process.cwd();
+          const destinationName = name || `${source}-custom`;
 
-        // Validate destination name
-        if (!isValidSchemaName(destinationName)) {
-          if (options?.json) {
-            console.log(JSON.stringify({
-              forked: false,
-              error: `Invalid schema name '${destinationName}'. Use kebab-case (e.g., my-workflow)`,
-            }, null, 2));
-          } else {
-            console.error(`Error: Invalid schema name '${destinationName}'`);
-            console.error('Schema names must be kebab-case (e.g., my-workflow)');
-          }
-          process.exitCode = 1;
-          return;
-        }
-
-        // Find source schema
-        const sourceDir = getSchemaDir(source, projectRoot);
-        if (!sourceDir) {
-          const available = listSchemas(projectRoot);
-          if (options?.json) {
-            console.log(JSON.stringify({
-              forked: false,
-              error: `Schema '${source}' not found`,
-              available,
-            }, null, 2));
-          } else {
-            console.error(`Error: Schema '${source}' not found`);
-            console.error(`Available schemas: ${available.join(', ')}`);
-          }
-          process.exitCode = 1;
-          return;
-        }
-
-        // Determine source location
-        const sourceResolution = getSchemaResolution(source, projectRoot);
-        const sourceLocation = sourceResolution?.source || 'package';
-
-        // Check destination
-        const destinationDir = path.join(getProjectSchemasDir(projectRoot), destinationName);
-
-        if (fs.existsSync(destinationDir)) {
-          if (!options?.force) {
+          // Validate destination name
+          if (!isValidSchemaName(destinationName)) {
             if (options?.json) {
-              console.log(JSON.stringify({
-                forked: false,
-                error: `Schema '${destinationName}' already exists`,
-                suggestion: 'Use --force to overwrite',
-              }, null, 2));
+              console.log(
+                JSON.stringify(
+                  {
+                    forked: false,
+                    error: `无效的工作流模式名称 '${destinationName}'，请使用 kebab-case（如 my-workflow）`,
+                  },
+                  null,
+                  2,
+                ),
+              );
             } else {
-              console.error(`Error: Schema '${destinationName}' already exists at ${destinationDir}`);
-              console.error('Use --force to overwrite');
+              console.error(`错误：工作流模式名称无效 '${destinationName}'`);
+              console.error("工作流模式名称须为 kebab-case（如 my-workflow）");
             }
             process.exitCode = 1;
             return;
           }
 
-          // Remove existing
-          if (spinner) spinner.start(`Removing existing schema '${destinationName}'...`);
-          fs.rmSync(destinationDir, { recursive: true });
+          // Find source schema
+          const sourceDir = getSchemaDir(source, projectRoot);
+          if (!sourceDir) {
+            const available = listSchemas(projectRoot);
+            if (options?.json) {
+              console.log(
+                JSON.stringify(
+                  {
+                    forked: false,
+                    error: `工作流模式 '${source}' 未找到`,
+                    available,
+                  },
+                  null,
+                  2,
+                ),
+              );
+            } else {
+              console.error(`错误：工作流模式 '${source}' 未找到`);
+              console.error(`可用工作流模式：${available.join(", ")}`);
+            }
+            process.exitCode = 1;
+            return;
+          }
+
+          // Determine source location
+          const sourceResolution = getSchemaResolution(source, projectRoot);
+          const sourceLocation = sourceResolution?.source || "package";
+
+          // Check destination
+          const destinationDir = path.join(
+            getProjectSchemasDir(projectRoot),
+            destinationName,
+          );
+
+          if (fs.existsSync(destinationDir)) {
+            if (!options?.force) {
+              if (options?.json) {
+                console.log(
+                  JSON.stringify(
+                    {
+                      forked: false,
+                      error: `工作流模式 '${destinationName}' 已存在`,
+                      suggestion: "使用 --force 覆盖",
+                    },
+                    null,
+                    2,
+                  ),
+                );
+              } else {
+                console.error(
+                  `错误：工作流模式 '${destinationName}' 已存在于 ${destinationDir}`,
+                );
+                console.error("使用 --force 可覆盖");
+              }
+              process.exitCode = 1;
+              return;
+            }
+
+            // Remove existing
+            if (spinner)
+              spinner.start(`正在删除已有工作流模式 '${destinationName}'...`);
+            fs.rmSync(destinationDir, { recursive: true });
+          }
+
+          // Copy schema
+          if (spinner)
+            spinner.start(`正在复制 '${source}' 到 '${destinationName}'...`);
+          copyDirRecursive(sourceDir, destinationDir);
+
+          // Update name in schema.yaml
+          const destSchemaPath = path.join(destinationDir, "schema.yaml");
+          const schemaContent = fs.readFileSync(destSchemaPath, "utf-8");
+          const schema = parseSchema(schemaContent);
+          schema.name = destinationName;
+
+          fs.writeFileSync(destSchemaPath, stringifyYaml(schema));
+
+          if (spinner)
+            spinner.succeed(`已复制 '${source}' 到 '${destinationName}'`);
+
+          if (options?.json) {
+            console.log(
+              JSON.stringify(
+                {
+                  forked: true,
+                  source,
+                  sourcePath: sourceDir,
+                  sourceLocation,
+                  destination: destinationName,
+                  destinationPath: destinationDir,
+                },
+                null,
+                2,
+              ),
+            );
+          } else {
+            console.log(`\n来源：${sourceDir} (${sourceLocation})`);
+            console.log(`目标：${destinationDir}`);
+            console.log(`\n可在以下路径自定义工作流模式：`);
+            console.log(`  ${destinationDir}/schema.yaml`);
+          }
+        } catch (error) {
+          if (spinner) spinner.fail("复制失败");
+          if (options?.json) {
+            console.log(
+              JSON.stringify(
+                {
+                  forked: false,
+                  error: (error as Error).message,
+                },
+                null,
+                2,
+              ),
+            );
+          } else {
+            console.error(`错误：${(error as Error).message}`);
+          }
+          process.exitCode = 1;
         }
-
-        // Copy schema
-        if (spinner) spinner.start(`Forking '${source}' to '${destinationName}'...`);
-        copyDirRecursive(sourceDir, destinationDir);
-
-        // Update name in schema.yaml
-        const destSchemaPath = path.join(destinationDir, 'schema.yaml');
-        const schemaContent = fs.readFileSync(destSchemaPath, 'utf-8');
-        const schema = parseSchema(schemaContent);
-        schema.name = destinationName;
-
-        fs.writeFileSync(destSchemaPath, stringifyYaml(schema));
-
-        if (spinner) spinner.succeed(`Forked '${source}' to '${destinationName}'`);
-
-        if (options?.json) {
-          console.log(JSON.stringify({
-            forked: true,
-            source,
-            sourcePath: sourceDir,
-            sourceLocation,
-            destination: destinationName,
-            destinationPath: destinationDir,
-          }, null, 2));
-        } else {
-          console.log(`\nSource: ${sourceDir} (${sourceLocation})`);
-          console.log(`Destination: ${destinationDir}`);
-          console.log(`\nYou can now customize the schema at:`);
-          console.log(`  ${destinationDir}/schema.yaml`);
-        }
-      } catch (error) {
-        if (spinner) spinner.fail(`Fork failed`);
-        if (options?.json) {
-          console.log(JSON.stringify({
-            forked: false,
-            error: (error as Error).message,
-          }, null, 2));
-        } else {
-          console.error(`Error: ${(error as Error).message}`);
-        }
-        process.exitCode = 1;
-      }
-    });
+      },
+    );
 
   // schema init
   schemaCmd
-    .command('init <name>')
-    .description('Create a new project-local schema')
-    .option('--json', 'Output as JSON')
-    .option('--description <text>', 'Schema description')
-    .option('--artifacts <list>', 'Comma-separated artifact IDs (proposal,specs,design,tasks)')
-    .option('--default', 'Set as project default schema')
-    .option('--no-default', 'Do not prompt to set as default')
-    .option('--force', 'Overwrite existing schema')
-    .action(async (
-      name: string,
-      options?: {
-        json?: boolean;
-        description?: string;
-        artifacts?: string;
-        default?: boolean;
-        force?: boolean;
-      }
-    ) => {
-      const spinner = options?.json ? null : ora();
+    .command("init <name>")
+    .description("创建新的项目本地工作流模式")
+    .option("--json", "以 JSON 输出")
+    .option("--description <text>", "工作流模式描述")
+    .option(
+      "--artifacts <list>",
+      "逗号分隔的制品 ID（proposal,specs,design,tasks）",
+    )
+    .option("--default", "设为项目默认工作流模式")
+    .option("--no-default", "不提示是否设为默认")
+    .option("--force", "覆盖已存在的工作流模式")
+    .action(
+      async (
+        name: string,
+        options?: {
+          json?: boolean;
+          description?: string;
+          artifacts?: string;
+          default?: boolean;
+          force?: boolean;
+        },
+      ) => {
+        const spinner = options?.json ? null : ora();
 
-      try {
-        const projectRoot = process.cwd();
+        try {
+          const projectRoot = process.cwd();
 
-        // Validate name
-        if (!isValidSchemaName(name)) {
-          if (options?.json) {
-            console.log(JSON.stringify({
-              created: false,
-              error: `Invalid schema name '${name}'. Use kebab-case (e.g., my-workflow)`,
-            }, null, 2));
-          } else {
-            console.error(`Error: Invalid schema name '${name}'`);
-            console.error('Schema names must be kebab-case (e.g., my-workflow)');
-          }
-          process.exitCode = 1;
-          return;
-        }
-
-        const schemaDir = path.join(getProjectSchemasDir(projectRoot), name);
-
-        // Check if exists
-        if (fs.existsSync(schemaDir)) {
-          if (!options?.force) {
+          // Validate name
+          if (!isValidSchemaName(name)) {
             if (options?.json) {
-              console.log(JSON.stringify({
-                created: false,
-                error: `Schema '${name}' already exists`,
-                suggestion: 'Use --force to overwrite or "openspec schema fork" to copy',
-              }, null, 2));
+              console.log(
+                JSON.stringify(
+                  {
+                    created: false,
+                    error: `无效的工作流模式名称 '${name}'，请使用 kebab-case（如 my-workflow）`,
+                  },
+                  null,
+                  2,
+                ),
+              );
             } else {
-              console.error(`Error: Schema '${name}' already exists at ${schemaDir}`);
-              console.error('Use --force to overwrite or "openspec schema fork" to copy');
+              console.error(`错误：工作流模式名称无效 '${name}'`);
+              console.error("工作流模式名称须为 kebab-case（如 my-workflow）");
             }
             process.exitCode = 1;
             return;
           }
 
-          if (spinner) spinner.start(`Removing existing schema '${name}'...`);
-          fs.rmSync(schemaDir, { recursive: true });
-        }
+          const schemaDir = path.join(getProjectSchemasDir(projectRoot), name);
 
-        // Determine artifacts and description
-        let description: string;
-        let selectedArtifactIds: string[];
+          // Check if exists
+          if (fs.existsSync(schemaDir)) {
+            if (!options?.force) {
+              if (options?.json) {
+                console.log(
+                  JSON.stringify(
+                    {
+                      created: false,
+                      error: `工作流模式 '${name}' 已存在`,
+                      suggestion:
+                        '使用 --force 覆盖或 "openspec schema fork" 复制',
+                    },
+                    null,
+                    2,
+                  ),
+                );
+              } else {
+                console.error(
+                  `错误：工作流模式 '${name}' 已存在于 ${schemaDir}`,
+                );
+                console.error(
+                  '使用 --force 覆盖或 "openspec schema fork" 复制',
+                );
+              }
+              process.exitCode = 1;
+              return;
+            }
 
-        // Check if we have explicit flags (non-interactive mode)
-        const hasExplicitOptions = options?.description !== undefined || options?.artifacts !== undefined;
-        const isInteractive = !options?.json && !hasExplicitOptions && process.stdout.isTTY;
-
-        if (isInteractive) {
-          // Interactive mode
-          const { input, checkbox, confirm } = await import('@inquirer/prompts');
-
-          description = await input({
-            message: 'Schema description:',
-            default: `Custom workflow schema for ${name}`,
-          });
-
-          const artifactChoices = DEFAULT_ARTIFACTS.map((a) => ({
-            name: a.id,
-            value: a.id,
-            checked: true,
-          }));
-
-          selectedArtifactIds = await checkbox({
-            message: 'Select artifacts to include:',
-            choices: artifactChoices,
-          });
-
-          if (selectedArtifactIds.length === 0) {
-            console.error('Error: At least one artifact must be selected');
-            process.exitCode = 1;
-            return;
+            if (spinner) spinner.start(`正在删除已有工作流模式 '${name}'...`);
+            fs.rmSync(schemaDir, { recursive: true });
           }
 
-          // Ask about setting as default (unless --no-default was passed)
-          if (options?.default === undefined) {
-            const setAsDefault = await confirm({
-              message: 'Set as project default schema?',
-              default: false,
+          // Determine artifacts and description
+          let description: string;
+          let selectedArtifactIds: string[];
+
+          // Check if we have explicit flags (non-interactive mode)
+          const hasExplicitOptions =
+            options?.description !== undefined ||
+            options?.artifacts !== undefined;
+          const isInteractive =
+            !options?.json && !hasExplicitOptions && process.stdout.isTTY;
+
+          if (isInteractive) {
+            // Interactive mode
+            const { input, checkbox, confirm } =
+              await import("@inquirer/prompts");
+
+            description = await input({
+              message: "工作流模式描述：",
+              default: `自定义工作流模式：${name}`,
             });
 
-            if (setAsDefault) {
-              options = { ...options, default: true };
+            const artifactChoices = DEFAULT_ARTIFACTS.map((a) => ({
+              name: a.id,
+              value: a.id,
+              checked: true,
+            }));
+
+            selectedArtifactIds = await checkbox({
+              message: "选择要包含的制品：",
+              choices: artifactChoices,
+            });
+
+            if (selectedArtifactIds.length === 0) {
+              console.error("错误：至少需选择一项制品");
+              process.exitCode = 1;
+              return;
             }
-          }
-        } else {
-          // Non-interactive mode
-          description = options?.description || `Custom workflow schema for ${name}`;
 
-          if (options?.artifacts) {
-            selectedArtifactIds = options.artifacts.split(',').map((a) => a.trim());
+            // Ask about setting as default (unless --no-default was passed)
+            if (options?.default === undefined) {
+              const setAsDefault = await confirm({
+                message: "是否设为项目默认工作流模式？",
+                default: false,
+              });
 
-            // Validate artifact IDs
-            const validIds = DEFAULT_ARTIFACTS.map((a) => a.id);
-            for (const id of selectedArtifactIds) {
-              if (!validIds.includes(id)) {
-                if (options?.json) {
-                  console.log(JSON.stringify({
-                    created: false,
-                    error: `Unknown artifact '${id}'`,
-                    valid: validIds,
-                  }, null, 2));
-                } else {
-                  console.error(`Error: Unknown artifact '${id}'`);
-                  console.error(`Valid artifacts: ${validIds.join(', ')}`);
-                }
-                process.exitCode = 1;
-                return;
+              if (setAsDefault) {
+                options = { ...options, default: true };
               }
             }
           } else {
-            // Default to all artifacts
-            selectedArtifactIds = DEFAULT_ARTIFACTS.map((a) => a.id);
-          }
-        }
+            // Non-interactive mode
+            description = options?.description || `自定义工作流模式：${name}`;
 
-        // Create schema directory
-        if (spinner) spinner.start(`Creating schema '${name}'...`);
-        fs.mkdirSync(schemaDir, { recursive: true });
+            if (options?.artifacts) {
+              selectedArtifactIds = options.artifacts
+                .split(",")
+                .map((a) => a.trim());
 
-        // Build artifacts array with proper dependencies
-        const selectedArtifacts = selectedArtifactIds.map((id) => {
-          const template = DEFAULT_ARTIFACTS.find((a) => a.id === id)!;
-          const artifact: Artifact = {
-            id: template.id,
-            generates: template.generates,
-            description: template.description,
-            template: template.template,
-            requires: [],
-          };
-
-          // Set up dependencies based on typical workflow
-          if (id === 'specs' && selectedArtifactIds.includes('proposal')) {
-            artifact.requires = ['proposal'];
-          } else if (id === 'design' && selectedArtifactIds.includes('specs')) {
-            artifact.requires = ['specs'];
-          } else if (id === 'tasks') {
-            const requires: string[] = [];
-            if (selectedArtifactIds.includes('design')) requires.push('design');
-            else if (selectedArtifactIds.includes('specs')) requires.push('specs');
-            artifact.requires = requires;
-          }
-
-          return artifact;
-        });
-
-        // Create schema.yaml
-        const schema: SchemaYaml = {
-          name,
-          version: 1,
-          description,
-          artifacts: selectedArtifacts,
-        };
-
-        // Add apply phase if tasks is included
-        if (selectedArtifactIds.includes('tasks')) {
-          schema.apply = {
-            requires: ['tasks'],
-            tracks: 'tasks.md',
-          };
-        }
-
-        fs.writeFileSync(
-          path.join(schemaDir, 'schema.yaml'),
-          stringifyYaml(schema)
-        );
-
-        // Create template files in templates/ subdirectory (standard location)
-        const templatesDir = path.join(schemaDir, 'templates');
-        for (const artifact of selectedArtifacts) {
-          const templatePath = path.join(templatesDir, artifact.template);
-          const templateDir = path.dirname(templatePath);
-
-          if (!fs.existsSync(templateDir)) {
-            fs.mkdirSync(templateDir, { recursive: true });
-          }
-
-          // Create default template content
-          const templateContent = createDefaultTemplate(artifact.id);
-          fs.writeFileSync(templatePath, templateContent);
-        }
-
-        // Update config if --default
-        if (options?.default) {
-          const configPath = path.join(projectRoot, 'openspec', 'config.yaml');
-
-          if (fs.existsSync(configPath)) {
-            const { parse: parseYaml, stringify: stringifyYaml2 } = await import('yaml');
-            const configContent = fs.readFileSync(configPath, 'utf-8');
-            const config = parseYaml(configContent) || {};
-            config.defaultSchema = name;
-            fs.writeFileSync(configPath, stringifyYaml2(config));
-          } else {
-            // Create config file
-            const configDir = path.dirname(configPath);
-            if (!fs.existsSync(configDir)) {
-              fs.mkdirSync(configDir, { recursive: true });
+              // Validate artifact IDs
+              const validIds = DEFAULT_ARTIFACTS.map((a) => a.id);
+              for (const id of selectedArtifactIds) {
+                if (!validIds.includes(id)) {
+                  if (options?.json) {
+                    console.log(
+                      JSON.stringify(
+                        {
+                          created: false,
+                          error: `未知制品 '${id}'`,
+                          valid: validIds,
+                        },
+                        null,
+                        2,
+                      ),
+                    );
+                  } else {
+                    console.error(`错误：未知制品 '${id}'`);
+                    console.error(`有效制品：${validIds.join(", ")}`);
+                  }
+                  process.exitCode = 1;
+                  return;
+                }
+              }
+            } else {
+              // Default to all artifacts
+              selectedArtifactIds = DEFAULT_ARTIFACTS.map((a) => a.id);
             }
-            fs.writeFileSync(configPath, stringifyYaml({ defaultSchema: name }));
           }
-        }
 
-        if (spinner) spinner.succeed(`Created schema '${name}'`);
+          // Create schema directory
+          if (spinner) spinner.start(`正在创建工作流模式 '${name}'...`);
+          fs.mkdirSync(schemaDir, { recursive: true });
 
-        if (options?.json) {
-          console.log(JSON.stringify({
-            created: true,
-            path: schemaDir,
-            schema: name,
-            artifacts: selectedArtifactIds,
-            setAsDefault: options?.default || false,
-          }, null, 2));
-        } else {
-          console.log(`\nSchema created at: ${schemaDir}`);
-          console.log(`\nArtifacts: ${selectedArtifactIds.join(', ')}`);
+          // Build artifacts array with proper dependencies
+          const selectedArtifacts = selectedArtifactIds.map((id) => {
+            const template = DEFAULT_ARTIFACTS.find((a) => a.id === id)!;
+            const artifact: Artifact = {
+              id: template.id,
+              generates: template.generates,
+              description: template.description,
+              template: template.template,
+              requires: [],
+            };
+
+            // Set up dependencies based on typical workflow
+            if (id === "specs" && selectedArtifactIds.includes("proposal")) {
+              artifact.requires = ["proposal"];
+            } else if (
+              id === "design" &&
+              selectedArtifactIds.includes("specs")
+            ) {
+              artifact.requires = ["specs"];
+            } else if (id === "tasks") {
+              const requires: string[] = [];
+              if (selectedArtifactIds.includes("design"))
+                requires.push("design");
+              else if (selectedArtifactIds.includes("specs"))
+                requires.push("specs");
+              artifact.requires = requires;
+            }
+
+            return artifact;
+          });
+
+          // Create schema.yaml
+          const schema: SchemaYaml = {
+            name,
+            version: 1,
+            description,
+            artifacts: selectedArtifacts,
+          };
+
+          // Add apply phase if tasks is included
+          if (selectedArtifactIds.includes("tasks")) {
+            schema.apply = {
+              requires: ["tasks"],
+              tracks: "tasks.md",
+            };
+          }
+
+          fs.writeFileSync(
+            path.join(schemaDir, "schema.yaml"),
+            stringifyYaml(schema),
+          );
+
+          // Create template files in templates/ subdirectory (standard location)
+          const templatesDir = path.join(schemaDir, "templates");
+          for (const artifact of selectedArtifacts) {
+            const templatePath = path.join(templatesDir, artifact.template);
+            const templateDir = path.dirname(templatePath);
+
+            if (!fs.existsSync(templateDir)) {
+              fs.mkdirSync(templateDir, { recursive: true });
+            }
+
+            // Create default template content
+            const templateContent = createDefaultTemplate(artifact.id);
+            fs.writeFileSync(templatePath, templateContent);
+          }
+
+          // Update config if --default
           if (options?.default) {
-            console.log(`\nSet as project default schema.`);
+            const configPath = path.join(
+              projectRoot,
+              "openspec",
+              "config.yaml",
+            );
+
+            if (fs.existsSync(configPath)) {
+              const { parse: parseYaml, stringify: stringifyYaml2 } =
+                await import("yaml");
+              const configContent = fs.readFileSync(configPath, "utf-8");
+              const config = parseYaml(configContent) || {};
+              config.defaultSchema = name;
+              fs.writeFileSync(configPath, stringifyYaml2(config));
+            } else {
+              // Create config file
+              const configDir = path.dirname(configPath);
+              if (!fs.existsSync(configDir)) {
+                fs.mkdirSync(configDir, { recursive: true });
+              }
+              fs.writeFileSync(
+                configPath,
+                stringifyYaml({ defaultSchema: name }),
+              );
+            }
           }
-          console.log(`\nNext steps:`);
-          console.log(`  1. Edit ${schemaDir}/schema.yaml to customize artifacts`);
-          console.log(`  2. Modify templates in the schema directory`);
-          console.log(`  3. Use with: openspec new --schema ${name}`);
+
+          if (spinner) spinner.succeed(`已创建工作流模式 '${name}'`);
+
+          if (options?.json) {
+            console.log(
+              JSON.stringify(
+                {
+                  created: true,
+                  path: schemaDir,
+                  schema: name,
+                  artifacts: selectedArtifactIds,
+                  setAsDefault: options?.default || false,
+                },
+                null,
+                2,
+              ),
+            );
+          } else {
+            console.log(`\n工作流模式已创建于：${schemaDir}`);
+            console.log(`\n制品：${selectedArtifactIds.join(", ")}`);
+            if (options?.default) {
+              console.log(`\n已设为项目默认工作流模式。`);
+            }
+            console.log(`\n后续步骤：`);
+            console.log(`  1. 编辑 ${schemaDir}/schema.yaml 自定义制品`);
+            console.log(`  2. 在工作流模式目录中修改模板`);
+            console.log(`  3. 使用：openspec new --schema ${name}`);
+          }
+        } catch (error) {
+          if (spinner) spinner.fail("创建失败");
+          if (options?.json) {
+            console.log(
+              JSON.stringify(
+                {
+                  created: false,
+                  error: (error as Error).message,
+                },
+                null,
+                2,
+              ),
+            );
+          } else {
+            console.error(`错误：${(error as Error).message}`);
+          }
+          process.exitCode = 1;
         }
-      } catch (error) {
-        if (spinner) spinner.fail(`Creation failed`);
-        if (options?.json) {
-          console.log(JSON.stringify({
-            created: false,
-            error: (error as Error).message,
-          }, null, 2));
-        } else {
-          console.error(`Error: ${(error as Error).message}`);
-        }
-        process.exitCode = 1;
-      }
-    });
+      },
+    );
 }
 
 /**
@@ -927,7 +1095,7 @@ export function registerSchemaCommand(program: Command): void {
  */
 function createDefaultTemplate(artifactId: string): string {
   switch (artifactId) {
-    case 'proposal':
+    case "proposal":
       return `## Why
 
 <!-- Describe the motivation for this change -->
@@ -949,7 +1117,7 @@ function createDefaultTemplate(artifactId: string): string {
 <!-- Describe the impact on existing functionality -->
 `;
 
-    case 'specs':
+    case "specs":
       return `## ADDED Requirements
 
 ### Requirement: Example requirement
@@ -961,7 +1129,7 @@ Description of the requirement.
 - **THEN** some outcome
 `;
 
-    case 'design':
+    case "design":
       return `## Context
 
 <!-- Background and context -->
@@ -988,7 +1156,7 @@ Description and rationale.
 <!-- List risks and trade-offs -->
 `;
 
-    case 'tasks':
+    case "tasks":
       return `## Implementation Tasks
 
 - [ ] Task 1
