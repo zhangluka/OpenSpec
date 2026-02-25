@@ -2,7 +2,8 @@
 
 本任务清单供 AI 或人工按序执行，完成 OpenSpec 的汉化。执行时请遵守：
 
-- **不修改**：核心概念设计；CLI 命令名（如 `openspec init`）；斜杠命令 ID（如 `/opsx:new`）；代码逻辑、文件名、配置键名。
+- **改名（内化）**：工具名 `openspec` → `phspec`；斜杠命令前缀 `/opsx` → `/phsx`（见第 10 节）。
+- **不修改**：核心概念设计；代码逻辑；未在第 10 节涉及的文件名、配置键名。
 - **术语一致**：先完成 1.1 术语表，后续所有翻译与该表一致。
 - **仅汉化用户可见文案**：界面提示、文档正文、模板内容、命令/选项描述、错误与成功信息。
 
@@ -87,11 +88,27 @@
 
 ---
 
+## 10. 工具与斜杠命令改名（openspec → phspec，/opsx → /phsx）
+
+- [x] 10.1 **包与 CLI 可执行名**：修改 `package.json` 中 `name`、`bin`（`openspec` → `phspec`，指向 `./bin/phspec.js`）、`keywords`；将 `bin/openspec.js` 重命名为 `bin/phspec.js`。
+- [x] 10.2 **斜杠命令前缀与技能名（技能模板）**：在 `src/core/templates/skill-templates.ts` 中，将所有 `/opsx:`、`opsx-`、`OPSX` 替换为 `/phsx:`、`phsx-`、`PHSX`（含 description、instructions、CommandTemplate 的 name/body/content）；将技能的 `name`（如 `openspec-explore`、`openspec-new-change`）改为 `phspec-explore`、`phspec-new-change` 等；指令与说明中的「OpenSpec」改为「PhSpec」、CLI 示例 `openspec` 改为 `phspec`；保持 Markdown 与代码块结构不变。
+- [x] 10.3 **斜杠命令前缀（适配器与生成路径）**：在 `src/core/command-generation/adapters/` 下各适配器中，将生成路径与 frontmatter 里的 `opsx` 改为 `phsx`（如 `opsx-${commandId}.md` → `phsx-${commandId}.md`，`name: /opsx-` → `name: /phsx-`，目录名 `opsx` → `phsx`）；同步修改 `src/core/command-generation/types.ts` 中相关注释。
+- [x] 10.4 **斜杠命令引用转换**：在 `src/utils/command-references.ts` 中，将 `/opsx:` 与 `opsx-` 的转换逻辑改为 `/phsx:` 与 `phsx-`。
+- [x] 10.5 **CLI 与 UI 中的示例**：在 `src/core/init.ts`、`src/core/update.ts`、`src/ui/welcome-screen.ts`、`src/core/legacy-cleanup.ts` 中，将提示与输出中的 `/opsx:*`、`openspec` 改为 `/phsx:*`、`phspec`。
+- [x] 10.6 **Shell 补全**：在 `src/core/completions/` 下（templates、generators、installers）将命令名 `openspec` 与补全函数名 `_openspec`、`openspec.fish` 等改为 `phspec`、`_phspec`、`phspec.fish` 等，使补全安装后调用 `phspec`。
+- [x] 10.7 **文档与 README**：在 `docs/` 与 `README.md` 中，将用户可见的「OpenSpec」/「openspec」/「/opsx」改为「PhSpec」/「phspec」/「/phsx」；代码块与示例中的命令、斜杠命令同步改为 `phspec`、`/phsx:*`；文档中提到的环境变量 `OPENSPEC_*` 改为 `PHSPEC_*`（见 10.9）。
+- [x] 10.8 **其它源码与配置**：全文检索 `openspec`、`opsx`（含测试、schema、openspec/specs），将需对用户暴露的 CLI 名、斜杠命令、文档说明改为 `phspec`、`phsx`；`src/core/view.ts`、`list.ts`、`project-config.ts`、`update.ts`、`src/core/validation/constants.ts` 等处的错误/提示中的「openspec 目录」「openspec/config.yaml」等若采用目录改名则改为 phspec（否则保留）。
+- [x] 10.9 **环境变量**：将 `OPENSPEC_TELEMETRY`、`OPENSPEC_CONCURRENCY`、`OPENSPEC_NO_AUTO_CONFIG`、`OPENSPEC_NO_COMPLETIONS` 改为 `PHSPEC_TELEMETRY`、`PHSPEC_CONCURRENCY`、`PHSPEC_NO_AUTO_CONFIG`、`PHSPEC_NO_COMPLETIONS`。修改处：`src/telemetry/index.ts`、`src/commands/validate.ts`、`src/cli/index.ts`、`src/core/completions/command-registry.ts`、`src/core/completions/installers/*.ts`（zsh/bash/powershell 的 marker 与 env 检查）、`scripts/postinstall.js`、`scripts/test-postinstall.sh`；`README.md`、`docs/cli.md`、`openspec/specs/telemetry/spec.md`；所有引用上述变量的测试（如 `test/telemetry/`、`test/core/completions/installers/`）。
+- [x] 10.10 **（可选）项目数据目录与元数据文件名**：若决定彻底内化目录名，则：将 `src/core/config.ts` 中 `OPENSPEC_DIR_NAME` 改为 `PHSPEC_DIR_NAME` 且值为 `"phspec"`；所有 `path.join(..., "openspec", ...)` 及错误提示中的「openspec 目录」「openspec/config.yaml」改为 phspec；CoStrict 适配器路径 `.cospec/openspec/` → `.cospec/phspec/`；变更元数据文件名 `.openspec.yaml` → `.phspec.yaml`（`src/utils/change-metadata.ts` 的 `METADATA_FILENAME` 及文档、测试、specs）。此为破坏性变更，需在文档中提供迁移说明。
+- [ ] 10.11 **（可选）嵌入标记**：若希望补全与生成文件中的标记也内化，将 `OPENSPEC_MARKERS` 改为 `PHSPEC_MARKERS`，`<!-- OPENSPEC:START -->` / `OPENSPEC:END`、`# OPENSPEC:START` / `# OPENSPEC:END` 改为 `PHSPEC` 前缀；并更新所有引用处（`src/core/config.ts`、legacy-cleanup、completion installers、相关测试）。若修改，需在文档中说明对已有用户 shell 配置的兼容或迁移方式。
+
+---
+
 ## 9. 校验与收尾
 
 - [x] 9.1 运行 `pnpm run build`，确认无 TypeScript 与语法错误。
-- [x] 9.2 在临时目录执行 `openspec init --tools cursor`（或任一带 skills/commands 的工具），检查生成到 `.cursor/commands/`（或对应目录）的 Markdown 文件内容为中文。
-- [x] 9.3 执行若干 CLI 命令（如 `openspec list`、`openspec status --help`、`openspec validate --help`），确认描述与帮助输出为中文。
+- [x] 9.2 在临时目录执行 `phspec init --tools cursor`（或任一带 skills/commands 的工具），检查生成到 `.cursor/commands/`（或对应目录）的 Markdown 文件内容为中文，且文件名为 `phsx-*.md`。
+- [x] 9.3 执行若干 CLI 命令（如 `phspec list`、`phspec status --help`、`phspec validate --help`），确认描述与帮助输出为中文。
 - [x] 9.4 通读 `docs/` 中已汉化文件，检查术语与 1.1 术语表一致，且无遗漏的英文句子（代码块与命令名除外）。
 
 ---

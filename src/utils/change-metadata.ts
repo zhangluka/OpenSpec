@@ -1,11 +1,14 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as yaml from 'yaml';
-import { ChangeMetadataSchema, type ChangeMetadata } from '../core/artifact-graph/types.js';
-import { listSchemas } from '../core/artifact-graph/resolver.js';
-import { readProjectConfig } from '../core/project-config.js';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as yaml from "yaml";
+import {
+  ChangeMetadataSchema,
+  type ChangeMetadata,
+} from "../core/artifact-graph/types.js";
+import { listSchemas } from "../core/artifact-graph/resolver.js";
+import { readProjectConfig } from "../core/project-config.js";
 
-const METADATA_FILENAME = '.openspec.yaml';
+const METADATA_FILENAME = ".phspec.yaml";
 
 /**
  * Error thrown when change metadata validation fails.
@@ -14,10 +17,10 @@ export class ChangeMetadataError extends Error {
   constructor(
     message: string,
     public readonly metadataPath: string,
-    public readonly cause?: Error
+    public readonly cause?: Error,
   ) {
     super(message);
-    this.name = 'ChangeMetadataError';
+    this.name = "ChangeMetadataError";
   }
 }
 
@@ -31,19 +34,19 @@ export class ChangeMetadataError extends Error {
  */
 export function validateSchemaName(
   schemaName: string,
-  projectRoot?: string
+  projectRoot?: string,
 ): string {
   const availableSchemas = listSchemas(projectRoot);
   if (!availableSchemas.includes(schemaName)) {
     throw new Error(
-      `Unknown schema '${schemaName}'. Available: ${availableSchemas.join(', ')}`
+      `Unknown schema '${schemaName}'. Available: ${availableSchemas.join(", ")}`,
     );
   }
   return schemaName;
 }
 
 /**
- * Writes change metadata to .openspec.yaml in the change directory.
+ * Writes change metadata to .phspec.yaml in the change directory.
  *
  * @param changeDir - The path to the change directory
  * @param metadata - The metadata to write
@@ -53,7 +56,7 @@ export function validateSchemaName(
 export function writeChangeMetadata(
   changeDir: string,
   metadata: ChangeMetadata,
-  projectRoot?: string
+  projectRoot?: string,
 ): void {
   const metaPath = path.join(changeDir, METADATA_FILENAME);
 
@@ -65,26 +68,26 @@ export function writeChangeMetadata(
   if (!parseResult.success) {
     throw new ChangeMetadataError(
       `Invalid metadata: ${parseResult.error.message}`,
-      metaPath
+      metaPath,
     );
   }
 
   // Write YAML file
   const content = yaml.stringify(parseResult.data);
   try {
-    fs.writeFileSync(metaPath, content, 'utf-8');
+    fs.writeFileSync(metaPath, content, "utf-8");
   } catch (err) {
     const ioError = err instanceof Error ? err : new Error(String(err));
     throw new ChangeMetadataError(
       `Failed to write metadata: ${ioError.message}`,
       metaPath,
-      ioError
+      ioError,
     );
   }
 }
 
 /**
- * Reads change metadata from .openspec.yaml in the change directory.
+ * Reads change metadata from .phspec.yaml in the change directory.
  *
  * @param changeDir - The path to the change directory
  * @param projectRoot - Optional project root for project-local schema resolution
@@ -93,7 +96,7 @@ export function writeChangeMetadata(
  */
 export function readChangeMetadata(
   changeDir: string,
-  projectRoot?: string
+  projectRoot?: string,
 ): ChangeMetadata | null {
   const metaPath = path.join(changeDir, METADATA_FILENAME);
 
@@ -103,13 +106,13 @@ export function readChangeMetadata(
 
   let content: string;
   try {
-    content = fs.readFileSync(metaPath, 'utf-8');
+    content = fs.readFileSync(metaPath, "utf-8");
   } catch (err) {
     const ioError = err instanceof Error ? err : new Error(String(err));
     throw new ChangeMetadataError(
       `Failed to read metadata: ${ioError.message}`,
       metaPath,
-      ioError
+      ioError,
     );
   }
 
@@ -121,7 +124,7 @@ export function readChangeMetadata(
     throw new ChangeMetadataError(
       `Invalid YAML in metadata file: ${parseError.message}`,
       metaPath,
-      parseError
+      parseError,
     );
   }
 
@@ -130,7 +133,7 @@ export function readChangeMetadata(
   if (!parseResult.success) {
     throw new ChangeMetadataError(
       `Invalid metadata: ${parseResult.error.message}`,
-      metaPath
+      metaPath,
     );
   }
 
@@ -138,8 +141,8 @@ export function readChangeMetadata(
   const availableSchemas = listSchemas(projectRoot);
   if (!availableSchemas.includes(parseResult.data.schema)) {
     throw new ChangeMetadataError(
-      `Unknown schema '${parseResult.data.schema}'. Available: ${availableSchemas.join(', ')}`,
-      metaPath
+      `Unknown schema '${parseResult.data.schema}'. Available: ${availableSchemas.join(", ")}`,
+      metaPath,
     );
   }
 
@@ -151,7 +154,7 @@ export function readChangeMetadata(
  *
  * Resolution order:
  * 1. Explicit schema (if provided)
- * 2. Schema from .openspec.yaml metadata (if exists)
+ * 2. Schema from .phspec.yaml metadata (if exists)
  * 3. Schema from openspec/config.yaml (if exists)
  * 4. Default 'spec-driven'
  *
@@ -161,10 +164,10 @@ export function readChangeMetadata(
  */
 export function resolveSchemaForChange(
   changeDir: string,
-  explicitSchema?: string
+  explicitSchema?: string,
 ): string {
   // Derive project root from changeDir (changeDir is typically projectRoot/openspec/changes/change-name)
-  const projectRoot = path.resolve(changeDir, '../../..');
+  const projectRoot = path.resolve(changeDir, "../../..");
 
   // 1. Explicit override wins
   if (explicitSchema) {
@@ -192,5 +195,5 @@ export function resolveSchemaForChange(
   }
 
   // 4. Default
-  return 'spec-driven';
+  return "spec-driven";
 }

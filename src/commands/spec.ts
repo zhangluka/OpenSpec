@@ -7,7 +7,7 @@ import type { Spec } from "../core/schemas/index.js";
 import { isInteractive } from "../utils/interactive.js";
 import { getSpecIds } from "../utils/item-discovery.js";
 
-const SPECS_DIR = "openspec/specs";
+const SPECS_DIR = "phspec/specs";
 
 interface ShowOptions {
   json?: boolean;
@@ -55,7 +55,7 @@ function filterSpec(spec: Spec, options: ShowOptions): Spec {
 
   const metadata = spec.metadata ?? {
     version: "1.0.0",
-    format: "openspec" as const,
+    format: "phspec" as const,
   };
 
   return {
@@ -76,7 +76,7 @@ function printSpecTextRaw(specPath: string): void {
 }
 
 export class SpecCommand {
-  private SPECS_DIR = "openspec/specs";
+  private SPECS_DIR = "phspec/specs";
 
   async show(specId?: string, options: ShowOptions = {}): Promise<void> {
     if (!specId) {
@@ -96,7 +96,7 @@ export class SpecCommand {
     const specPath = join(this.SPECS_DIR, specId, "spec.md");
     if (!existsSync(specPath)) {
       throw new Error(
-        `规范 '${specId}' 在 openspec/specs/${specId}/spec.md 未找到`,
+        `规范 '${specId}' 在 phspec/specs/${specId}/spec.md 未找到`,
       );
     }
 
@@ -114,7 +114,7 @@ export class SpecCommand {
         requirements: filtered.requirements,
         metadata: parsed.metadata ?? {
           version: "1.0.0",
-          format: "openspec" as const,
+          format: "phspec" as const,
         },
       };
       console.log(JSON.stringify(output, null, 2));
@@ -127,12 +127,12 @@ export class SpecCommand {
 export function registerSpecCommand(rootProgram: typeof program) {
   const specCommand = rootProgram
     .command("spec")
-    .description("管理与查看 OpenSpec 规范");
+    .description("管理与查看 PhSpec 规范");
 
   // Deprecation notice for noun-based commands
   specCommand.hook("preAction", () => {
     console.error(
-      '警告："openspec spec ..." 命令已弃用，请改用动词优先命令（如 "openspec show"、"openspec validate --specs"）。',
+      '警告："phspec spec ..." 命令已弃用，请改用动词优先命令（如 "phspec show"、"phspec validate --specs"）。',
     );
   });
 
@@ -265,7 +265,7 @@ export function registerSpecCommand(rootProgram: typeof program) {
 
           if (!existsSync(specPath)) {
             throw new Error(
-              `规范 '${specId}' 在 openspec/specs/${specId}/spec.md 未找到`,
+              `规范 '${specId}' 在 phspec/specs/${specId}/spec.md 未找到`,
             );
           }
 

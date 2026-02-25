@@ -1015,11 +1015,7 @@ export function registerSchemaCommand(program: Command): void {
 
           // Update config if --default
           if (options?.default) {
-            const configPath = path.join(
-              projectRoot,
-              "openspec",
-              "config.yaml",
-            );
+            const configPath = path.join(projectRoot, "phspec", "config.yaml");
 
             if (fs.existsSync(configPath)) {
               const { parse: parseYaml, stringify: stringifyYaml2 } =

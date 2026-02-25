@@ -9,39 +9,39 @@
 ### npm
 
 ```bash
-npm install -g @fission-ai/openspec@latest
+npm install -g @fission-ai/phspec@latest
 ```
 
 ### pnpm
 
 ```bash
-pnpm add -g @fission-ai/openspec@latest
+pnpm add -g @fission-ai/phspec@latest
 ```
 
 ### yarn
 
 ```bash
-yarn global add @fission-ai/openspec@latest
+yarn global add @fission-ai/phspec@latest
 ```
 
 ### bun
 
 ```bash
-bun add -g @fission-ai/openspec@latest
+bun add -g @fission-ai/phspec@latest
 ```
 
 ## Nix
 
-不安装即可直接运行 OpenSpec：
+不安装即可直接运行 PhSpec：
 
 ```bash
-nix run github:Fission-AI/OpenSpec -- init
+nix run github:Fission-AI/PhSpec -- init
 ```
 
 或安装到当前 profile：
 
 ```bash
-nix profile install github:Fission-AI/OpenSpec
+nix profile install github:Fission-AI/PhSpec
 ```
 
 或在 `flake.nix` 中加入开发环境：
@@ -50,12 +50,12 @@ nix profile install github:Fission-AI/OpenSpec
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    openspec.url = "github:Fission-AI/OpenSpec";
+    phspec.url = "github:Fission-AI/PhSpec";
   };
 
-  outputs = { nixpkgs, openspec, ... }: {
+  outputs = { nixpkgs, phspec, ... }: {
     devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
-      buildInputs = [ openspec.packages.x86_64-linux.default ];
+      buildInputs = [ phspec.packages.x86_64-linux.default ];
     };
   };
 }
@@ -64,16 +64,16 @@ nix profile install github:Fission-AI/OpenSpec
 ## 验证安装
 
 ```bash
-openspec --version
+phspec --version
 ```
 
 ## 下一步
 
-安装后，在项目中初始化 OpenSpec：
+安装后，在项目中初始化 PhSpec：
 
 ```bash
 cd your-project
-openspec init
+phspec init
 ```
 
 完整流程见 [入门](getting-started.md)。

@@ -26,7 +26,7 @@ import {
 export function registerConfigCommand(program: Command): void {
   const configCmd = program
     .command("config")
-    .description("查看与修改全局 OpenSpec 配置")
+    .description("查看与修改全局 PhSpec 配置")
     .option("--scope <scope>", '配置作用域（当前仅支持 "global"）')
     .hook("preAction", (thisCommand) => {
       const opts = thisCommand.opts();

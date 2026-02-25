@@ -5,8 +5,8 @@
  * Cursor uses a different frontmatter format and file naming convention.
  */
 
-import path from 'path';
-import type { CommandContent, ToolCommandAdapter } from '../types.js';
+import path from "path";
+import type { CommandContent, ToolCommandAdapter } from "../types.js";
 
 /**
  * Escapes a string value for safe YAML output.
@@ -17,7 +17,10 @@ function escapeYamlValue(value: string): string {
   const needsQuoting = /[:\n\r#{}[\],&*!|>'"%@`]|^\s|\s$/.test(value);
   if (needsQuoting) {
     // Use double quotes and escape internal double quotes and backslashes
-    const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    const escaped = value
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "\\n");
     return `"${escaped}"`;
   }
   return value;
@@ -25,20 +28,20 @@ function escapeYamlValue(value: string): string {
 
 /**
  * Cursor adapter for command generation.
- * File path: .cursor/commands/opsx-<id>.md
- * Frontmatter: name (as /opsx-<id>), id, category, description
+ * File path: .cursor/commands/phsx-<id>.md
+ * Frontmatter: name (as /phsx-<id>), id, category, description
  */
 export const cursorAdapter: ToolCommandAdapter = {
-  toolId: 'cursor',
+  toolId: "cursor",
 
   getFilePath(commandId: string): string {
-    return path.join('.cursor', 'commands', `opsx-${commandId}.md`);
+    return path.join(".cursor", "commands", `phsx-${commandId}.md`);
   },
 
   formatFile(content: CommandContent): string {
     return `---
-name: /opsx-${content.id}
-id: opsx-${content.id}
+name: /phsx-${content.id}
+id: phsx-${content.id}
 category: ${escapeYamlValue(content.category)}
 description: ${escapeYamlValue(content.description)}
 ---

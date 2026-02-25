@@ -4,13 +4,13 @@
 
 ## 是什么？
 
-OPSX 是 OpenSpec 的当前标准工作流。
+OPSX 是 PhSpec 的当前标准工作流。
 
 它是一个**灵活、可迭代**的变更流程：没有固定阶段，只有可随时执行的动作。
 
 ## 为何存在
 
-旧版 OpenSpec 工作流能用，但**封闭**：
+旧版 PhSpec 工作流能用，但**封闭**：
 
 - **指令写死在代码里** — 无法修改
 - **要么全做要么不做** — 一条命令生成全部，无法单独验证
@@ -37,10 +37,10 @@ OPSX 是 OpenSpec 的当前标准工作流。
 ## 配置
 
 ```bash
-openspec init
+phspec init
 ```
 
-会在 `.claude/skills/`（或对应工具目录）生成技能，供 AI 编程助手自动加载。过程中会提示是否创建**项目配置**（`openspec/config.yaml`），可选但推荐。
+会在 `.claude/skills/`（或对应工具目录）生成技能，供 AI 编程助手自动加载。过程中会提示是否创建**项目配置**（`phspec/config.yaml`），可选但推荐。
 
 ## 项目配置
 
@@ -48,10 +48,10 @@ openspec init
 
 ### 创建配置
 
-在 `openspec init` 时创建，或手动在项目根目录创建：
+在 `phspec init` 时创建，或手动在项目根目录创建：
 
 ```yaml
-# openspec/config.yaml
+# phspec/config.yaml
 schema: spec-driven
 
 context: |
@@ -81,8 +81,8 @@ rules:
 ### 模式解析顺序（从高到低）
 
 1. CLI 参数（`--schema <name>`）
-2. 变更元数据（变更目录下的 `.openspec.yaml`）
-3. 项目配置（`openspec/config.yaml`）
+2. 变更元数据（变更目录下的 `.phspec.yaml`）
+3. 项目配置（`phspec/config.yaml`）
 4. 默认（`spec-driven`）
 
 上下文会包在 `<context>...</context>` 中注入；规则仅对匹配的制品注入，包在 `<rules>...</rules>` 中。
@@ -98,21 +98,21 @@ rules:
 
 | 命令             | 作用                                         |
 | ---------------- | -------------------------------------------- |
-| `/opsx:explore`  | 梳理想法、排查问题、澄清需求                 |
-| `/opsx:new`      | 新建变更                                     |
-| `/opsx:continue` | 创建下一个就绪的制品                         |
-| `/opsx:ff`       | 快进 — 一次性创建全部规划制品                |
-| `/opsx:apply`    | 实施任务，按需更新制品                       |
-| `/opsx:sync`     | 将增量规范同步到主规范（可选，归档时会提示） |
-| `/opsx:archive`  | 完成后归档                                   |
+| `/phsx:explore`  | 梳理想法、排查问题、澄清需求                 |
+| `/phsx:new`      | 新建变更                                     |
+| `/phsx:continue` | 创建下一个就绪的制品                         |
+| `/phsx:ff`       | 快进 — 一次性创建全部规划制品                |
+| `/phsx:apply`    | 实施任务，按需更新制品                       |
+| `/phsx:sync`     | 将增量规范同步到主规范（可选，归档时会提示） |
+| `/phsx:archive`  | 完成后归档                                   |
 
 ## 使用要点
 
-- **探索**：`/opsx:explore`，无结构要求，思路清晰后可 `/opsx:new` 或 `/opsx:ff`
-- **新建变更**：`/opsx:new`，会询问要做什么以及使用哪个工作流模式
-- **创建制品**：`/opsx:continue` 按依赖逐个创建；`/opsx:ff <name>` 一次性创建全部规划制品
-- **实施**：`/opsx:apply`，按任务推进并勾选；多变更时可用 `/opsx:apply <name>`
-- **收尾**：`/opsx:archive`，会提示是否同步规范
+- **探索**：`/phsx:explore`，无结构要求，思路清晰后可 `/phsx:new` 或 `/phsx:ff`
+- **新建变更**：`/phsx:new`，会询问要做什么以及使用哪个工作流模式
+- **创建制品**：`/phsx:continue` 按依赖逐个创建；`/phsx:ff <name>` 一次性创建全部规划制品
+- **实施**：`/phsx:apply`，按任务推进并勾选；多变更时可用 `/phsx:apply <name>`
+- **收尾**：`/phsx:archive`，会提示是否同步规范
 
 ## 更新既有变更 vs 新建变更
 
@@ -123,7 +123,7 @@ rules:
 
 ## 与旧版的区别
 
-|            | 旧版（`/openspec:proposal`） | OPSX（`/opsx:*`）      |
+|            | 旧版（`/openspec:proposal`） | PHSX（`/phsx:*`）      |
 | ---------- | ---------------------------- | ---------------------- |
 | **结构**   | 一份大提案文档               | 离散制品 + 依赖        |
 | **流程**   | 线性阶段：规划 → 实现 → 归档 | 灵活动作，随时可做     |

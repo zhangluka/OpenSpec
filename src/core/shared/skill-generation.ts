@@ -26,8 +26,8 @@ import {
   getOpsxVerifyCommandTemplate,
   getOpsxOnboardCommandTemplate,
   type SkillTemplate,
-} from '../templates/skill-templates.js';
-import type { CommandContent } from '../command-generation/index.js';
+} from "../templates/skill-templates.js";
+import type { CommandContent } from "../command-generation/index.js";
 
 /**
  * Skill template with directory name mapping.
@@ -50,16 +50,28 @@ export interface CommandTemplateEntry {
  */
 export function getSkillTemplates(): SkillTemplateEntry[] {
   return [
-    { template: getExploreSkillTemplate(), dirName: 'openspec-explore' },
-    { template: getNewChangeSkillTemplate(), dirName: 'openspec-new-change' },
-    { template: getContinueChangeSkillTemplate(), dirName: 'openspec-continue-change' },
-    { template: getApplyChangeSkillTemplate(), dirName: 'openspec-apply-change' },
-    { template: getFfChangeSkillTemplate(), dirName: 'openspec-ff-change' },
-    { template: getSyncSpecsSkillTemplate(), dirName: 'openspec-sync-specs' },
-    { template: getArchiveChangeSkillTemplate(), dirName: 'openspec-archive-change' },
-    { template: getBulkArchiveChangeSkillTemplate(), dirName: 'openspec-bulk-archive-change' },
-    { template: getVerifyChangeSkillTemplate(), dirName: 'openspec-verify-change' },
-    { template: getOnboardSkillTemplate(), dirName: 'openspec-onboard' },
+    { template: getExploreSkillTemplate(), dirName: "phspec-explore" },
+    { template: getNewChangeSkillTemplate(), dirName: "phspec-new-change" },
+    {
+      template: getContinueChangeSkillTemplate(),
+      dirName: "phspec-continue-change",
+    },
+    { template: getApplyChangeSkillTemplate(), dirName: "phspec-apply-change" },
+    { template: getFfChangeSkillTemplate(), dirName: "phspec-ff-change" },
+    { template: getSyncSpecsSkillTemplate(), dirName: "phspec-sync-specs" },
+    {
+      template: getArchiveChangeSkillTemplate(),
+      dirName: "phspec-archive-change",
+    },
+    {
+      template: getBulkArchiveChangeSkillTemplate(),
+      dirName: "phspec-bulk-archive-change",
+    },
+    {
+      template: getVerifyChangeSkillTemplate(),
+      dirName: "phspec-verify-change",
+    },
+    { template: getOnboardSkillTemplate(), dirName: "phspec-onboard" },
   ];
 }
 
@@ -68,16 +80,16 @@ export function getSkillTemplates(): SkillTemplateEntry[] {
  */
 export function getCommandTemplates(): CommandTemplateEntry[] {
   return [
-    { template: getOpsxExploreCommandTemplate(), id: 'explore' },
-    { template: getOpsxNewCommandTemplate(), id: 'new' },
-    { template: getOpsxContinueCommandTemplate(), id: 'continue' },
-    { template: getOpsxApplyCommandTemplate(), id: 'apply' },
-    { template: getOpsxFfCommandTemplate(), id: 'ff' },
-    { template: getOpsxSyncCommandTemplate(), id: 'sync' },
-    { template: getOpsxArchiveCommandTemplate(), id: 'archive' },
-    { template: getOpsxBulkArchiveCommandTemplate(), id: 'bulk-archive' },
-    { template: getOpsxVerifyCommandTemplate(), id: 'verify' },
-    { template: getOpsxOnboardCommandTemplate(), id: 'onboard' },
+    { template: getOpsxExploreCommandTemplate(), id: "explore" },
+    { template: getOpsxNewCommandTemplate(), id: "new" },
+    { template: getOpsxContinueCommandTemplate(), id: "continue" },
+    { template: getOpsxApplyCommandTemplate(), id: "apply" },
+    { template: getOpsxFfCommandTemplate(), id: "ff" },
+    { template: getOpsxSyncCommandTemplate(), id: "sync" },
+    { template: getOpsxArchiveCommandTemplate(), id: "archive" },
+    { template: getOpsxBulkArchiveCommandTemplate(), id: "bulk-archive" },
+    { template: getOpsxVerifyCommandTemplate(), id: "verify" },
+    { template: getOpsxOnboardCommandTemplate(), id: "onboard" },
   ];
 }
 
@@ -106,7 +118,7 @@ export function getCommandContents(): CommandContent[] {
 export function generateSkillContent(
   template: SkillTemplate,
   generatedByVersion: string,
-  transformInstructions?: (instructions: string) => string
+  transformInstructions?: (instructions: string) => string,
 ): string {
   const instructions = transformInstructions
     ? transformInstructions(template.instructions)
@@ -115,11 +127,11 @@ export function generateSkillContent(
   return `---
 name: ${template.name}
 description: ${template.description}
-license: ${template.license || 'MIT'}
-compatibility: ${template.compatibility || 'Requires openspec CLI.'}
+license: ${template.license || "MIT"}
+compatibility: ${template.compatibility || "Requires phspec CLI."}
 metadata:
-  author: ${template.metadata?.author || 'openspec'}
-  version: "${template.metadata?.version || '1.0'}"
+  author: ${template.metadata?.author || "phspec"}
+  version: "${template.metadata?.version || "1.0"}"
   generatedBy: "${generatedByVersion}"
 ---
 

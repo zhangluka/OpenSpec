@@ -22,10 +22,15 @@
 
 AI 执行 tasks.md 时优先参考术语表。
 
-### 专有名词与代码不变
+### 工具与斜杠命令改名（内化）
 
-- 命令名、选项名、路径、文件名、键名（如 `openspec init`、`/opsx:new`、`--json`、`proposal.md`、`openspec/specs/`）保持英文。
-- 代码中的变量名、类型名、注释可保持英文，仅用户可见字符串汉化。
+- **工具名**：`openspec` → `phspec`。涉及：npm 包名与 `package.json` 的 `bin` 键、可执行文件 `bin/openspec.js` → `bin/phspec.js`、Shell 补全中的命令名（如 `openspec` → `phspec`、`_openspec` → `_phspec`）。
+- **斜杠命令前缀**：`/opsx` → `/phsx`。涉及：技能模板与指令中的 `/opsx:...`、各 AI 工具适配器生成的路径与 frontmatter（如 `.cursor/commands/opsx-<id>.md` → `phsx-<id>.md`、`name: /opsx-<id>` → `name: /phsx-<id>`）、`command-references.ts` 中的转换逻辑、CLI 输出与欢迎屏中的示例。
+- **技能 ID/名称**：技能模板中的 `name`（如 `openspec-explore`、`openspec-new-change`）改为 `phspec-explore`、`phspec-new-change` 等，与斜杠命令品牌一致。
+- **环境变量**：用户/运维可见的环境变量统一改为 `PHSPEC_*`：`OPENSPEC_TELEMETRY` → `PHSPEC_TELEMETRY`，`OPENSPEC_CONCURRENCY` → `PHSPEC_CONCURRENCY`，`OPENSPEC_NO_AUTO_CONFIG` → `PHSPEC_NO_AUTO_CONFIG`，`OPENSPEC_NO_COMPLETIONS` → `PHSPEC_NO_COMPLETIONS`。需同步修改源码、文档、README、测试与脚本（如 `scripts/postinstall.js`、`scripts/test-postinstall.sh`）。
+- **项目数据目录与元数据文件名（可选，破坏性）**：若希望彻底内化品牌，可将项目内数据目录 `openspec/` 改为 `phspec/`（`OPENSPEC_DIR_NAME` 及所有路径引用，含 CoStrict 的 `.cospec/openspec/` → `.cospec/phspec/`），变更元数据文件 `.openspec.yaml` 改为 `.phspec.yaml`。此为破坏性变更，需在文档中说明迁移步骤。
+- **嵌入标记（可选）**：Shell 补全与生成文件中使用的 `<!-- OPENSPEC:START -->` / `OPENSPEC:END`、`# OPENSPEC:START` / `# OPENSPEC:END` 可改为 `PHSPEC` 前缀；若修改，需考虑已安装补全用户的配置兼容或提供迁移说明。
+- 选项名、路径、文件名、YAML/JSON 键名（如 `--json`、`proposal.md`）除上述改名外保持英文。代码中的变量名、类型名（如 `OpenSpecConfig`）可保留英文，仅用户可见字符串与上述命名点做汉化/改名。
 
 ### 文档与模板范围
 
@@ -36,4 +41,4 @@ AI 执行 tasks.md 时优先参考术语表。
 
 ## Migration Plan
 
-无数据迁移。完成后执行 `pnpm run build` 与 `openspec update` 在测试目录验证生成文件为中文即可。
+无数据迁移。完成后执行 `pnpm run build` 与 `phspec update` 在测试目录验证生成文件为中文且命令名为 phsx 即可。

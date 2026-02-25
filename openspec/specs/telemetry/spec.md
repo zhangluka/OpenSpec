@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This spec defines how OpenSpec collects anonymous usage telemetry to help improve the tool. It governs the `src/telemetry/` module, which handles PostHog integration, privacy-preserving event design, user opt-out mechanisms, and first-run notice display. The spec ensures telemetry is minimal, transparent, and respects user privacy.
+This spec defines how PhSpec collects anonymous usage telemetry to help improve the tool. It governs the `src/telemetry/` module, which handles PostHog integration, privacy-preserving event design, user opt-out mechanisms, and first-run notice display. The spec ensures telemetry is minimal, transparent, and respects user privacy.
 
 ## Requirements
 
@@ -29,10 +29,10 @@ The system SHALL NOT include command arguments, file paths, project names, spec 
 - **THEN** the event explicitly sets `$ip: null` to prevent IP tracking
 
 ### Requirement: Environment variable opt-out
-The system SHALL disable telemetry when `OPENSPEC_TELEMETRY=0` or `DO_NOT_TRACK=1` environment variables are set.
+The system SHALL disable telemetry when `PHSPEC_TELEMETRY=0` or `DO_NOT_TRACK=1` environment variables are set.
 
-#### Scenario: OPENSPEC_TELEMETRY opt-out
-- **WHEN** `OPENSPEC_TELEMETRY=0` is set in the environment
+#### Scenario: PHSPEC_TELEMETRY opt-out
+- **WHEN** `PHSPEC_TELEMETRY=0` is set in the environment
 - **THEN** the system sends no telemetry events
 
 #### Scenario: DO_NOT_TRACK opt-out
@@ -41,7 +41,7 @@ The system SHALL disable telemetry when `OPENSPEC_TELEMETRY=0` or `DO_NOT_TRACK=
 
 #### Scenario: Environment variable takes precedence
 - **WHEN** the user has previously used the CLI (config exists)
-- **AND** the user sets `OPENSPEC_TELEMETRY=0`
+- **AND** the user sets `PHSPEC_TELEMETRY=0`
 - **THEN** telemetry is disabled regardless of config state
 
 ### Requirement: CI environment auto-disable
@@ -53,7 +53,7 @@ The system SHALL automatically disable telemetry when `CI=true` environment vari
 
 #### Scenario: CI with explicit enable
 - **WHEN** `CI=true` is set
-- **AND** `OPENSPEC_TELEMETRY=1` is explicitly set
+- **AND** `PHSPEC_TELEMETRY=1` is explicitly set
 - **THEN** telemetry remains disabled (CI takes precedence for privacy)
 
 ### Requirement: First-run telemetry notice
@@ -62,7 +62,7 @@ The system SHALL display a one-line telemetry disclosure notice on the first com
 #### Scenario: First command execution
 - **WHEN** a user runs their first openspec command
 - **AND** telemetry is enabled
-- **THEN** the system displays: "Note: OpenSpec collects anonymous usage stats. Opt out: OPENSPEC_TELEMETRY=0"
+- **THEN** the system displays: "Note: PhSpec collects anonymous usage stats. Opt out: PHSPEC_TELEMETRY=0"
 
 #### Scenario: Subsequent command execution
 - **WHEN** a user has already seen the notice (noticeSeen: true in config)

@@ -38,7 +38,7 @@ export const VALIDATION_MESSAGES = {
 
   // Guidance snippets (appended to primary messages for remediation)
   GUIDE_NO_DELTAS:
-    '未找到增量。请确保变更含有 specs/ 目录及能力子目录（如 specs/http-server/spec.md），其中的 .md 使用增量标题（## ADDED/MODIFIED/REMOVED/RENAMED Requirements），且每条需求包含至少一个 "#### Scenario:" 块。提示：运行 "openspec change show <change-id> --json --deltas-only" 查看已解析增量。',
+    '未找到增量。请确保变更含有 specs/ 目录及能力子目录（如 specs/http-server/spec.md），其中的 .md 使用增量标题（## ADDED/MODIFIED/REMOVED/RENAMED Requirements），且每条需求包含至少一个 "#### Scenario:" 块。提示：运行 "phspec change show <change-id> --json --deltas-only" 查看已解析增量。',
   GUIDE_MISSING_SPEC_SECTIONS:
     '缺少必填节。需要标题："## Purpose" 与 "## Requirements"。示例：\n## Purpose\n[简要目的]\n\n## Requirements\n### Requirement: 清晰需求陈述\nUsers SHALL ...\n\n#### Scenario: 描述性名称\n- **WHEN** ...\n- **THEN** ...',
   GUIDE_MISSING_CHANGE_SECTIONS:

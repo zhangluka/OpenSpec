@@ -1,9 +1,9 @@
 {
-  "name": "@bobby_z/openspec",
+  "name": "@bobby_z/phspec",
   "version": "0.0.1",
   "description": "AI-native system for spec-driven development",
   "keywords": [
-    "openspec",
+    "phspec",
     "specs",
     "cli",
     "ai",
@@ -27,7 +27,7 @@
     }
   },
   "bin": {
-    "openspec": "./bin/openspec.js"
+    "phspec": "./bin/phspec.js"
   },
   "files": [
     "dist",
@@ -42,7 +42,7 @@
     "lint": "eslint src/",
     "build": "node build.js",
     "dev": "tsc --watch",
-    "dev:cli": "pnpm build && node bin/openspec.js",
+    "dev:cli": "pnpm build && node bin/phspec.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

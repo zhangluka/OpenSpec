@@ -1,7 +1,7 @@
 /**
  * Init Command
  *
- * Sets up OpenSpec with Agent Skills and /opsx:* slash commands.
+ * Sets up PhSpec with Agent Skills and /phsx:* slash commands.
  * This is the unified setup command that replaces both the old init and experimental commands.
  */
 
@@ -12,7 +12,7 @@ import * as fs from "fs";
 import { createRequire } from "module";
 import { FileSystemUtils } from "../utils/file-system.js";
 import { transformToHyphenCommands } from "../utils/command-references.js";
-import { AI_TOOLS, OPENSPEC_DIR_NAME, AIToolOption } from "./config.js";
+import { AI_TOOLS, PHSPEC_DIR_NAME, AIToolOption } from "./config.js";
 import { PALETTE } from "./styles/palette.js";
 import { isInteractive } from "../utils/interactive.js";
 import { serializeConfig } from "./config-prompts.js";
@@ -79,11 +79,11 @@ export class InitCommand {
 
   async execute(targetPath: string): Promise<void> {
     const projectPath = path.resolve(targetPath);
-    const openspecDir = OPENSPEC_DIR_NAME;
-    const openspecPath = path.join(projectPath, openspecDir);
+    const phspecDir = PHSPEC_DIR_NAME;
+    const phspecPath = path.join(projectPath, phspecDir);
 
     // Validation happens silently in the background
-    const extendMode = await this.validate(projectPath, openspecPath);
+    const extendMode = await this.validate(projectPath, phspecPath);
 
     // Check for legacy artifacts and handle cleanup
     await this.handleLegacyCleanup(projectPath, extendMode);
@@ -105,7 +105,7 @@ export class InitCommand {
     const validatedTools = this.validateTools(selectedToolIds, toolStates);
 
     // Create directory structure and config
-    await this.createDirectoryStructure(openspecPath, extendMode);
+    await this.createDirectoryStructure(phspecPath, extendMode);
 
     // Generate skills and commands for each tool
     const results = await this.generateSkillsAndCommands(
@@ -114,7 +114,7 @@ export class InitCommand {
     );
 
     // Create config.yaml if needed
-    const configStatus = await this.createConfig(openspecPath, extendMode);
+    const configStatus = await this.createConfig(phspecPath, extendMode);
 
     // Display success message
     this.displaySuccessMessage(
@@ -131,9 +131,9 @@ export class InitCommand {
 
   private async validate(
     projectPath: string,
-    openspecPath: string,
+    phspecPath: string,
   ): Promise<boolean> {
-    const extendMode = await FileSystemUtils.directoryExists(openspecPath);
+    const extendMode = await FileSystemUtils.directoryExists(phspecPath);
 
     // Check write permissions
     if (!(await FileSystemUtils.ensureWritePermissions(projectPath))) {
@@ -395,16 +395,16 @@ export class InitCommand {
   // ═══════════════════════════════════════════════════════════
 
   private async createDirectoryStructure(
-    openspecPath: string,
+    phspecPath: string,
     extendMode: boolean,
   ): Promise<void> {
     if (extendMode) {
       // In extend mode, just ensure directories exist without spinner
       const directories = [
-        openspecPath,
-        path.join(openspecPath, "specs"),
-        path.join(openspecPath, "changes"),
-        path.join(openspecPath, "changes", "archive"),
+        phspecPath,
+        path.join(phspecPath, "specs"),
+        path.join(phspecPath, "changes"),
+        path.join(phspecPath, "changes", "archive"),
       ];
 
       for (const dir of directories) {
@@ -413,13 +413,13 @@ export class InitCommand {
       return;
     }
 
-    const spinner = this.startSpinner("Creating OpenSpec structure...");
+    const spinner = this.startSpinner("Creating PhSpec structure...");
 
     const directories = [
-      openspecPath,
-      path.join(openspecPath, "specs"),
-      path.join(openspecPath, "changes"),
-      path.join(openspecPath, "changes", "archive"),
+      phspecPath,
+      path.join(phspecPath, "specs"),
+      path.join(phspecPath, "changes"),
+      path.join(phspecPath, "changes", "archive"),
     ];
 
     for (const dir of directories) {
@@ -428,7 +428,7 @@ export class InitCommand {
 
     spinner.stopAndPersist({
       symbol: PALETTE.white("▌"),
-      text: PALETTE.white("OpenSpec structure created"),
+      text: PALETTE.white("PhSpec structure created"),
     });
   }
 
@@ -522,11 +522,11 @@ export class InitCommand {
   // ═══════════════════════════════════════════════════════════
 
   private async createConfig(
-    openspecPath: string,
+    phspecPath: string,
     extendMode: boolean,
   ): Promise<"created" | "exists" | "skipped"> {
-    const configPath = path.join(openspecPath, "config.yaml");
-    const configYmlPath = path.join(openspecPath, "config.yml");
+    const configPath = path.join(phspecPath, "config.yaml");
+    const configYmlPath = path.join(phspecPath, "config.yml");
     const configYamlExists = fs.existsSync(configPath);
     const configYmlExists = fs.existsSync(configYmlPath);
 
@@ -569,7 +569,7 @@ export class InitCommand {
     configStatus: "created" | "exists" | "skipped",
   ): void {
     console.log();
-    console.log(chalk.bold("OpenSpec 配置完成"));
+    console.log(chalk.bold("PhSpec 配置完成"));
     console.log();
 
     // Show created vs refreshed tools
@@ -624,21 +624,17 @@ export class InitCommand {
 
     // Config status
     if (configStatus === "created") {
-      console.log(`配置：openspec/config.yaml (schema: ${DEFAULT_SCHEMA})`);
+      console.log(`配置：phspec/config.yaml (schema: ${DEFAULT_SCHEMA})`);
     } else if (configStatus === "exists") {
       // Show actual filename (config.yaml or config.yml)
-      const configYaml = path.join(
-        projectPath,
-        OPENSPEC_DIR_NAME,
-        "config.yaml",
-      );
-      const configYml = path.join(projectPath, OPENSPEC_DIR_NAME, "config.yml");
+      const configYaml = path.join(projectPath, PHSPEC_DIR_NAME, "config.yaml");
+      const configYml = path.join(projectPath, PHSPEC_DIR_NAME, "config.yml");
       const configName = fs.existsSync(configYaml)
         ? "config.yaml"
         : fs.existsSync(configYml)
           ? "config.yml"
           : "config.yaml";
-      console.log(`配置：openspec/${configName}（已存在）`);
+      console.log(`配置：phspec/${configName}（已存在）`);
     } else {
       console.log(chalk.dim(`配置：已跳过（非交互模式）`));
     }
@@ -646,9 +642,9 @@ export class InitCommand {
     // Getting started
     console.log();
     console.log(chalk.bold("快速开始："));
-    console.log("  /opsx:new       新建变更");
-    console.log("  /opsx:continue  创建下一个制品");
-    console.log("  /opsx:apply     实施任务");
+    console.log("  /phsx:new       新建变更");
+    console.log("  /phsx:continue  创建下一个制品");
+    console.log("  /phsx:apply     实施任务");
 
     // Links
     console.log();

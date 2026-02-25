@@ -1,7 +1,7 @@
 /**
  * Update Command
  *
- * Refreshes OpenSpec skills and commands for configured tools.
+ * Refreshes PhSpec skills and commands for configured tools.
  * Supports smart update detection to skip updates when already current.
  */
 
@@ -11,7 +11,7 @@ import ora from "ora";
 import { createRequire } from "module";
 import { FileSystemUtils } from "../utils/file-system.js";
 import { transformToHyphenCommands } from "../utils/command-references.js";
-import { AI_TOOLS, OPENSPEC_DIR_NAME } from "./config.js";
+import { AI_TOOLS, PHSPEC_DIR_NAME } from "./config.js";
 import {
   generateCommands,
   CommandAdapterRegistry,
@@ -55,11 +55,11 @@ export class UpdateCommand {
 
   async execute(projectPath: string): Promise<void> {
     const resolvedProjectPath = path.resolve(projectPath);
-    const openspecPath = path.join(resolvedProjectPath, OPENSPEC_DIR_NAME);
+    const phspecPath = path.join(resolvedProjectPath, PHSPEC_DIR_NAME);
 
-    // 1. Check openspec directory exists
-    if (!(await FileSystemUtils.directoryExists(openspecPath))) {
-      throw new Error(`未找到 OpenSpec 目录，请先执行 'openspec init'。`);
+    // 1. Check phspec directory exists
+    if (!(await FileSystemUtils.directoryExists(phspecPath))) {
+      throw new Error(`未找到 PhSpec 目录，请先执行 'phspec init'。`);
     }
 
     // 2. Detect and handle legacy artifacts + upgrade legacy tools to new skills
@@ -71,7 +71,7 @@ export class UpdateCommand {
 
     if (configuredTools.length === 0 && newlyConfiguredTools.length === 0) {
       console.log(chalk.yellow("未配置任何工具。"));
-      console.log(chalk.dim('请执行 "openspec init" 配置工具。'));
+      console.log(chalk.dim('请执行 "phspec init" 配置工具。'));
       return;
     }
 
@@ -186,9 +186,9 @@ export class UpdateCommand {
     if (newlyConfiguredTools.length > 0) {
       console.log();
       console.log(chalk.bold("快速开始："));
-      console.log("  /opsx:new       新建变更");
-      console.log("  /opsx:continue  创建下一个制品");
-      console.log("  /opsx:apply     实施任务");
+      console.log("  /phsx:new       新建变更");
+      console.log("  /phsx:continue  创建下一个制品");
+      console.log("  /phsx:apply     实施任务");
       console.log();
       console.log(
         `了解更多：${chalk.cyan("https://github.com/Fission-AI/OpenSpec")}`,
@@ -237,7 +237,7 @@ export class UpdateCommand {
   }
 
   /**
-   * Detect and handle legacy OpenSpec artifacts.
+   * Detect and handle legacy PhSpec artifacts.
    * Unlike init, update warns but continues if legacy files found in non-interactive mode.
    * Returns array of tool IDs that were newly configured during legacy upgrade.
    */

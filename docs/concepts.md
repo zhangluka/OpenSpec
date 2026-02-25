@@ -1,10 +1,10 @@
 # 概念
 
-本文介绍 OpenSpec 的核心概念及其关系。实践步骤见 [入门](getting-started.md) 与 [工作流](workflows.md)。
+本文介绍 PhSpec 的核心概念及其关系。实践步骤见 [入门](getting-started.md) 与 [工作流](workflows.md)。
 
 ## 理念
 
-OpenSpec 围绕四条原则构建：
+PhSpec 围绕四条原则构建：
 
 ```
 灵活而非僵化     — 无阶段门控，按需推进
@@ -15,21 +15,21 @@ OpenSpec 围绕四条原则构建：
 
 ### 为何重要
 
-**灵活而非僵化。** 传统规范体系把人锁在阶段里：先规划、再实现、然后结束。OpenSpec 更灵活——你可以按对工作有利的顺序创建制品。
+**灵活而非僵化。** 传统规范体系把人锁在阶段里：先规划、再实现、然后结束。PhSpec 更灵活——你可以按对工作有利的顺序创建制品。
 
-**迭代而非瀑布。** 需求会变、理解会加深。一开始看起来不错的方案，在看到代码库后可能不再成立。OpenSpec 接受这一点。
+**迭代而非瀑布。** 需求会变、理解会加深。一开始看起来不错的方案，在看到代码库后可能不再成立。PhSpec 接受这一点。
 
-**简单而非复杂。** 有些规范框架需要大量配置、固定格式或重型流程。OpenSpec 尽量不挡路：几秒完成初始化，立刻开始工作，只在需要时再做定制。
+**简单而非复杂。** 有些规范框架需要大量配置、固定格式或重型流程。PhSpec 尽量不挡路：几秒完成初始化，立刻开始工作，只在需要时再做定制。
 
-**棕地优先。** 多数软件工作不是在从零搭建，而是在改既有系统。OpenSpec 的增量式规范让「对既有行为的修改」成为一等公民，而不只是描述新系统。
+**棕地优先。** 多数软件工作不是在从零搭建，而是在改既有系统。PhSpec 的增量式规范让「对既有行为的修改」成为一等公民，而不只是描述新系统。
 
 ## 整体结构
 
-OpenSpec 把工作组织成两大块：
+PhSpec 把工作组织成两大块：
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        openspec/                                 │
+│                        phspec/                                 │
 │                                                                  │
 │   ┌─────────────────────┐      ┌──────────────────────────────┐ │
 │   │       specs/        │      │         changes/              │ │
@@ -56,7 +56,7 @@ OpenSpec 把工作组织成两大块：
 ### 目录结构
 
 ```
-openspec/specs/
+phspec/specs/
 ├── auth/
 │   └── spec.md           # 认证相关行为
 ├── payments/
@@ -148,11 +148,11 @@ The system MUST expire sessions after 30 minutes of inactivity.
 ### 变更结构
 
 ```
-openspec/changes/add-dark-mode/
+phspec/changes/add-dark-mode/
 ├── proposal.md           # 为什么、做什么
 ├── design.md             # 怎么做（技术方案）
 ├── tasks.md              # 实施清单
-├── .openspec.yaml        # 变更元数据（可选）
+├── .phspec.yaml        # 变更元数据（可选）
 └── specs/                # 增量规范
     └── ui/
         └── spec.md       # 对 ui/spec.md 的变更
@@ -225,7 +225,7 @@ openspec/changes/add-dark-mode/
 
 ## 增量规范（Delta Specs）
 
-增量规范是 OpenSpec 面向棕地开发的核心：描述**在改什么**，而不是重写整份规范。
+增量规范是 PhSpec 面向棕地开发的核心：描述**在改什么**，而不是重写整份规范。
 
 ### 格式
 
@@ -274,10 +274,10 @@ openspec/changes/add-dark-mode/
 
 ```bash
 # 从零创建
-openspec schema init research-first
+phspec schema init research-first
 
 # 或基于已有模式
-openspec schema fork spec-driven research-first
+phspec schema fork spec-driven research-first
 ```
 
 详见 [自定义](customization.md)。
@@ -322,7 +322,7 @@ openspec schema fork spec-driven research-first
 | **场景（Scenario）**       | 需求的具体示例，通常为 Given/When/Then 格式          |
 | **工作流模式（Schema）**   | 制品种类及其依赖的定义                               |
 | **规范（Spec）**           | 描述系统行为的规格说明，含需求与场景                 |
-| **单一事实来源**           | `openspec/specs/` 目录，当前达成一致的行为           |
+| **单一事实来源**           | `phspec/specs/` 目录，当前达成一致的行为             |
 
 ## 下一步
 

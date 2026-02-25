@@ -1,6 +1,6 @@
 # 自定义
 
-OpenSpec 提供三个层次的自定义：
+PhSpec 提供三个层次的自定义：
 
 | 层次                 | 作用                         | 适合             |
 | -------------------- | ---------------------------- | ---------------- |
@@ -12,7 +12,7 @@ OpenSpec 提供三个层次的自定义：
 
 ## 项目配置
 
-`openspec/config.yaml` 是团队定制 OpenSpec 最直接的方式，可以：
+`phspec/config.yaml` 是团队定制 PhSpec 最直接的方式，可以：
 
 - **设置默认工作流模式** — 不用每次加 `--schema`
 - **注入项目上下文** — AI 能看到技术栈、约定等
@@ -21,13 +21,13 @@ OpenSpec 提供三个层次的自定义：
 ### 快速配置
 
 ```bash
-openspec init
+phspec init
 ```
 
 会引导你交互式创建配置，也可手动创建：
 
 ```yaml
-# openspec/config.yaml
+# phspec/config.yaml
 schema: spec-driven
 
 context: |
@@ -50,25 +50,25 @@ rules:
 需要解析工作流模式时，按以下顺序查找：
 
 1. CLI 参数：`--schema <name>`
-2. 变更元数据（变更目录下的 `.openspec.yaml`）
-3. 项目配置（`openspec/config.yaml`）
+2. 变更元数据（变更目录下的 `.phspec.yaml`）
+3. 项目配置（`phspec/config.yaml`）
 4. 默认（`spec-driven`）
 
 ---
 
 ## 自定义工作流模式
 
-项目配置不够时，可在项目的 `openspec/schemas/` 下创建完全自定义的工作流模式，并随代码一起版本管理。
+项目配置不够时，可在项目的 `phspec/schemas/` 下创建完全自定义的工作流模式，并随代码一起版本管理。
 
 ### 基于已有模式复制
 
 最快的方式是复制内置模式再改：
 
 ```bash
-openspec schema fork spec-driven my-workflow
+phspec schema fork spec-driven my-workflow
 ```
 
-会把 `spec-driven` 整份复制到 `openspec/schemas/my-workflow/`，之后可自由编辑。
+会把 `spec-driven` 整份复制到 `phspec/schemas/my-workflow/`，之后可自由编辑。
 
 ### 从零创建
 
@@ -76,10 +76,10 @@ openspec schema fork spec-driven my-workflow
 
 ```bash
 # 交互式
-openspec schema init research-first
+phspec schema init research-first
 
 # 非交互
-openspec schema init rapid \
+phspec schema init rapid \
   --description "Rapid iteration workflow" \
   --artifacts "proposal,tasks" \
   --default
@@ -100,14 +100,14 @@ openspec schema init rapid \
 使用自定义模式前建议校验：
 
 ```bash
-openspec schema validate my-workflow
+phspec schema validate my-workflow
 ```
 
 使用方式：
 
 ```bash
 # 命令中指定
-openspec new change feature --schema my-workflow
+phspec new change feature --schema my-workflow
 
 # 或在 config.yaml 中设默认
 schema: my-workflow
@@ -118,13 +118,13 @@ schema: my-workflow
 不确定当前用的是哪个模式时：
 
 ```bash
-openspec schema which my-workflow
-openspec schema which --all
+phspec schema which my-workflow
+phspec schema which --all
 ```
 
 ---
 
-> **说明：** OpenSpec 也支持用户级模式（`~/.local/share/openspec/schemas/`），可跨项目共享；更推荐项目级 `openspec/schemas/`，便于随代码版本管理。
+> **说明：** PhSpec 也支持用户级模式（`~/.local/share/phspec/schemas/`），可跨项目共享；更推荐项目级 `phspec/schemas/`，便于随代码版本管理。
 
 ---
 

@@ -250,7 +250,7 @@ export class CompletionCommand {
       const configPath = configPaths[shell] || `${shell} configuration`;
 
       const confirmed = await confirm({
-        message: `是否从 ${configPath} 移除 OpenSpec 配置？`,
+        message: `是否从 ${configPath} 移除 PhSpec 配置？`,
         default: false,
       });
 

@@ -141,10 +141,10 @@ export class ValidateCommand {
 
   private printNonInteractiveHint(): void {
     console.error("未指定校验对象。可尝试：");
-    console.error("  openspec validate --all");
-    console.error("  openspec validate --changes");
-    console.error("  openspec validate --specs");
-    console.error("  openspec validate <item-name>");
+    console.error("  phspec validate --all");
+    console.error("  phspec validate --changes");
+    console.error("  phspec validate --specs");
+    console.error("  phspec validate <item-name>");
     console.error("或在交互式终端中运行。");
   }
 
@@ -174,7 +174,7 @@ export class ValidateCommand {
     if (!opts.typeOverride && isChange && isSpec) {
       console.error(`项 '${itemName}' 同时匹配变更与规范，存在歧义。`);
       console.error(
-        "请传入 --type change|spec，或使用：openspec change validate / openspec spec validate",
+        "请传入 --type change|spec，或使用：phspec change validate / phspec spec validate",
       );
       process.exitCode = 1;
       return;
@@ -190,7 +190,7 @@ export class ValidateCommand {
   ): Promise<void> {
     const validator = new Validator(opts.strict);
     if (type === "change") {
-      const changeDir = path.join(process.cwd(), "openspec", "changes", id);
+      const changeDir = path.join(process.cwd(), "phspec", "changes", id);
       const start = Date.now();
       const report = await validator.validateChangeDeltaSpecs(changeDir);
       const durationMs = Date.now() - start;
@@ -199,7 +199,7 @@ export class ValidateCommand {
       process.exitCode = report.valid ? 0 : 1;
       return;
     }
-    const file = path.join(process.cwd(), "openspec", "specs", id, "spec.md");
+    const file = path.join(process.cwd(), "phspec", "specs", id, "spec.md");
     const start = Date.now();
     const report = await validator.validateSpec(file);
     const durationMs = Date.now() - start;
@@ -260,7 +260,7 @@ export class ValidateCommand {
       );
       bullets.push("- 每条需求必须包含至少一个 #### Scenario: 块");
       bullets.push(
-        "- 调试已解析增量：openspec change show <id> --json --deltas-only",
+        "- 调试已解析增量：phspec change show <id> --json --deltas-only",
       );
     } else {
       bullets.push("- 确保规范包含 ## Purpose 与 ## Requirements 节");
@@ -293,7 +293,7 @@ export class ValidateCommand {
     const maxSuggestions = 5; // used by nearestMatches
     const concurrency =
       normalizeConcurrency(opts.concurrency) ??
-      normalizeConcurrency(process.env.OPENSPEC_CONCURRENCY) ??
+      normalizeConcurrency(process.env.PHSPEC_CONCURRENCY) ??
       DEFAULT_CONCURRENCY;
     const validator = new Validator(opts.strict);
     const queue: Array<() => Promise<BulkItemResult>> = [];
@@ -301,7 +301,7 @@ export class ValidateCommand {
     for (const id of changeIds) {
       queue.push(async () => {
         const start = Date.now();
-        const changeDir = path.join(process.cwd(), "openspec", "changes", id);
+        const changeDir = path.join(process.cwd(), "phspec", "changes", id);
         const report = await validator.validateChangeDeltaSpecs(changeDir);
         const durationMs = Date.now() - start;
         return {
@@ -316,13 +316,7 @@ export class ValidateCommand {
     for (const id of specIds) {
       queue.push(async () => {
         const start = Date.now();
-        const file = path.join(
-          process.cwd(),
-          "openspec",
-          "specs",
-          id,
-          "spec.md",
-        );
+        const file = path.join(process.cwd(), "phspec", "specs", id, "spec.md");
         const report = await validator.validateSpec(file);
         const durationMs = Date.now() - start;
         return {

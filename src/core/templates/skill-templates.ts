@@ -18,17 +18,17 @@ export interface SkillTemplate {
 }
 
 /**
- * Template for openspec-explore skill
+ * Template for phspec-explore skill
  * Explore mode - adaptive thinking partner for exploring ideas and problems
  */
 export function getExploreSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-explore",
+    name: "phspec-explore",
     description:
       "进入探索模式：作为思考伙伴梳理想法、排查问题、澄清需求。适用于用户在确定或进行变更前先理清思路时。",
     instructions: `进入探索模式。深入思考，自由可视化，对话可任意延伸。
 
-**重要：探索模式用于思考，不用于实施。** 你可以读文件、搜代码、查代码库，但绝不要写代码或实现功能。若用户要求实现某功能，提醒其先退出探索模式（例如用 \`/opsx:new\` 或 \`/opsx:ff\` 新建变更）。若用户要求，你可以创建 OpenSpec 制品（提案、设计、规范）——那是记录思考，不是实施。
+**重要：探索模式用于思考，不用于实施。** 你可以读文件、搜代码、查代码库，但绝不要写代码或实现功能。若用户要求实现某功能，提醒其先退出探索模式（例如用 \`/phsx:new\` 或 \`/phsx:ff\` 新建变更）。若用户要求，你可以创建 PhSpec 制品（提案、设计、规范）——那是记录思考，不是实施。
 
 **这是立场，不是工作流。** 没有固定步骤、必选顺序或强制产出。你是帮助用户探索的思考伙伴。
 
@@ -92,15 +92,15 @@ export function getExploreSkillTemplate(): SkillTemplate {
 
 ---
 
-## 对 OpenSpec 的认知
+## 对 PhSpec 的认知
 
-你具备 OpenSpec 的完整上下文。自然使用即可，不必生搬。
+你具备 PhSpec 的完整上下文。自然使用即可，不必生搬。
 
 ### 查看上下文
 
 开始时快速查看现状：
 \`\`\`bash
-openspec list --json
+phspec list --json
 \`\`\`
 
 可知：
@@ -113,7 +113,7 @@ openspec list --json
 自由思考。当思路成型时，可以提议：
 
 - "思路已经比较清晰，要新建一个变更吗？"
-  → 可转入 \`/opsx:new\` 或 \`/opsx:ff\`
+  → 可转入 \`/phsx:new\` 或 \`/phsx:ff\`
 - 或继续探索，不必非要形式化
 
 ### 当已有变更时
@@ -121,9 +121,9 @@ openspec list --json
 若用户提到某变更或你发现与某变更相关：
 
 1. **阅读已有制品以获取上下文**
-   - \`openspec/changes/<name>/proposal.md\`
-   - \`openspec/changes/<name>/design.md\`
-   - \`openspec/changes/<name>/tasks.md\`
+   - \`phspec/changes/<name>/proposal.md\`
+   - \`phspec/changes/<name>/design.md\`
+   - \`phspec/changes/<name>/tasks.md\`
    - 等
 
 2. **在对话中自然引用**
@@ -219,7 +219,7 @@ You: [读代码库]
 
 **用户卡在实施中途：**
 \`\`\`
-User: /opsx:explore add-auth-system
+User: /phsx:explore add-auth-system
       The OAuth integration is more complex than expected
 
 You: [读变更制品]
@@ -268,7 +268,7 @@ You: 那就不一样了。
 
 没有固定收尾。探索可能：
 
-- **转入行动**："可以开始了，用 /opsx:new 或 /opsx:ff"
+- **转入行动**："可以开始了，用 /phsx:new 或 /phsx:ff"
 - **沉淀到制品**："已把这几条决策记进 design.md"
 - **只提供清晰度**：用户得到所需后自行继续
 - **改天再续**："随时可以接着聊"
@@ -285,8 +285,8 @@ You: 那就不一样了。
 **未决问题**：[若有]
 
 **下一步**（若已就绪）：
-- 新建变更：/opsx:new <name>
-- 直接到任务：/opsx:ff <name>
+- 新建变更：/phsx:new <name>
+- 直接到任务：/phsx:ff <name>
 - 继续探索：接着聊即可
 \`\`\`
 
@@ -296,7 +296,7 @@ You: 那就不一样了。
 
 ## 边界
 
-- **不实施** - 绝不写代码或实现功能。创建 OpenSpec 制品可以，写业务代码不行。
+- **不实施** - 绝不写代码或实现功能。创建 PhSpec 制品可以，写业务代码不行。
 - **不装懂** - 不清楚就继续挖
 - **不赶** - 探索是思考时间，不是任务时间
 - **不强行结构** - 让模式自然浮现
@@ -305,20 +305,20 @@ You: 那就不一样了。
 - **要查代码库** - 讨论要落在实际上
 - **要质疑假设** - 包括用户和你自己的`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-new-change skill
- * Based on /opsx:new command
+ * Template for phspec-new-change skill
+ * Based on /phsx:new command
  */
 export function getNewChangeSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-new-change",
+    name: "phspec-new-change",
     description:
-      "新建 OpenSpec 变更（制品工作流）。适用于用户想按步骤创建新功能、修复或改动时。",
+      "新建 PhSpec 变更（制品工作流）。适用于用户想按步骤创建新功能、修复或改动时。",
     instructions: `使用实验性制品驱动方式新建变更。
 
 **输入**：用户请求应包含变更名（kebab-case）或要做的内容描述。
@@ -340,20 +340,20 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
 
    **仅在用户提到以下情况时使用其他模式：**
    - 指定了某模式名 → 使用 \`--schema <name>\`
-   - "show workflows" 或 "what workflows" → 运行 \`openspec schemas --json\` 让其选择
+   - "show workflows" 或 "what workflows" → 运行 \`phspec schemas --json\` 让其选择
 
    **否则**：不传 \`--schema\`，使用默认。
 
 3. **创建变更目录**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
    仅当用户指定了工作流时才加 \`--schema <name>\`。
-   会在 \`openspec/changes/<name>/\` 下按所选模式创建脚手架。
+   会在 \`phspec/changes/<name>/\` 下按所选模式创建脚手架。
 
 4. **查看制品状态**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
    可看到哪些制品待创建、哪些已就绪（依赖已满足）。
 
@@ -361,7 +361,7 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
    第一个制品由模式决定（如 spec-driven 下为 \`proposal\`）。
    在状态输出中找到第一个状态为 "ready" 的制品。
    \`\`\`bash
-   openspec instructions <first-artifact-id> --change "<name>"
+   phspec instructions <first-artifact-id> --change "<name>"
    \`\`\`
    会输出创建该制品所需的模板与上下文。
 
@@ -383,18 +383,18 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
 - 若该名称的变更已存在，建议改为继续该变更
 - 使用非默认工作流时传入 --schema`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-continue-change skill
- * Based on /opsx:continue command
+ * Template for phspec-continue-change skill
+ * Based on /phsx:continue command
  */
 export function getContinueChangeSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-continue-change",
+    name: "phspec-continue-change",
     description:
       "继续当前变更：创建下一个制品。适用于用户想推进变更、创建下一份制品或继续工作流时。",
     instructions: `继续当前变更：创建下一个制品。
@@ -405,7 +405,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`openspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion 工具** 让用户选择要继续的变更。
+   运行 \`phspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion 工具** 让用户选择要继续的变更。
 
    将最近修改的 3～4 个变更作为选项展示，包含：
    - 变更名
@@ -419,7 +419,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 
 2. **查看当前状态**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    解析 JSON 了解当前状态。响应包含：
    - \`schemaName\`：所用工作流模式（如 "spec-driven"）
@@ -433,7 +433,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
    **若全部制品已完成（\`isComplete: true\`）**：
    - 祝贺用户
    - 展示最终状态（含所用模式）
-   - 建议："全部制品已就绪！可以用 \`/opsx:apply\` 实施或归档。"
+   - 建议："全部制品已就绪！可以用 \`/phsx:apply\` 实施或归档。"
    - 停止
 
    ---
@@ -442,7 +442,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
    - 从状态输出中选第一个 \`status: "ready"\` 的制品
    - 获取其指令：
      \`\`\`bash
-     openspec instructions <artifact-id> --change "<name>" --json
+     phspec instructions <artifact-id> --change "<name>" --json
      \`\`\`
    - 解析 JSON。关键字段：
      - \`context\`：项目背景（给你的约束，不要写入产出）
@@ -467,7 +467,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 
 4. **创建制品后展示进度**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
 **输出**
@@ -500,21 +500,21 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 - 按模式的制品顺序来，不假设具体名称
 - **重要**：\`context\` 与 \`rules\` 是给你的约束，不是文件内容；不要将 \`<context>\`、\`<rules>\`、\`<project_context>\` 抄进制品，它们只指导写作，不得出现在产出中`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-apply-change skill
+ * Template for phspec-apply-change skill
  * For implementing tasks from a completed (or in-progress) change
  */
 export function getApplyChangeSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-apply-change",
+    name: "phspec-apply-change",
     description:
       "按变更实施任务。适用于用户要开始实现、继续实现或逐项完成任务时。",
-    instructions: `按 OpenSpec 变更实施任务。
+    instructions: `按 PhSpec 变更实施任务。
 
 **输入**：可指定变更名。未指定时从对话推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
@@ -525,13 +525,13 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
    若提供了名称则用该名称。否则：
    - 用户提到过某变更则从上下文推断
    - 仅有一个进行中变更则自动选中
-   - 有歧义时运行 \`openspec list --json\` 获取列表，用 **AskUserQuestion 工具** 让用户选择
+   - 有歧义时运行 \`phspec list --json\` 获取列表，用 **AskUserQuestion 工具** 让用户选择
 
-   始终说明：「当前变更：<name>」，以及如何切换（如 \`/opsx:apply <其他>\`）。
+   始终说明：「当前变更：<name>」，以及如何切换（如 \`/phsx:apply <其他>\`）。
 
 2. **查看状态以确认工作流模式**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    解析 JSON 了解：
    - \`schemaName\`：所用工作流（如 "spec-driven"）
@@ -540,7 +540,7 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
 3. **获取 apply 指令**
 
    \`\`\`bash
-   openspec instructions apply --change "<name>" --json
+   phspec instructions apply --change "<name>" --json
    \`\`\`
 
    返回内容包含：
@@ -550,7 +550,7 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
    - 根据当前状态的动态指令
 
    **状态处理：**
-   - \`state: "blocked"\`（缺制品）：提示并建议先用 openspec-continue-change
+   - \`state: "blocked"\`（缺制品）：提示并建议先用 phspec-continue-change
    - \`state: "all_done"\`：祝贺并建议归档
    - 否则：进入实施
 
@@ -650,20 +650,20 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
 - **可随时调用**：制品未全完成（但有任务）时、部分实施后、与其他动作穿插
 - **允许更新制品**：实施暴露出设计问题时，可建议更新制品，不必锁阶段，灵活推进`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-ff-change skill
+ * Template for phspec-ff-change skill
  * Fast-forward through artifact creation
  */
 export function getFfChangeSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-ff-change",
+    name: "phspec-ff-change",
     description:
-      "快进式创建 OpenSpec 制品。适用于用户想一次性生成实施所需全部制品时。",
+      "快进式创建 PhSpec 制品。适用于用户想一次性生成实施所需全部制品时。",
     instructions: `快进式创建制品——一次性生成实施所需全部制品。
 
 **输入**：用户请求应包含变更名（kebab-case）或要做的内容描述。
@@ -681,13 +681,13 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
 
 2. **创建变更目录**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
-   会在 \`openspec/changes/<name>/\` 下创建脚手架。
+   会在 \`phspec/changes/<name>/\` 下创建脚手架。
 
 3. **获取制品构建顺序**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    解析 JSON 得到：
    - \`applyRequires\`：实施前需要的制品 ID 列表（如 \`["tasks"]\`）
@@ -702,41 +702,41 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
    a. **对每个 \`ready\`（依赖已满足）的制品**：
       - 获取指令：
         \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
+        phspec instructions <artifact-id> --change "<name>" --json
         \`\`\`
       - 指令 JSON 含：\`context\`（项目背景，勿写入产出）、\`rules\`（制品规则，勿写入产出）、\`template\`（产出结构）、\`instruction\`（该类型指引）、\`outputPath\`、\`dependencies\`（需先读的制品）
       - 先读依赖制品，再按 \`template\` 创建文件，遵守 \`context\` 与 \`rules\` 但不抄入文件
       - 简要提示："✓ 已创建 <artifact-id>"
 
    b. **直到 \`applyRequires\` 中制品全部完成**
-      - 每创建一个制品后重跑 \`openspec status --change "<name>" --json\`
+      - 每创建一个制品后重跑 \`phspec status --change "<name>" --json\`
       - 当 \`applyRequires\` 中每个 ID 在 artifacts 中均为 \`status: "done"\` 时停止
 
    c. **若某制品需要用户输入**（上下文不清）：用 **AskUserQuestion 工具** 澄清后继续
 
 5. **展示最终状态**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
-**输出**：总结变更名与路径、已创建制品列表、"全部制品已就绪，可以开始实施。"、提示 "运行 \`/opsx:apply\` 或让我实施即可开始任务。"
+**输出**：总结变更名与路径、已创建制品列表、"全部制品已就绪，可以开始实施。"、提示 "运行 \`/phsx:apply\` 或让我实施即可开始任务。"
 
-**制品创建**：按 \`openspec instructions\` 的 \`instruction\` 与模式定义；先读依赖再创建；\`context\` 与 \`rules\` 仅作约束不写入文件。
+**制品创建**：按 \`phspec instructions\` 的 \`instruction\` 与模式定义；先读依赖再创建；\`context\` 与 \`rules\` 仅作约束不写入文件。
 
 **边界**：创建模式 \`apply.requires\` 所需的全部制品；先读依赖再创建；名称已存在时建议继续该变更；写入后确认文件存在再继续。`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-sync-specs skill
+ * Template for phspec-sync-specs skill
  * For syncing delta specs from a change to main specs (agent-driven)
  */
 export function getSyncSpecsSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-sync-specs",
+    name: "phspec-sync-specs",
     description:
       "将变更中的增量规范同步到主规范。适用于用户想更新主规范但暂不归档变更时。",
     instructions: `将变更中的增量规范同步到主规范。
@@ -749,13 +749,13 @@ export function getSyncSpecsSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`openspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。
 
    **重要**：不要猜测或自动选择，始终让用户选择。
 
 2. **定位增量规范**
 
-   在 \`openspec/changes/<name>/specs/*/spec.md\` 查找增量规范文件。
+   在 \`phspec/changes/<name>/specs/*/spec.md\` 查找增量规范文件。
 
    每个增量规范文件包含如：\`## ADDED Requirements\`（新增需求）、\`## MODIFIED Requirements\`（修改现有需求）、\`## REMOVED Requirements\`（删除需求）、\`## RENAMED Requirements\`（重命名，FROM:/TO: 格式）。
 
@@ -763,12 +763,12 @@ export function getSyncSpecsSkillTemplate(): SkillTemplate {
 
 3. **对每个增量规范，将变更应用到主规范**
 
-   对 \`openspec/changes/<name>/specs/<capability>/spec.md\` 存在的每个能力：
+   对 \`phspec/changes/<name>/specs/<capability>/spec.md\` 存在的每个能力：
 
    a. **读增量规范**，理解要做的变更  
-   b. **读主规范** \`openspec/specs/<capability>/spec.md\`（可能尚不存在）  
+   b. **读主规范** \`phspec/specs/<capability>/spec.md\`（可能尚不存在）  
    c. **按意图合并**：ADDED 若主规范无则添加、有则按 MODIFIED 更新；MODIFIED 在主规范中找到对应需求后增/改场景或描述，保留增量未提及的内容；REMOVED 从主规范删除整条需求；RENAMED 将 FROM 改为 TO  
-   d. **若能力尚无主规范**：创建 \`openspec/specs/<capability>/spec.md\`，含 Purpose（可简写为 TBD）与 ADDED 需求
+   d. **若能力尚无主规范**：创建 \`phspec/specs/<capability>/spec.md\`，含 Purpose（可简写为 TBD）与 ADDED 需求
 
 4. **展示摘要**：说明更新了哪些能力、做了哪些增/改/删/重命名。
 
@@ -807,24 +807,24 @@ The system SHALL do something new.
 
 **边界**：先读增量与主规范再改；保留增量未提及的既有内容；不清处先澄清；边改边说明；操作应幂等（执行两次结果一致）。`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-onboard skill
- * Guided onboarding through the complete OpenSpec workflow
+ * Template for phspec-onboard skill
+ * Guided onboarding through the complete PhSpec workflow
  */
 export function getOnboardSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-onboard",
+    name: "phspec-onboard",
     description:
-      "OpenSpec 引导入门：带讲解走完一整轮工作流，并基于真实代码库操作。",
+      "PhSpec 引导入门：带讲解走完一整轮工作流，并基于真实代码库操作。",
     instructions: getOnboardInstructions(),
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
@@ -832,23 +832,23 @@ export function getOnboardSkillTemplate(): SkillTemplate {
  * Shared onboarding instructions used by both skill and command templates.
  */
 function getOnboardInstructions(): string {
-  return `引导用户完成第一次完整的 OpenSpec 工作流循环。这是一次教学式体验——你会在其代码库中做真实操作，并逐步讲解。
+  return `引导用户完成第一次完整的 PhSpec 工作流循环。这是一次教学式体验——你会在其代码库中做真实操作，并逐步讲解。
 
 ---
 
 ## 前置检查
 
-开始前确认 OpenSpec CLI 是否已安装：
+开始前确认 PhSpec CLI 是否已安装：
 
 \`\`\`bash
 # Unix/macOS
-openspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
+phspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
 # Windows (PowerShell)
-# if (Get-Command openspec -ErrorAction SilentlyContinue) { openspec --version } else { echo "CLI_NOT_INSTALLED" }
+# if (Get-Command phspec -ErrorAction SilentlyContinue) { phspec --version } else { echo "CLI_NOT_INSTALLED" }
 \`\`\`
 
 **若未安装 CLI：**
-> OpenSpec CLI 未安装。请先安装，再回来执行 \`/opsx:onboard\`。
+> PhSpec CLI 未安装。请先安装，再回来执行 \`/phsx:onboard\`。
 
 未安装则在此停止。
 
@@ -859,7 +859,7 @@ openspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
 展示：
 
 \`\`\`
-## 欢迎使用 OpenSpec！
+## 欢迎使用 PhSpec！
 
 我会用你代码库里的一个真实任务，带你走完从想法到实现的一整轮变更。一边做一边熟悉工作流。
 
@@ -937,7 +937,7 @@ git log --oneline -10 2>/dev/null || echo "No git history"
 若用户选或描述的任务过大（大功能、多日工作量）：
 
 \`\`\`
-这个任务很有价值，但对第一次跑通 OpenSpec 来说可能偏大。
+这个任务很有价值，但对第一次跑通 PhSpec 来说可能偏大。
 
 学工作流时越小越好，能完整走完一轮而不卡在实现细节里。
 
@@ -975,7 +975,7 @@ git log --oneline -10 2>/dev/null || echo "No git history"
 │   [可选：有帮助的 ASCII 图]              │
 └─────────────────────────────────────────┘
 
-探索模式（\`/opsx:explore\`）就是用来做这种「先想再做」的。需要理清问题时随时可用。
+探索模式（\`/phsx:explore\`）就是用来做这种「先想再做」的。需要理清问题时随时可用。
 
 接下来我们创建一个变更来承载这次工作。
 \`\`\`
@@ -990,23 +990,23 @@ git log --oneline -10 2>/dev/null || echo "No git history"
 \`\`\`
 ## 创建变更
 
-OpenSpec 里的「变更」是一次工作相关的思考与计划的容器，位于 \`openspec/changes/<name>/\`，里面放提案、规范、设计、任务等制品。
+PhSpec 里的「变更」是一次工作相关的思考与计划的容器，位于 \`phspec/changes/<name>/\`，里面放提案、规范、设计、任务等制品。
 
 我为这次任务创建一个。
 \`\`\`
 
 **执行：** 用推导出的 kebab-case 名称创建变更：
 \`\`\`bash
-openspec new change "<derived-name>"
+phspec new change "<derived-name>"
 \`\`\`
 
 **展示：**
 \`\`\`
-已创建：\`openspec/changes/<name>/\`
+已创建：\`phspec/changes/<name>/\`
 
 目录结构：
 \`\`\`
-openspec/changes/<name>/
+phspec/changes/<name>/
 ├── proposal.md    ← 为什么做（空，待填写）
 ├── design.md      ← 怎么做（空）
 ├── specs/         ← 详细需求（空）
@@ -1066,9 +1066,9 @@ openspec/changes/<name>/
 
 同意后保存提案：
 \`\`\`bash
-openspec instructions proposal --change "<name>" --json
+phspec instructions proposal --change "<name>" --json
 \`\`\`
-再将内容写入 \`openspec/changes/<name>/proposal.md\`。
+再将内容写入 \`phspec/changes/<name>/proposal.md\`。
 
 \`\`\`
 提案已保存。这是你的「为什么」文档，理解深化后随时可回来改。
@@ -1092,9 +1092,9 @@ openspec instructions proposal --change "<name>" --json
 **执行：** 创建规范目录与文件：
 \`\`\`bash
 # Unix/macOS
-mkdir -p openspec/changes/<name>/specs/<capability-name>
+mkdir -p phspec/changes/<name>/specs/<capability-name>
 # Windows (PowerShell)
-# New-Item -ItemType Directory -Force -Path "openspec/changes/<name>/specs/<capability-name>"
+# New-Item -ItemType Directory -Force -Path "phspec/changes/<name>/specs/<capability-name>"
 \`\`\`
 
 起草规范内容：
@@ -1121,7 +1121,7 @@ mkdir -p openspec/changes/<name>/specs/<capability-name>
 WHEN/THEN/AND 格式让需求可测试，可直接当测试用例读。
 \`\`\`
 
-保存到 \`openspec/changes/<name>/specs/<capability>/spec.md\`。
+保存到 \`phspec/changes/<name>/specs/<capability>/spec.md\`。
 
 ---
 
@@ -1166,7 +1166,7 @@ WHEN/THEN/AND 格式让需求可测试，可直接当测试用例读。
 小任务这样就能抓住关键决策，不必过度设计。
 \`\`\`
 
-保存到 \`openspec/changes/<name>/design.md\`。
+保存到 \`phspec/changes/<name>/design.md\`。
 
 ---
 
@@ -1204,7 +1204,7 @@ WHEN/THEN/AND 格式让需求可测试，可直接当测试用例读。
 
 **暂停** - 等用户确认可以开始实施。
 
-保存到 \`openspec/changes/<name>/tasks.md\`。
+保存到 \`phspec/changes/<name>/tasks.md\`。
 
 ---
 
@@ -1248,19 +1248,19 @@ WHEN/THEN/AND 格式让需求可测试，可直接当测试用例读。
 \`\`\`
 ## 归档
 
-变更完成后进行归档，会从 \`openspec/changes/\` 移动到 \`openspec/changes/archive/YYYY-MM-DD-<name>/\`。
+变更完成后进行归档，会从 \`phspec/changes/\` 移动到 \`phspec/changes/archive/YYYY-MM-DD-<name>/\`。
 
 归档后的变更成为项目的决策历史，日后可随时查看当时为何这样实现。
 \`\`\`
 
 **执行：**
 \`\`\`bash
-openspec archive "<name>"
+phspec archive "<name>"
 \`\`\`
 
 **展示：**
 \`\`\`
-已归档至：\`openspec/changes/archive/YYYY-MM-DD-<name>/\`
+已归档至：\`phspec/changes/archive/YYYY-MM-DD-<name>/\`
 
 变更已进入项目历史，代码在代码库中，决策记录已保留。
 \`\`\`
@@ -1272,7 +1272,7 @@ openspec archive "<name>"
 \`\`\`
 ## 完成
 
-你已经跑完一整轮 OpenSpec：
+你已经跑完一整轮 PhSpec：
 
 1. **探索** - 把问题想清楚
 2. **新建** - 创建变更容器
@@ -1291,19 +1291,19 @@ openspec archive "<name>"
 
 | 命令 | 用途 |
 |---------|--------------|
-| \`/opsx:explore\` | 工作前后理清问题 |
-| \`/opsx:new\` | 新建变更，按步骤建制品 |
-| \`/opsx:ff\` | 快进：一次性建齐制品 |
-| \`/opsx:continue\` | 继续已有变更 |
-| \`/opsx:apply\` | 按变更实施任务 |
-| \`/opsx:verify\` | 校验实现与制品是否一致 |
-| \`/opsx:archive\` | 归档已完成的变更 |
+| \`/phsx:explore\` | 工作前后理清问题 |
+| \`/phsx:new\` | 新建变更，按步骤建制品 |
+| \`/phsx:ff\` | 快进：一次性建齐制品 |
+| \`/phsx:continue\` | 继续已有变更 |
+| \`/phsx:apply\` | 按变更实施任务 |
+| \`/phsx:verify\` | 校验实现与制品是否一致 |
+| \`/phsx:archive\` | 归档已完成的变更 |
 
 ---
 
 ## 下一步
 
-用 \`/opsx:new\` 或 \`/opsx:ff\` 在你真正想做的功能上试一次，节奏你已经有了。
+用 \`/phsx:new\` 或 \`/phsx:ff\` 在你真正想做的功能上试一次，节奏你已经有了。
 \`\`\`
 
 ---
@@ -1315,11 +1315,11 @@ openspec archive "<name>"
 若用户表示要停、要暂停或显得不投入：
 
 \`\`\`
-没问题！当前变更已保存在 \`openspec/changes/<name>/\`。
+没问题！当前变更已保存在 \`phspec/changes/<name>/\`。
 
 之后想接着做可以：
-- \`/opsx:continue <name>\` - 继续创建制品
-- \`/opsx:apply <name>\` - 直接进入实施（若已有任务）
+- \`/phsx:continue <name>\` - 继续创建制品
+- \`/phsx:apply <name>\` - 直接进入实施（若已有任务）
 
 工作不会丢，随时回来即可。
 \`\`\`
@@ -1331,19 +1331,19 @@ openspec archive "<name>"
 若用户说只想看命令或跳过教程：
 
 \`\`\`
-## OpenSpec 速查
+## PhSpec 速查
 
 | 命令 | 用途 |
 |---------|--------------|
-| \`/opsx:explore\` | 理清问题（不写代码） |
-| \`/opsx:new <name>\` | 新建变更，逐步建制品 |
-| \`/opsx:ff <name>\` | 快进：一次性建齐制品 |
-| \`/opsx:continue <name>\` | 继续已有变更 |
-| \`/opsx:apply <name>\` | 实施任务 |
-| \`/opsx:verify <name>\` | 校验实现 |
-| \`/opsx:archive <name>\` | 完成后归档 |
+| \`/phsx:explore\` | 理清问题（不写代码） |
+| \`/phsx:new <name>\` | 新建变更，逐步建制品 |
+| \`/phsx:ff <name>\` | 快进：一次性建齐制品 |
+| \`/phsx:continue <name>\` | 继续已有变更 |
+| \`/phsx:apply <name>\` | 实施任务 |
+| \`/phsx:verify <name>\` | 校验实现 |
+| \`/phsx:archive <name>\` | 完成后归档 |
 
-用 \`/opsx:new\` 开始你的第一个变更，或 \`/opsx:ff\` 快速推进。
+用 \`/phsx:new\` 开始你的第一个变更，或 \`/phsx:ff\` 快速推进。
 \`\`\`
 
 从容结束。
@@ -1374,22 +1374,22 @@ export interface CommandTemplate {
 }
 
 /**
- * Template for /opsx:explore slash command
+ * Template for /phsx:explore slash command
  * Explore mode - adaptive thinking partner
  */
 export function getOpsxExploreCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Explore",
+    name: "PHSX: Explore",
     description: "进入探索模式：梳理想法、排查问题、澄清需求",
     category: "Workflow",
     tags: ["workflow", "explore", "experimental", "thinking"],
     content: `进入探索模式。深入思考，自由可视化，对话可任意延伸。
 
-**重要：探索模式用于思考，不用于实施。** 你可以读文件、搜代码、查代码库，但绝不要写代码或实现功能。若用户要求实现某功能，提醒其先退出探索模式（例如用 \`/opsx:new\` 或 \`/opsx:ff\` 新建变更）。若用户要求，你可以创建 OpenSpec 制品（提案、设计、规范）——那是记录思考，不是实施。
+**重要：探索模式用于思考，不用于实施。** 你可以读文件、搜代码、查代码库，但绝不要写代码或实现功能。若用户要求实现某功能，提醒其先退出探索模式（例如用 \`/phsx:new\` 或 \`/phsx:ff\` 新建变更）。若用户要求，你可以创建 PhSpec 制品（提案、设计、规范）——那是记录思考，不是实施。
 
 **这是立场，不是工作流。** 没有固定步骤、必选顺序或强制产出。你是帮助用户探索的思考伙伴。
 
-**输入**：\`/opsx:explore\` 后的参数是用户想思考的内容，可以是：
+**输入**：\`/phsx:explore\` 后的参数是用户想思考的内容，可以是：
 - 模糊想法："real-time collaboration"
 - 具体问题："the auth system is getting unwieldy"
 - 变更名："add-dark-mode"（在该变更上下文中探索）
@@ -1456,22 +1456,22 @@ export function getOpsxExploreCommandTemplate(): CommandTemplate {
 
 ---
 
-## 对 OpenSpec 的认知
+## 对 PhSpec 的认知
 
-你具备 OpenSpec 的完整上下文。自然使用即可，不必生搬。
+你具备 PhSpec 的完整上下文。自然使用即可，不必生搬。
 
 ### 查看上下文
 
 开始时快速查看现状：
 \`\`\`bash
-openspec list --json
+phspec list --json
 \`\`\`
 
 可知：是否有进行中的变更、其名称与工作流模式及状态、用户可能在做什么。若用户提到具体变更名，可读其制品获取上下文。
 
 ### 当没有变更时
 
-自由思考。当思路成型时，可以提议："思路已经比较清晰，要新建一个变更吗？" → 可转入 \`/opsx:new\` 或 \`/opsx:ff\`；或继续探索，不必非要形式化。
+自由思考。当思路成型时，可以提议："思路已经比较清晰，要新建一个变更吗？" → 可转入 \`/phsx:new\` 或 \`/phsx:ff\`；或继续探索，不必非要形式化。
 
 ### 当已有变更时
 
@@ -1507,7 +1507,7 @@ openspec list --json
 
 ## 边界
 
-- **不实施** - 绝不写代码或实现功能。创建 OpenSpec 制品可以，写业务代码不行。
+- **不实施** - 绝不写代码或实现功能。创建 PhSpec 制品可以，写业务代码不行。
 - **不装懂** - 不清楚就继续挖
 - **不赶** - 探索是思考时间，不是任务时间
 - **不强行结构** - 让模式自然浮现
@@ -1519,17 +1519,17 @@ openspec list --json
 }
 
 /**
- * Template for /opsx:new slash command
+ * Template for /phsx:new slash command
  */
 export function getOpsxNewCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: New",
-    description: "新建变更（OPSX 制品工作流）",
+    name: "PHSX: New",
+    description: "新建变更（PHSX 制品工作流）",
     category: "Workflow",
     tags: ["workflow", "artifacts", "experimental"],
     content: `Start a new change using the experimental artifact-driven approach.
 
-**Input**: The argument after \`/opsx:new\` is the change name (kebab-case), OR a description of what the user wants to build.
+**Input**: The argument after \`/phsx:new\` is the change name (kebab-case), OR a description of what the user wants to build.
 
 **Steps**
 
@@ -1548,27 +1548,27 @@ export function getOpsxNewCommandTemplate(): CommandTemplate {
 
    **Use a different schema only if the user mentions:**
    - A specific schema name → use \`--schema <name>\`
-   - "show workflows" or "what workflows" → run \`openspec schemas --json\` and let them choose
+   - "show workflows" or "what workflows" → run \`phspec schemas --json\` and let them choose
 
    **Otherwise**: Omit \`--schema\` to use the default.
 
 3. **Create the change directory**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
    Add \`--schema <name>\` only if the user requested a specific workflow.
-   This creates a scaffolded change at \`openspec/changes/<name>/\` with the selected schema.
+   This creates a scaffolded change at \`phspec/changes/<name>/\` with the selected schema.
 
 4. **Show the artifact status**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
    This shows which artifacts need to be created and which are ready (dependencies satisfied).
 
 5. **Get instructions for the first artifact**
    The first artifact depends on the schema. Check the status output to find the first artifact with status "ready".
    \`\`\`bash
-   openspec instructions <first-artifact-id> --change "<name>"
+   phspec instructions <first-artifact-id> --change "<name>"
    \`\`\`
    This outputs the template and context for creating the first artifact.
 
@@ -1581,35 +1581,35 @@ After completing the steps, summarize:
 - Schema/workflow being used and its artifact sequence
 - Current status (0/N artifacts complete)
 - The template for the first artifact
-- Prompt: "Ready to create the first artifact? Run \`/opsx:continue\` or just describe what this change is about and I'll draft it."
+- Prompt: "Ready to create the first artifact? Run \`/phsx:continue\` or just describe what this change is about and I'll draft it."
 
 **Guardrails**
 - Do NOT create any artifacts yet - just show the instructions
 - Do NOT advance beyond showing the first artifact template
 - If the name is invalid (not kebab-case), ask for a valid name
-- If a change with that name already exists, suggest using \`/opsx:continue\` instead
+- If a change with that name already exists, suggest using \`/phsx:continue\` instead
 - Pass --schema if using a non-default workflow`,
   };
 }
 
 /**
- * Template for /opsx:continue slash command
+ * Template for /phsx:continue slash command
  */
 export function getOpsxContinueCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Continue",
+    name: "PHSX: Continue",
     description: "继续变更：创建下一个制品",
     category: "Workflow",
     tags: ["workflow", "artifacts", "experimental"],
     content: `Continue working on a change by creating the next artifact.
 
-**Input**: Optionally specify a change name after \`/opsx:continue\` (e.g., \`/opsx:continue add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**Input**: Optionally specify a change name after \`/phsx:continue\` (e.g., \`/phsx:continue add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
 1. **If no change name provided, prompt for selection**
 
-   Run \`openspec list --json\` to get available changes sorted by most recently modified. Then use the **AskUserQuestion tool** to let the user select which change to work on.
+   Run \`phspec list --json\` to get available changes sorted by most recently modified. Then use the **AskUserQuestion tool** to let the user select which change to work on.
 
    Present the top 3-4 most recently modified changes as options, showing:
    - Change name
@@ -1623,7 +1623,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
 
 2. **Check current status**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    Parse the JSON to understand current state. The response includes:
    - \`schemaName\`: The workflow schema being used (e.g., "spec-driven")
@@ -1637,7 +1637,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
    **If all artifacts are complete (\`isComplete: true\`)**:
    - Congratulate the user
    - Show final status including the schema used
-   - Suggest: "All artifacts created! You can now implement this change with \`/opsx:apply\` or archive it with \`/opsx:archive\`."
+   - Suggest: "All artifacts created! You can now implement this change with \`/phsx:apply\` or archive it with \`/phsx:archive\`."
    - STOP
 
    ---
@@ -1646,7 +1646,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
    - Pick the FIRST artifact with \`status: "ready"\` from the status output
    - Get its instructions:
      \`\`\`bash
-     openspec instructions <artifact-id> --change "<name>" --json
+     phspec instructions <artifact-id> --change "<name>" --json
      \`\`\`
    - Parse the JSON. The key fields are:
      - \`context\`: Project background (constraints for you - do NOT include in output)
@@ -1671,7 +1671,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
 
 4. **After creating an artifact, show progress**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
 **Output**
@@ -1681,7 +1681,7 @@ After each invocation, show:
 - Schema workflow being used
 - Current progress (N/M complete)
 - What artifacts are now unlocked
-- Prompt: "Run \`/opsx:continue\` to create the next artifact"
+- Prompt: "Run \`/phsx:continue\` to create the next artifact"
 
 **Artifact Creation Guidelines**
 
@@ -1712,17 +1712,17 @@ For other schemas, follow the \`instruction\` field from the CLI output.
 }
 
 /**
- * Template for /opsx:apply slash command
+ * Template for /phsx:apply slash command
  */
 export function getOpsxApplyCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Apply",
-    description: "按 OpenSpec 变更实施任务",
+    name: "PHSX: Apply",
+    description: "按 PhSpec 变更实施任务",
     category: "Workflow",
     tags: ["workflow", "artifacts", "experimental"],
-    content: `Implement tasks from an OpenSpec change.
+    content: `Implement tasks from an PhSpec change.
 
-**Input**: Optionally specify a change name (e.g., \`/opsx:apply add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**Input**: Optionally specify a change name (e.g., \`/phsx:apply add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
@@ -1731,13 +1731,13 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
    If a name is provided, use it. Otherwise:
    - Infer from conversation context if the user mentioned a change
    - Auto-select if only one active change exists
-   - If ambiguous, run \`openspec list --json\` to get available changes and use the **AskUserQuestion tool** to let the user select
+   - If ambiguous, run \`phspec list --json\` to get available changes and use the **AskUserQuestion tool** to let the user select
 
-   Always announce: "Using change: <name>" and how to override (e.g., \`/opsx:apply <other>\`).
+   Always announce: "Using change: <name>" and how to override (e.g., \`/phsx:apply <other>\`).
 
 2. **Check status to understand the schema**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    Parse the JSON to understand:
    - \`schemaName\`: The workflow being used (e.g., "spec-driven")
@@ -1746,7 +1746,7 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
 3. **Get apply instructions**
 
    \`\`\`bash
-   openspec instructions apply --change "<name>" --json
+   phspec instructions apply --change "<name>" --json
    \`\`\`
 
    This returns:
@@ -1756,7 +1756,7 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
    - Dynamic instruction based on current state
 
    **Handle states:**
-   - If \`state: "blocked"\` (missing artifacts): show message, suggest using \`/opsx:continue\`
+   - If \`state: "blocked"\` (missing artifacts): show message, suggest using \`/phsx:continue\`
    - If \`state: "all_done"\`: congratulate, suggest archive
    - Otherwise: proceed to implementation
 
@@ -1826,7 +1826,7 @@ Working on task 4/7: <task description>
 - [x] Task 2
 ...
 
-All tasks complete! You can archive this change with \`/opsx:archive\`.
+All tasks complete! You can archive this change with \`/phsx:archive\`.
 \`\`\`
 
 **Output On Pause (Issue Encountered)**
@@ -1869,17 +1869,17 @@ This skill supports the "actions on a change" model:
 }
 
 /**
- * Template for /opsx:ff slash command
+ * Template for /phsx:ff slash command
  */
 export function getOpsxFfCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Fast Forward",
+    name: "PHSX: Fast Forward",
     description: "创建变更并一次性生成实施所需全部制品",
     category: "Workflow",
     tags: ["workflow", "artifacts", "experimental"],
     content: `Fast-forward through artifact creation - generate everything needed to start implementation.
 
-**Input**: The argument after \`/opsx:ff\` is the change name (kebab-case), OR a description of what the user wants to build.
+**Input**: The argument after \`/phsx:ff\` is the change name (kebab-case), OR a description of what the user wants to build.
 
 **Steps**
 
@@ -1894,13 +1894,13 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
 
 2. **Create the change directory**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
-   This creates a scaffolded change at \`openspec/changes/<name>/\`.
+   This creates a scaffolded change at \`phspec/changes/<name>/\`.
 
 3. **Get the artifact build order**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    Parse the JSON to get:
    - \`applyRequires\`: array of artifact IDs needed before implementation (e.g., \`["tasks"]\`)
@@ -1915,7 +1915,7 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
    a. **For each artifact that is \`ready\` (dependencies satisfied)**:
       - Get instructions:
         \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
+        phspec instructions <artifact-id> --change "<name>" --json
         \`\`\`
       - The instructions JSON includes:
         - \`context\`: Project background (constraints for you - do NOT include in output)
@@ -1930,7 +1930,7 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
       - Show brief progress: "✓ Created <artifact-id>"
 
    b. **Continue until all \`applyRequires\` artifacts are complete**
-      - After creating each artifact, re-run \`openspec status --change "<name>" --json\`
+      - After creating each artifact, re-run \`phspec status --change "<name>" --json\`
       - Check if every artifact ID in \`applyRequires\` has \`status: "done"\` in the artifacts array
       - Stop when all \`applyRequires\` artifacts are done
 
@@ -1940,7 +1940,7 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
 
 5. **Show final status**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
 **Output**
@@ -1949,11 +1949,11 @@ After completing all artifacts, summarize:
 - Change name and location
 - List of artifacts created with brief descriptions
 - What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run \`/opsx:apply\` to start implementing."
+- Prompt: "Run \`/phsx:apply\` to start implementing."
 
 **Artifact Creation Guidelines**
 
-- Follow the \`instruction\` field from \`openspec instructions\` for each artifact type
+- Follow the \`instruction\` field from \`phspec instructions\` for each artifact type
 - The schema defines what each artifact should contain - follow it
 - Read dependency artifacts for context before creating new ones
 - Use the \`template\` as a starting point, filling in based on context
@@ -1968,12 +1968,12 @@ After completing all artifacts, summarize:
 }
 
 /**
- * Template for openspec-archive-change skill
+ * Template for phspec-archive-change skill
  * For archiving completed changes in the experimental workflow
  */
 export function getArchiveChangeSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-archive-change",
+    name: "phspec-archive-change",
     description: "归档已完成的变更。适用于实施完成后要收尾并归档变更时。",
     instructions: `在实验性工作流中归档已完成的变更。
 
@@ -1983,13 +1983,13 @@ export function getArchiveChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`openspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。只展示进行中的变更（未归档的），若有则展示每个变更所用工作流模式。
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。只展示进行中的变更（未归档的），若有则展示每个变更所用工作流模式。
 
    **重要**：不要猜测或自动选择，始终让用户选择。
 
 2. **检查制品完成状态**
 
-   运行 \`openspec status --change "<name>" --json\` 查看制品完成情况。解析 JSON：\`schemaName\`、\`artifacts\` 及各状态（\`done\` 或其他）。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion 工具** 确认是否继续，用户确认后继续。
+   运行 \`phspec status --change "<name>" --json\` 查看制品完成情况。解析 JSON：\`schemaName\`、\`artifacts\` 及各状态（\`done\` 或其他）。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion 工具** 确认是否继续，用户确认后继续。
 
 3. **检查任务完成状态**
 
@@ -1997,11 +1997,11 @@ export function getArchiveChangeSkillTemplate(): SkillTemplate {
 
 4. **评估增量规范同步状态**
 
-   检查 \`openspec/changes/<name>/specs/\` 是否有增量规范。若无则不必提示同步。若有：将各增量规范与主规范 \`openspec/specs/<capability>/spec.md\` 对比，说明会应用哪些变更（增/改/删/重命名），在提示前展示合并摘要。选项：若需同步则「立即同步（推荐）」「不同步直接归档」；若已同步则「立即归档」「仍同步一次」「取消」。若用户选同步，用 Task 工具（subagent_type: "general-purpose", prompt: "用 Skill 工具调用 openspec-sync-specs 处理变更 '<name>'。增量分析：<上述摘要>"）。无论是否同步，最终执行归档。
+   检查 \`phspec/changes/<name>/specs/\` 是否有增量规范。若无则不必提示同步。若有：将各增量规范与主规范 \`phspec/specs/<capability>/spec.md\` 对比，说明会应用哪些变更（增/改/删/重命名），在提示前展示合并摘要。选项：若需同步则「立即同步（推荐）」「不同步直接归档」；若已同步则「立即归档」「仍同步一次」「取消」。若用户选同步，用 Task 工具（subagent_type: "general-purpose", prompt: "用 Skill 工具调用 phspec-sync-specs 处理变更 '<name>'。增量分析：<上述摘要>"）。无论是否同步，最终执行归档。
 
 5. **执行归档**
 
-   若不存在则创建 \`openspec/changes/archive\`。目标名用当前日期：\`YYYY-MM-DD-<change-name>\`。若目标已存在：报错并建议重命名已有归档或换日期。否则执行 \`mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>\`。
+   若不存在则创建 \`phspec/changes/archive\`。目标名用当前日期：\`YYYY-MM-DD-<change-name>\`。若目标已存在：报错并建议重命名已有归档或换日期。否则执行 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`。
 
 6. **展示摘要**
 
@@ -2014,7 +2014,7 @@ export function getArchiveChangeSkillTemplate(): SkillTemplate {
 
 **变更：** <change-name>
 **工作流模式：** <schema-name>
-**归档至：** openspec/changes/archive/YYYY-MM-DD-<name>/
+**归档至：** phspec/changes/archive/YYYY-MM-DD-<name>/
 **规范：** ✓ 已同步到主规范（或「无增量规范」或「已跳过同步」）
 
 全部制品已完成。全部任务已完成。
@@ -2022,24 +2022,24 @@ export function getArchiveChangeSkillTemplate(): SkillTemplate {
 
 **边界**
 - 未提供变更时始终让用户选择
-- 用 openspec status --json 检查完成度
+- 用 phspec status --json 检查完成度
 - 有警告时仅提示并确认，不阻止归档
-- 移动目录时保留 .openspec.yaml
-- 若需同步则用 openspec-sync-specs（agent 驱动）
+- 移动目录时保留 .phspec.yaml
+- 若需同步则用 phspec-sync-specs（agent 驱动）
 - 有增量规范时先做同步评估并展示合并摘要再提示`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-bulk-archive-change skill
+ * Template for phspec-bulk-archive-change skill
  * For archiving multiple completed changes at once
  */
 export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-bulk-archive-change",
+    name: "phspec-bulk-archive-change",
     description: "一次性归档多个已完成的变更。适用于并行多个变更一起收尾时。",
     instructions: `一次性归档多个已完成的变更。
 
@@ -2051,7 +2051,7 @@ export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
 
 1. **获取进行中的变更**
 
-   运行 \`openspec list --json\` 获取所有进行中的变更。若无，告知用户并结束。
+   运行 \`phspec list --json\` 获取所有进行中的变更。若无，告知用户并结束。
 
 2. **让用户选择要归档的变更**
 
@@ -2061,7 +2061,7 @@ export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
 
 3. **批量校验 - 收集所选变更的状态**
 
-   对每个所选变更收集：a) **制品状态**：\`openspec status --change "<name>" --json\`，解析 \`schemaName\` 与 \`artifacts\`，记录 \`done\` 与非 done；b) **任务完成**：读 \`openspec/changes/<name>/tasks.md\`，统计 \`- [ ]\` / \`- [x]\`，无任务文件则记为「无任务」；c) **增量规范**：检查 \`openspec/changes/<name>/specs/\`，列出能力及 \`### Requirement: <name>\` 需求名。
+   对每个所选变更收集：a) **制品状态**：\`phspec status --change "<name>" --json\`，解析 \`schemaName\` 与 \`artifacts\`，记录 \`done\` 与非 done；b) **任务完成**：读 \`phspec/changes/<name>/tasks.md\`，统计 \`- [ ]\` / \`- [x]\`，无任务文件则记为「无任务」；c) **增量规范**：检查 \`phspec/changes/<name>/specs/\`，列出能力及 \`### Requirement: <name>\` 需求名。
 
 4. **检测规范冲突**
 
@@ -2081,11 +2081,11 @@ export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
 
 8. **对每个确认的变更执行归档**
 
-   按既定顺序（含冲突解决顺序）：a) 若有增量规范则先同步（openspec-sync-specs，agent 驱动智能合并；冲突按解决顺序应用）；b) 执行 \`mkdir -p openspec/changes/archive\` 与 \`mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>\`；c) 记录每项结果：成功 / 失败（记录错误）/ 跳过。
+   按既定顺序（含冲突解决顺序）：a) 若有增量规范则先同步（phspec-sync-specs，agent 驱动智能合并；冲突按解决顺序应用）；b) 执行 \`mkdir -p phspec/changes/archive\` 与 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`；c) 记录每项结果：成功 / 失败（记录错误）/ 跳过。
 
 9. **展示摘要**
 
-   成功时：## 批量归档完成；列出已归档变更及路径；规范同步摘要（N 个增量已同步，无冲突或 M 个冲突已解决）。部分成功时：已归档 / 已跳过 / 失败列表。若有失败：Failed K changes: <name>: 原因。无进行中变更时：## 无变更可归档；提示用 \`/opsx:new\` 新建。
+   成功时：## 批量归档完成；列出已归档变更及路径；规范同步摘要（N 个增量已同步，无冲突或 M 个冲突已解决）。部分成功时：已归档 / 已跳过 / 失败列表。若有失败：Failed K changes: <name>: 原因。无进行中变更时：## 无变更可归档；提示用 \`/phsx:new\` 新建。
 
 **冲突解决示例**（仅一个已实现：只同步已实现变更的规范；两个都已实现：按时间顺序先应用旧变更再新变更）。
 
@@ -2098,20 +2098,20 @@ export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
 - 确认前展示清晰的每变更状态
 - 整批一次确认
 - 记录并汇报所有结果（成功/跳过/失败）
-- 移动时保留 .openspec.yaml，归档目录名为当前日期 YYYY-MM-DD-<name>
+- 移动时保留 .phspec.yaml，归档目录名为当前日期 YYYY-MM-DD-<name>
 - 若归档目标已存在，该变更报错但继续处理其余变更`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for /opsx:sync slash command
+ * Template for /phsx:sync slash command
  */
 export function getOpsxSyncCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Sync",
+    name: "PHSX: Sync",
     description: "将变更的增量规范同步到主规范",
     category: "Workflow",
     tags: ["workflow", "specs", "experimental"],
@@ -2119,13 +2119,13 @@ export function getOpsxSyncCommandTemplate(): CommandTemplate {
 
 This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
 
-**Input**: Optionally specify a change name after \`/opsx:sync\` (e.g., \`/opsx:sync add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**Input**: Optionally specify a change name after \`/phsx:sync\` (e.g., \`/phsx:sync add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
 1. **If no change name provided, prompt for selection**
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   Run \`phspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
 
    Show changes that have delta specs (under \`specs/\` directory).
 
@@ -2133,7 +2133,7 @@ This is an **agent-driven** operation - you will read delta specs and directly e
 
 2. **Find delta specs**
 
-   Look for delta spec files in \`openspec/changes/<name>/specs/*/spec.md\`.
+   Look for delta spec files in \`phspec/changes/<name>/specs/*/spec.md\`.
 
    Each delta spec file contains sections like:
    - \`## ADDED Requirements\` - New requirements to add
@@ -2145,11 +2145,11 @@ This is an **agent-driven** operation - you will read delta specs and directly e
 
 3. **For each delta spec, apply changes to main specs**
 
-   For each capability with a delta spec at \`openspec/changes/<name>/specs/<capability>/spec.md\`:
+   For each capability with a delta spec at \`phspec/changes/<name>/specs/<capability>/spec.md\`:
 
    a. **Read the delta spec** to understand the intended changes
 
-   b. **Read the main spec** at \`openspec/specs/<capability>/spec.md\` (may not exist yet)
+   b. **Read the main spec** at \`phspec/specs/<capability>/spec.md\` (may not exist yet)
 
    c. **Apply changes intelligently**:
 
@@ -2172,7 +2172,7 @@ This is an **agent-driven** operation - you will read delta specs and directly e
       - Find the FROM requirement, rename to TO
 
    d. **Create new main spec** if capability doesn't exist yet:
-      - Create \`openspec/specs/<capability>/spec.md\`
+      - Create \`phspec/specs/<capability>/spec.md\`
       - Add Purpose section (can be brief, mark as TBD)
       - Add Requirements section with the ADDED requirements
 
@@ -2246,12 +2246,12 @@ Main specs are now updated. The change remains active - archive when implementat
 }
 
 /**
- * Template for openspec-verify-change skill
+ * Template for phspec-verify-change skill
  * For verifying implementation matches change artifacts before archiving
  */
 export function getVerifyChangeSkillTemplate(): SkillTemplate {
   return {
-    name: "openspec-verify-change",
+    name: "phspec-verify-change",
     description:
       "校验实现与变更制品是否一致。适用于归档前确认实现完整、正确且一致时。",
     instructions: `校验实现是否与变更制品（规范、任务、设计）一致。
@@ -2262,18 +2262,18 @@ export function getVerifyChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`openspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。**重要**：不要猜测或自动选择，始终让用户选择。
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。**重要**：不要猜测或自动选择，始终让用户选择。
 
 2. **查看状态以了解工作流**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    解析 \`schemaName\`（所用工作流）及该变更有哪些制品。
 
 3. **获取变更目录并加载制品**
 
    \`\`\`bash
-   openspec instructions apply --change "<name>" --json
+   phspec instructions apply --change "<name>" --json
    \`\`\`
    从返回的 \`contextFiles\` 中读取所有可用制品。
 
@@ -2283,7 +2283,7 @@ export function getVerifyChangeSkillTemplate(): SkillTemplate {
 
 5. **校验完整性**
 
-   **任务**：若有 tasks.md，解析 \`- [ ]\` / \`- [x]\`，统计完成数/总数。未完成任务记 CRITICAL，建议「完成任务：<描述>」或「若已实现请勾选」。**规范覆盖**：若有 \`openspec/changes/<name>/specs/\` 增量规范，提取 \`### Requirement:\` 需求，逐条在代码库中搜索关键词评估是否已实现；若明显未实现则记 CRITICAL「未发现需求：<需求名>」，建议「实现需求 X：<描述>」。
+   **任务**：若有 tasks.md，解析 \`- [ ]\` / \`- [x]\`，统计完成数/总数。未完成任务记 CRITICAL，建议「完成任务：<描述>」或「若已实现请勾选」。**规范覆盖**：若有 \`phspec/changes/<name>/specs/\` 增量规范，提取 \`### Requirement:\` 需求，逐条在代码库中搜索关键词评估是否已实现；若明显未实现则记 CRITICAL「未发现需求：<需求名>」，建议「实现需求 X：<描述>」。
 
 6. **校验正确性**
 
@@ -2306,29 +2306,29 @@ export function getVerifyChangeSkillTemplate(): SkillTemplate {
 
 **降级**：仅 tasks.md 时只校验任务；有 tasks+specs 时校验完整性与正确性；全量制品时校验三维。始终注明跳过了哪些检查及原因。**输出格式**：清晰 Markdown、摘要表、按 CRITICAL/WARNING/SUGGESTION 分组、代码引用 \`file.ts:123\`、具体可执行建议，避免「考虑审查」等空泛表述。`,
     license: "MIT",
-    compatibility: "Requires openspec CLI.",
-    metadata: { author: "openspec", version: "1.0" },
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for /opsx:archive slash command
+ * Template for /phsx:archive slash command
  */
 export function getOpsxArchiveCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Archive",
+    name: "PHSX: Archive",
     description: "归档已完成的变更",
     category: "Workflow",
     tags: ["workflow", "archive", "experimental"],
     content: `Archive a completed change in the experimental workflow.
 
-**Input**: Optionally specify a change name after \`/opsx:archive\` (e.g., \`/opsx:archive add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**Input**: Optionally specify a change name after \`/phsx:archive\` (e.g., \`/phsx:archive add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
 1. **If no change name provided, prompt for selection**
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   Run \`phspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
 
    Show only active changes (not already archived).
    Include the schema used for each change if available.
@@ -2337,7 +2337,7 @@ export function getOpsxArchiveCommandTemplate(): CommandTemplate {
 
 2. **Check artifact completion status**
 
-   Run \`openspec status --change "<name>" --json\` to check artifact completion.
+   Run \`phspec status --change "<name>" --json\` to check artifact completion.
 
    Parse the JSON to understand:
    - \`schemaName\`: The workflow being used
@@ -2363,10 +2363,10 @@ export function getOpsxArchiveCommandTemplate(): CommandTemplate {
 
 4. **Assess delta spec sync state**
 
-   Check for delta specs at \`openspec/changes/<name>/specs/\`. If none exist, proceed without sync prompt.
+   Check for delta specs at \`phspec/changes/<name>/specs/\`. If none exist, proceed without sync prompt.
 
    **If delta specs exist:**
-   - Compare each delta spec with its corresponding main spec at \`openspec/specs/<capability>/spec.md\`
+   - Compare each delta spec with its corresponding main spec at \`phspec/specs/<capability>/spec.md\`
    - Determine what changes would be applied (adds, modifications, removals, renames)
    - Show a combined summary before prompting
 
@@ -2374,13 +2374,13 @@ export function getOpsxArchiveCommandTemplate(): CommandTemplate {
    - If changes needed: "Sync now (recommended)", "Archive without syncing"
    - If already synced: "Archive now", "Sync anyway", "Cancel"
 
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
+   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke phspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
 
 5. **Perform the archive**
 
    Create the archive directory if it doesn't exist:
    \`\`\`bash
-   mkdir -p openspec/changes/archive
+   mkdir -p phspec/changes/archive
    \`\`\`
 
    Generate target name using current date: \`YYYY-MM-DD-<change-name>\`
@@ -2390,7 +2390,7 @@ export function getOpsxArchiveCommandTemplate(): CommandTemplate {
    - If no: Move the change directory to archive
 
    \`\`\`bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
+   mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>
    \`\`\`
 
 6. **Display summary**
@@ -2409,7 +2409,7 @@ export function getOpsxArchiveCommandTemplate(): CommandTemplate {
 
 **Change:** <change-name>
 **Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
+**Archived to:** phspec/changes/archive/YYYY-MM-DD-<name>/
 **Specs:** ✓ Synced to main specs
 
 All artifacts complete. All tasks complete.
@@ -2422,7 +2422,7 @@ All artifacts complete. All tasks complete.
 
 **Change:** <change-name>
 **Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
+**Archived to:** phspec/changes/archive/YYYY-MM-DD-<name>/
 **Specs:** No delta specs
 
 All artifacts complete. All tasks complete.
@@ -2435,7 +2435,7 @@ All artifacts complete. All tasks complete.
 
 **Change:** <change-name>
 **Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
+**Archived to:** phspec/changes/archive/YYYY-MM-DD-<name>/
 **Specs:** Sync skipped (user chose to skip)
 
 **Warnings:**
@@ -2452,7 +2452,7 @@ Review the archive if this was not intentional.
 ## Archive Failed
 
 **Change:** <change-name>
-**Target:** openspec/changes/archive/YYYY-MM-DD-<name>/
+**Target:** phspec/changes/archive/YYYY-MM-DD-<name>/
 
 Target archive directory already exists.
 
@@ -2464,23 +2464,23 @@ Target archive directory already exists.
 
 **Guardrails**
 - Always prompt for change selection if not provided
-- Use artifact graph (openspec status --json) for completion checking
+- Use artifact graph (phspec status --json) for completion checking
 - Don't block archive on warnings - just inform and confirm
-- Preserve .openspec.yaml when moving to archive (it moves with the directory)
+- Preserve .phspec.yaml when moving to archive (it moves with the directory)
 - Show clear summary of what happened
-- If sync is requested, use the Skill tool to invoke \`openspec-sync-specs\` (agent-driven)
+- If sync is requested, use the Skill tool to invoke \`phspec-sync-specs\` (agent-driven)
 - If delta specs exist, always run the sync assessment and show the combined summary before prompting`,
   };
 }
 
 /**
- * Template for /opsx:onboard slash command
- * Guided onboarding through the complete OpenSpec workflow
+ * Template for /phsx:onboard slash command
+ * Guided onboarding through the complete PhSpec workflow
  */
 export function getOpsxOnboardCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Onboard",
-    description: "引导入门：带讲解走完完整 OpenSpec 工作流",
+    name: "PHSX: Onboard",
+    description: "引导入门：带讲解走完完整 PhSpec 工作流",
     category: "Workflow",
     tags: ["workflow", "onboarding", "tutorial", "learning"],
     content: getOnboardInstructions(),
@@ -2488,11 +2488,11 @@ export function getOpsxOnboardCommandTemplate(): CommandTemplate {
 }
 
 /**
- * Template for /opsx:bulk-archive slash command
+ * Template for /phsx:bulk-archive slash command
  */
 export function getOpsxBulkArchiveCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Bulk Archive",
+    name: "PHSX: Bulk Archive",
     description: "一次性归档多个已完成的变更",
     category: "Workflow",
     tags: ["workflow", "archive", "experimental", "bulk"],
@@ -2506,7 +2506,7 @@ This skill allows you to batch-archive changes, handling spec conflicts intellig
 
 1. **Get active changes**
 
-   Run \`openspec list --json\` to get all active changes.
+   Run \`phspec list --json\` to get all active changes.
 
    If no active changes exist, inform user and stop.
 
@@ -2523,15 +2523,15 @@ This skill allows you to batch-archive changes, handling spec conflicts intellig
 
    For each selected change, collect:
 
-   a. **Artifact status** - Run \`openspec status --change "<name>" --json\`
+   a. **Artifact status** - Run \`phspec status --change "<name>" --json\`
       - Parse \`schemaName\` and \`artifacts\` list
       - Note which artifacts are \`done\` vs other states
 
-   b. **Task completion** - Read \`openspec/changes/<name>/tasks.md\`
+   b. **Task completion** - Read \`phspec/changes/<name>/tasks.md\`
       - Count \`- [ ]\` (incomplete) vs \`- [x]\` (complete)
       - If no tasks file exists, note as "No tasks"
 
-   c. **Delta specs** - Check \`openspec/changes/<name>/specs/\` directory
+   c. **Delta specs** - Check \`phspec/changes/<name>/specs/\` directory
       - List which capability specs exist
       - For each, extract requirement names (lines matching \`### Requirement: <name>\`)
 
@@ -2608,14 +2608,14 @@ This skill allows you to batch-archive changes, handling spec conflicts intellig
    Process changes in the determined order (respecting conflict resolution):
 
    a. **Sync specs** if delta specs exist:
-      - Use the openspec-sync-specs approach (agent-driven intelligent merge)
+      - Use the phspec-sync-specs approach (agent-driven intelligent merge)
       - For conflicts, apply in resolved order
       - Track if sync was done
 
    b. **Perform the archive**:
       \`\`\`bash
-      mkdir -p openspec/changes/archive
-      mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
+      mkdir -p phspec/changes/archive
+      mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>
       \`\`\`
 
    c. **Track outcome** for each change:
@@ -2716,7 +2716,7 @@ Failed K changes:
 \`\`\`
 ## No Changes to Archive
 
-No active changes found. Use \`/opsx:new\` to create a new change.
+No active changes found. Use \`/phsx:new\` to create a new change.
 \`\`\`
 
 **Guardrails**
@@ -2728,30 +2728,30 @@ No active changes found. Use \`/opsx:new\` to create a new change.
 - Show clear per-change status before confirming
 - Use single confirmation for entire batch
 - Track and report all outcomes (success/skip/fail)
-- Preserve .openspec.yaml when moving to archive
+- Preserve .phspec.yaml when moving to archive
 - Archive directory target uses current date: YYYY-MM-DD-<name>
 - If archive target exists, fail that change but continue with others`,
   };
 }
 
 /**
- * Template for /opsx:verify slash command
+ * Template for /phsx:verify slash command
  */
 export function getOpsxVerifyCommandTemplate(): CommandTemplate {
   return {
-    name: "OPSX: Verify",
+    name: "PHSX: Verify",
     description: "归档前校验实现是否与变更制品一致",
     category: "Workflow",
     tags: ["workflow", "verify", "experimental"],
     content: `Verify that an implementation matches the change artifacts (specs, tasks, design).
 
-**Input**: Optionally specify a change name after \`/opsx:verify\` (e.g., \`/opsx:verify add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**Input**: Optionally specify a change name after \`/phsx:verify\` (e.g., \`/phsx:verify add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
 1. **If no change name provided, prompt for selection**
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   Run \`phspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
 
    Show changes that have implementation tasks (tasks artifact exists).
    Include the schema used for each change if available.
@@ -2761,7 +2761,7 @@ export function getOpsxVerifyCommandTemplate(): CommandTemplate {
 
 2. **Check status to understand the schema**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
    Parse the JSON to understand:
    - \`schemaName\`: The workflow being used (e.g., "spec-driven")
@@ -2770,7 +2770,7 @@ export function getOpsxVerifyCommandTemplate(): CommandTemplate {
 3. **Get the change directory and load artifacts**
 
    \`\`\`bash
-   openspec instructions apply --change "<name>" --json
+   phspec instructions apply --change "<name>" --json
    \`\`\`
 
    This returns the change directory and context files. Read all available artifacts from \`contextFiles\`.
@@ -2795,7 +2795,7 @@ export function getOpsxVerifyCommandTemplate(): CommandTemplate {
      - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
 
    **Spec Coverage**:
-   - If delta specs exist in \`openspec/changes/<name>/specs/\`:
+   - If delta specs exist in \`phspec/changes/<name>/specs/\`:
      - Extract all requirements (marked with "### Requirement:")
      - For each requirement:
        - Search codebase for keywords related to the requirement
@@ -2909,8 +2909,8 @@ Use clear markdown with:
 export function getFeedbackSkillTemplate(): SkillTemplate {
   return {
     name: "feedback",
-    description: "收集并提交 OpenSpec 相关用户反馈（含上下文补充与匿名处理）。",
-    instructions: `帮助用户提交关于 OpenSpec 的反馈。
+    description: "收集并提交 PhSpec 相关用户反馈（含上下文补充与匿名处理）。",
+    instructions: `帮助用户提交关于 PhSpec 的反馈。
 
 **目标**：引导用户完成收集、补充与提交反馈，并通过匿名化保护隐私。
 
@@ -2941,8 +2941,8 @@ export function getFeedbackSkillTemplate(): SkillTemplate {
    - 允许用户要求修改
 
 5. **确认后提交**
-   - 使用 \`openspec feedback\` 命令提交
-   - 格式：\`openspec feedback "title" --body "body content"\`
+   - 使用 \`phspec feedback\` 命令提交
+   - 格式：\`phspec feedback "title" --body "body content"\`
    - 命令会自动附加元数据（版本、平台、时间戳）
 
 **示例草稿**（标题 + 正文：在做什么、遇到什么问题、建议、上下文；使用 spec-driven 与 <path> 等占位）。

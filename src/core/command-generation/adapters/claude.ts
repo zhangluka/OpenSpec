@@ -4,8 +4,8 @@
  * Formats commands for Claude Code following its frontmatter specification.
  */
 
-import path from 'path';
-import type { CommandContent, ToolCommandAdapter } from '../types.js';
+import path from "path";
+import type { CommandContent, ToolCommandAdapter } from "../types.js";
 
 /**
  * Escapes a string value for safe YAML output.
@@ -16,7 +16,10 @@ function escapeYamlValue(value: string): string {
   const needsQuoting = /[:\n\r#{}[\],&*!|>'"%@`]|^\s|\s$/.test(value);
   if (needsQuoting) {
     // Use double quotes and escape internal double quotes and backslashes
-    const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    const escaped = value
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "\\n");
     return `"${escaped}"`;
   }
   return value;
@@ -27,19 +30,19 @@ function escapeYamlValue(value: string): string {
  */
 function formatTagsArray(tags: string[]): string {
   const escapedTags = tags.map((tag) => escapeYamlValue(tag));
-  return `[${escapedTags.join(', ')}]`;
+  return `[${escapedTags.join(", ")}]`;
 }
 
 /**
  * Claude Code adapter for command generation.
- * File path: .claude/commands/opsx/<id>.md
+ * File path: .claude/commands/phsx/<id>.md
  * Frontmatter: name, description, category, tags
  */
 export const claudeAdapter: ToolCommandAdapter = {
-  toolId: 'claude',
+  toolId: "claude",
 
   getFilePath(commandId: string): string {
-    return path.join('.claude', 'commands', 'opsx', `${commandId}.md`);
+    return path.join(".claude", "commands", "phsx", `${commandId}.md`);
   },
 
   formatFile(content: CommandContent): string {

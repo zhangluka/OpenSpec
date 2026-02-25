@@ -1,4 +1,4 @@
-export const OPENSPEC_DIR_NAME = "openspec";
+export const PHSPEC_DIR_NAME = "phspec";
 
 export const OPENSPEC_MARKERS = {
   start: "<!-- OPENSPEC:START -->",

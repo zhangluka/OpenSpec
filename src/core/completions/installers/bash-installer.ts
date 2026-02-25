@@ -1,8 +1,8 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
-import { FileSystemUtils } from '../../../utils/file-system.js';
-import { InstallationResult } from '../factory.js';
+import { promises as fs } from "fs";
+import path from "path";
+import os from "os";
+import { FileSystemUtils } from "../../../utils/file-system.js";
+import { InstallationResult } from "../factory.js";
 
 /**
  * Installer for Bash completion scripts.
@@ -15,8 +15,8 @@ export class BashInstaller {
    * Markers for .bashrc configuration management
    */
   private readonly BASHRC_MARKERS = {
-    start: '# OPENSPEC:START',
-    end: '# OPENSPEC:END',
+    start: "# OPENSPEC:START",
+    end: "# OPENSPEC:END",
   };
 
   constructor(homeDir: string = os.homedir()) {
@@ -30,11 +30,11 @@ export class BashInstaller {
    */
   async isBashCompletionInstalled(): Promise<boolean> {
     const paths = [
-      '/usr/share/bash-completion',              // Linux system-wide
-      '/usr/local/share/bash-completion',        // Homebrew Intel (main)
-      '/opt/homebrew/etc/bash_completion.d',     // Homebrew Apple Silicon
-      '/usr/local/etc/bash_completion.d',        // Homebrew Intel (alt path)
-      '/etc/bash_completion.d',                   // Legacy fallback
+      "/usr/share/bash-completion", // Linux system-wide
+      "/usr/local/share/bash-completion", // Homebrew Intel (main)
+      "/opt/homebrew/etc/bash_completion.d", // Homebrew Apple Silicon
+      "/usr/local/etc/bash_completion.d", // Homebrew Intel (alt path)
+      "/etc/bash_completion.d", // Legacy fallback
     ];
 
     for (const p of paths) {
@@ -58,10 +58,16 @@ export class BashInstaller {
    */
   async getInstallationPath(): Promise<string> {
     // Try user-local bash-completion directory first
-    const localCompletionDir = path.join(this.homeDir, '.local', 'share', 'bash-completion', 'completions');
+    const localCompletionDir = path.join(
+      this.homeDir,
+      ".local",
+      "share",
+      "bash-completion",
+      "completions",
+    );
 
     // For user installation, use local directory
-    return path.join(localCompletionDir, 'openspec');
+    return path.join(localCompletionDir, "phspec");
   }
 
   /**
@@ -74,7 +80,7 @@ export class BashInstaller {
     try {
       await fs.access(targetPath);
       // File exists, create a backup
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const backupPath = `${targetPath}.backup-${timestamp}`;
       await fs.copyFile(targetPath, backupPath);
       return backupPath;
@@ -90,7 +96,7 @@ export class BashInstaller {
    * @returns Path to .bashrc
    */
   private getBashrcPath(): string {
-    return path.join(this.homeDir, '.bashrc');
+    return path.join(this.homeDir, ".bashrc");
   }
 
   /**
@@ -101,13 +107,13 @@ export class BashInstaller {
    */
   private generateBashrcConfig(completionsDir: string): string {
     return [
-      '# OpenSpec shell completions configuration',
+      "# PhSpec shell completions configuration",
       `if [ -d "${completionsDir}" ]; then`,
       `  for f in "${completionsDir}"/*; do`,
       '    [ -f "$f" ] && . "$f"',
-      '  done',
-      'fi',
-    ].join('\n');
+      "  done",
+      "fi",
+    ].join("\n");
   }
 
   /**
@@ -118,7 +124,7 @@ export class BashInstaller {
    */
   async configureBashrc(completionsDir: string): Promise<boolean> {
     // Check if auto-configuration is disabled
-    if (process.env.OPENSPEC_NO_AUTO_CONFIG === '1') {
+    if (process.env.PHSPEC_NO_AUTO_CONFIG === "1") {
       return false;
     }
 
@@ -137,13 +143,15 @@ export class BashInstaller {
         bashrcPath,
         config,
         this.BASHRC_MARKERS.start,
-        this.BASHRC_MARKERS.end
+        this.BASHRC_MARKERS.end,
       );
 
       return true;
     } catch (error: any) {
       // Fail gracefully - don't break installation
-      console.debug(`Unable to configure .bashrc for completions: ${error.message}`);
+      console.debug(
+        `Unable to configure .bashrc for completions: ${error.message}`,
+      );
       return false;
     }
   }
@@ -167,18 +175,25 @@ export class BashInstaller {
       }
 
       // Read file content
-      const content = await fs.readFile(bashrcPath, 'utf-8');
+      const content = await fs.readFile(bashrcPath, "utf-8");
 
       // Check if markers exist
-      if (!content.includes(this.BASHRC_MARKERS.start) || !content.includes(this.BASHRC_MARKERS.end)) {
+      if (
+        !content.includes(this.BASHRC_MARKERS.start) ||
+        !content.includes(this.BASHRC_MARKERS.end)
+      ) {
         // Markers don't exist, nothing to remove
         return true;
       }
 
       // Remove content between markers (including markers)
-      const lines = content.split('\n');
-      const startIndex = lines.findIndex((line) => line.trim() === this.BASHRC_MARKERS.start);
-      const endIndex = lines.findIndex((line) => line.trim() === this.BASHRC_MARKERS.end);
+      const lines = content.split("\n");
+      const startIndex = lines.findIndex(
+        (line) => line.trim() === this.BASHRC_MARKERS.start,
+      );
+      const endIndex = lines.findIndex(
+        (line) => line.trim() === this.BASHRC_MARKERS.end,
+      );
 
       if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
         // Invalid marker placement
@@ -189,12 +204,12 @@ export class BashInstaller {
       lines.splice(startIndex, endIndex - startIndex + 1);
 
       // Remove trailing empty lines
-      while (lines.length > 0 && lines[lines.length - 1].trim() === '') {
+      while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
         lines.pop();
       }
 
       // Write back
-      await fs.writeFile(bashrcPath, lines.join('\n'), 'utf-8');
+      await fs.writeFile(bashrcPath, lines.join("\n"), "utf-8");
 
       return true;
     } catch (error: any) {
@@ -220,16 +235,16 @@ export class BashInstaller {
       // Check if already installed with same content
       let isUpdate = false;
       try {
-        const existingContent = await fs.readFile(targetPath, 'utf-8');
+        const existingContent = await fs.readFile(targetPath, "utf-8");
         if (existingContent === completionScript) {
           // Already installed and up to date
           return {
             success: true,
             installedPath: targetPath,
-            message: 'Completion script is already installed (up to date)',
+            message: "Completion script is already installed (up to date)",
             instructions: [
-              'The completion script is already installed and up to date.',
-              'If completions are not working, try: exec bash',
+              "The completion script is already installed and up to date.",
+              "If completions are not working, try: exec bash",
             ],
           };
         }
@@ -237,7 +252,9 @@ export class BashInstaller {
         isUpdate = true;
       } catch (error: any) {
         // File doesn't exist or can't be read, proceed with installation
-        console.debug(`Unable to read existing completion file at ${targetPath}: ${error.message}`);
+        console.debug(
+          `Unable to read existing completion file at ${targetPath}: ${error.message}`,
+        );
       }
 
       // Ensure the directory exists
@@ -245,29 +262,33 @@ export class BashInstaller {
       await fs.mkdir(targetDir, { recursive: true });
 
       // Backup existing file if updating
-      const backupPath = isUpdate ? await this.backupExistingFile(targetPath) : undefined;
+      const backupPath = isUpdate
+        ? await this.backupExistingFile(targetPath)
+        : undefined;
 
       // Write the completion script
-      await fs.writeFile(targetPath, completionScript, 'utf-8');
+      await fs.writeFile(targetPath, completionScript, "utf-8");
 
       // Auto-configure .bashrc
       const bashrcConfigured = await this.configureBashrc(targetDir);
 
       // Generate instructions if .bashrc wasn't auto-configured
-      const instructions = bashrcConfigured ? undefined : this.generateInstructions(targetPath);
+      const instructions = bashrcConfigured
+        ? undefined
+        : this.generateInstructions(targetPath);
 
       // Collect warnings
       const warnings: string[] = [];
       if (!hasBashCompletion) {
         warnings.push(
-          '⚠️  Warning: bash-completion package not detected',
-          '',
-          'The completion script requires bash-completion to function.',
-          'Install it with:',
-          '  brew install bash-completion@2',
-          '',
-          'Then add to your ~/.bash_profile:',
-          '  [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"'
+          "⚠️  Warning: bash-completion package not detected",
+          "",
+          "The completion script requires bash-completion to function.",
+          "Install it with:",
+          "  brew install bash-completion@2",
+          "",
+          "Then add to your ~/.bash_profile:",
+          '  [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"',
         );
       }
 
@@ -275,12 +296,12 @@ export class BashInstaller {
       let message: string;
       if (isUpdate) {
         message = backupPath
-          ? 'Completion script updated successfully (previous version backed up)'
-          : 'Completion script updated successfully';
+          ? "Completion script updated successfully (previous version backed up)"
+          : "Completion script updated successfully";
       } else {
         message = bashrcConfigured
-          ? 'Completion script installed and .bashrc configured successfully'
-          : 'Completion script installed successfully for Bash';
+          ? "Completion script installed and .bashrc configured successfully"
+          : "Completion script installed successfully for Bash";
       }
 
       return {
@@ -310,18 +331,18 @@ export class BashInstaller {
     const completionsDir = path.dirname(installedPath);
 
     return [
-      'Completion script installed successfully.',
-      '',
-      'To enable completions, add the following to your ~/.bashrc file:',
-      '',
-      `  # Source OpenSpec completions`,
+      "Completion script installed successfully.",
+      "",
+      "To enable completions, add the following to your ~/.bashrc file:",
+      "",
+      `  # Source PhSpec completions`,
       `  if [ -d "${completionsDir}" ]; then`,
       `    for f in "${completionsDir}"/*; do`,
       '      [ -f "$f" ] && . "$f"',
-      '    done',
-      '  fi',
-      '',
-      'Then restart your shell or run: exec bash',
+      "    done",
+      "  fi",
+      "",
+      "Then restart your shell or run: exec bash",
     ];
   }
 
@@ -332,7 +353,9 @@ export class BashInstaller {
    * @param options.yes - Skip confirmation prompt (handled by command layer)
    * @returns Uninstallation result
    */
-  async uninstall(options?: { yes?: boolean }): Promise<{ success: boolean; message: string }> {
+  async uninstall(options?: {
+    yes?: boolean;
+  }): Promise<{ success: boolean; message: string }> {
     try {
       const targetPath = await this.getInstallationPath();
 
@@ -342,7 +365,7 @@ export class BashInstaller {
       } catch {
         return {
           success: false,
-          message: 'Completion script is not installed',
+          message: "Completion script is not installed",
         };
       }
 
@@ -354,7 +377,7 @@ export class BashInstaller {
 
       return {
         success: true,
-        message: 'Completion script uninstalled successfully',
+        message: "Completion script uninstalled successfully",
       };
     } catch (error) {
       return {

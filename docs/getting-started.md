@@ -1,41 +1,41 @@
 # 入门
 
-本文说明在安装并初始化 OpenSpec 之后的基本用法。安装步骤见 [主 README](../README.md#quick-start)。
+本文说明在安装并初始化 PhSpec 之后的基本用法。安装步骤见 [主 README](../README.md#quick-start)。
 
 ## 工作方式
 
-OpenSpec 帮助你和 AI 编程助手在写代码前就对「要做什么」达成一致。流程是一个简单循环：
+PhSpec 帮助你和 AI 编程助手在写代码前就对「要做什么」达成一致。流程是一个简单循环：
 
 ```
 ┌────────────────────┐
-│ 启动变更           │  /opsx:new
+│ 启动变更           │  /phsx:new
 └────────┬───────────┘
          │
          ▼
 ┌────────────────────┐
-│ 创建制品           │  /opsx:ff 或 /opsx:continue
+│ 创建制品           │  /phsx:ff 或 /phsx:continue
 │ （提案、规范、     │
 │  设计、任务）      │
 └────────┬───────────┘
          │
          ▼
 ┌────────────────────┐
-│ 实施任务           │  /opsx:apply
+│ 实施任务           │  /phsx:apply
 │ （AI 写代码）      │
 └────────┬───────────┘
          │
          ▼
 ┌────────────────────┐
-│ 归档并合并规范     │  /opsx:archive
+│ 归档并合并规范     │  /phsx:archive
 └────────────────────┘
 ```
 
-## OpenSpec 会创建什么
+## PhSpec 会创建什么
 
-执行 `openspec init` 后，项目会有如下结构：
+执行 `phspec init` 后，项目会有如下结构：
 
 ```
-openspec/
+phspec/
 ├── specs/              # 单一事实来源（系统当前行为）
 │   └── <domain>/
 │       └── spec.md
@@ -79,7 +79,7 @@ openspec/
 
 ## 增量规范如何工作
 
-增量规范是 OpenSpec 的核心：它们展示**相对当前规范**的变更。
+增量规范是 PhSpec 的核心：它们展示**相对当前规范**的变更。
 
 ### 格式
 
@@ -97,7 +97,7 @@ openspec/
 2. **MODIFIED** 需求会替换主规范中的对应版本
 3. **REMOVED** 需求会从主规范中删除
 
-变更目录会移入 `openspec/changes/archive/` 以便追溯。
+变更目录会移入 `phspec/changes/archive/` 以便追溯。
 
 ## 示例：你的第一个变更
 
@@ -106,18 +106,18 @@ openspec/
 ### 1. 启动变更
 
 ```
-You: /opsx:new add-dark-mode
+You: /phsx:new add-dark-mode
 
-AI:  Created openspec/changes/add-dark-mode/
+AI:  Created phspec/changes/add-dark-mode/
      Ready to create: proposal
 ```
 
 ### 2. 创建制品
 
-用 `/opsx:ff`（快进）一次性创建所有规划制品：
+用 `/phsx:ff`（快进）一次性创建所有规划制品：
 
 ```
-You: /opsx:ff
+You: /phsx:ff
 
 AI:  Creating artifacts for add-dark-mode...
      ✓ proposal.md — why we're doing this, what's changing
@@ -130,7 +130,7 @@ AI:  Creating artifacts for add-dark-mode...
 ### 3. 实施
 
 ```
-You: /opsx:apply
+You: /phsx:apply
 
 AI:  Working through tasks...
      ✓ 1.1 Created ThemeContext with light/dark state
@@ -143,11 +143,11 @@ AI:  Working through tasks...
 ### 4. 归档
 
 ```
-You: /opsx:archive
+You: /phsx:archive
 
 AI:  Archiving add-dark-mode...
-     ✓ Merged specs into openspec/specs/ui/spec.md
-     ✓ Moved to openspec/changes/archive/2025-01-24-add-dark-mode/
+     ✓ Merged specs into phspec/specs/ui/spec.md
+     ✓ Moved to phspec/changes/archive/2025-01-24-add-dark-mode/
      Done! Ready for the next feature.
 ```
 
@@ -159,16 +159,16 @@ AI:  Archiving add-dark-mode...
 
 ```bash
 # 列出进行中的变更
-openspec list
+phspec list
 
 # 查看变更详情
-openspec show add-dark-mode
+phspec show add-dark-mode
 
 # 校验规范格式
-openspec validate add-dark-mode
+phspec validate add-dark-mode
 
 # 交互式总览
-openspec view
+phspec view
 ```
 
 ## 下一步
@@ -176,4 +176,4 @@ openspec view
 - [工作流](workflows.md) - 常用模式及各命令使用时机
 - [命令](commands.md) - 斜杠命令完整参考
 - [概念](concepts.md) - 规范、变更与工作流模式的深入说明
-- [自定义](customization.md) - 按你的方式使用 OpenSpec
+- [自定义](customization.md) - 按你的方式使用 PhSpec

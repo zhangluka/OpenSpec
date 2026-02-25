@@ -147,9 +147,9 @@ export class ShowCommand {
 
   private printNonInteractiveHint(): void {
     console.error("未指定查看对象。可尝试：");
-    console.error("  openspec show <item>");
-    console.error("  openspec change show");
-    console.error("  openspec spec show");
+    console.error("  phspec show <item>");
+    console.error("  phspec change show");
+    console.error("  phspec spec show");
     console.error("或在交互式终端中运行。");
   }
 

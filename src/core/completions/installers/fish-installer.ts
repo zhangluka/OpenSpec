@@ -1,7 +1,7 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
-import { InstallationResult } from '../factory.js';
+import { promises as fs } from "fs";
+import path from "path";
+import os from "os";
+import { InstallationResult } from "../factory.js";
 
 /**
  * Installer for Fish completion scripts.
@@ -20,7 +20,13 @@ export class FishInstaller {
    * @returns Installation path
    */
   getInstallationPath(): string {
-    return path.join(this.homeDir, '.config', 'fish', 'completions', 'openspec.fish');
+    return path.join(
+      this.homeDir,
+      ".config",
+      "fish",
+      "completions",
+      "phspec.fish",
+    );
   }
 
   /**
@@ -33,7 +39,7 @@ export class FishInstaller {
     try {
       await fs.access(targetPath);
       // File exists, create a backup
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const backupPath = `${targetPath}.backup-${timestamp}`;
       await fs.copyFile(targetPath, backupPath);
       return backupPath;
@@ -56,16 +62,16 @@ export class FishInstaller {
       // Check if already installed with same content
       let isUpdate = false;
       try {
-        const existingContent = await fs.readFile(targetPath, 'utf-8');
+        const existingContent = await fs.readFile(targetPath, "utf-8");
         if (existingContent === completionScript) {
           // Already installed and up to date
           return {
             success: true,
             installedPath: targetPath,
-            message: 'Completion script is already installed (up to date)',
+            message: "Completion script is already installed (up to date)",
             instructions: [
-              'The completion script is already installed and up to date.',
-              'Fish automatically loads completions - they should be available immediately.',
+              "The completion script is already installed and up to date.",
+              "Fish automatically loads completions - they should be available immediately.",
             ],
           };
         }
@@ -73,7 +79,9 @@ export class FishInstaller {
         isUpdate = true;
       } catch (error: any) {
         // File doesn't exist or can't be read, proceed with installation
-        console.debug(`Unable to read existing completion file at ${targetPath}: ${error.message}`);
+        console.debug(
+          `Unable to read existing completion file at ${targetPath}: ${error.message}`,
+        );
       }
 
       // Ensure the directory exists
@@ -81,19 +89,21 @@ export class FishInstaller {
       await fs.mkdir(targetDir, { recursive: true });
 
       // Backup existing file if updating
-      const backupPath = isUpdate ? await this.backupExistingFile(targetPath) : undefined;
+      const backupPath = isUpdate
+        ? await this.backupExistingFile(targetPath)
+        : undefined;
 
       // Write the completion script
-      await fs.writeFile(targetPath, completionScript, 'utf-8');
+      await fs.writeFile(targetPath, completionScript, "utf-8");
 
       // Determine appropriate message
       let message: string;
       if (isUpdate) {
         message = backupPath
-          ? 'Completion script updated successfully (previous version backed up)'
-          : 'Completion script updated successfully';
+          ? "Completion script updated successfully (previous version backed up)"
+          : "Completion script updated successfully";
       } else {
-        message = 'Completion script installed successfully for Fish';
+        message = "Completion script installed successfully for Fish";
       }
 
       return {
@@ -102,8 +112,8 @@ export class FishInstaller {
         backupPath,
         message,
         instructions: [
-          'Fish automatically loads completions from ~/.config/fish/completions/',
-          'Completions are available immediately - no shell restart needed.',
+          "Fish automatically loads completions from ~/.config/fish/completions/",
+          "Completions are available immediately - no shell restart needed.",
         ],
       };
     } catch (error) {
@@ -121,7 +131,9 @@ export class FishInstaller {
    * @param options.yes - Skip confirmation prompt (handled by command layer)
    * @returns Uninstallation result
    */
-  async uninstall(options?: { yes?: boolean }): Promise<{ success: boolean; message: string }> {
+  async uninstall(options?: {
+    yes?: boolean;
+  }): Promise<{ success: boolean; message: string }> {
     try {
       const targetPath = this.getInstallationPath();
 
@@ -131,7 +143,7 @@ export class FishInstaller {
       } catch {
         return {
           success: false,
-          message: 'Completion script is not installed',
+          message: "Completion script is not installed",
         };
       }
 
@@ -140,7 +152,7 @@ export class FishInstaller {
 
       return {
         success: true,
-        message: 'Completion script uninstalled successfully',
+        message: "Completion script uninstalled successfully",
       };
     } catch (error) {
       return {

@@ -45,7 +45,7 @@ export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
 const MAX_CONTEXT_SIZE = 50 * 1024; // 50KB hard limit
 
 /**
- * Read and parse openspec/config.yaml from project root.
+ * Read and parse phspec/config.yaml from project root.
  * Uses resilient parsing - validates each field independently using Zod safeParse.
  * Returns null if file doesn't exist.
  * Returns partial config if some fields are invalid (with warnings).
@@ -65,9 +65,9 @@ const MAX_CONTEXT_SIZE = 50 * 1024; // 50KB hard limit
  */
 export function readProjectConfig(projectRoot: string): ProjectConfig | null {
   // Try both .yaml and .yml, prefer .yaml
-  let configPath = path.join(projectRoot, "openspec", "config.yaml");
+  let configPath = path.join(projectRoot, "phspec", "config.yaml");
   if (!existsSync(configPath)) {
-    configPath = path.join(projectRoot, "openspec", "config.yml");
+    configPath = path.join(projectRoot, "phspec", "config.yml");
     if (!existsSync(configPath)) {
       return null; // No config is OK
     }
@@ -78,7 +78,7 @@ export function readProjectConfig(projectRoot: string): ProjectConfig | null {
     const raw = parseYaml(content);
 
     if (!raw || typeof raw !== "object") {
-      console.warn(`openspec/config.yaml 不是有效的 YAML 对象`);
+      console.warn(`phspec/config.yaml 不是有效的 YAML 对象`);
       return null;
     }
 
@@ -159,7 +159,7 @@ export function readProjectConfig(projectRoot: string): ProjectConfig | null {
     // Return partial config even if some fields failed
     return Object.keys(config).length > 0 ? (config as ProjectConfig) : null;
   } catch (error) {
-    console.warn(`解析 openspec/config.yaml 失败：`, error);
+    console.warn(`解析 phspec/config.yaml 失败：`, error);
     return null;
   }
 }
@@ -245,7 +245,7 @@ export function suggestSchemas(
     .filter((s) => !s.isBuiltIn)
     .map((s) => s.name);
 
-  let message = `在 openspec/config.yaml 中未找到工作流模式 '${invalidSchemaName}'\n\n`;
+  let message = `在 phspec/config.yaml 中未找到工作流模式 '${invalidSchemaName}'\n\n`;
 
   if (suggestions.length > 0) {
     message += `是否指以下之一？\n`;
@@ -266,7 +266,7 @@ export function suggestSchemas(
     message += `  项目本地：（未找到）\n`;
   }
 
-  message += `\n修复：编辑 openspec/config.yaml，将 'schema: ${invalidSchemaName}' 改为有效的工作流模式名称`;
+  message += `\n修复：编辑 phspec/config.yaml，将 'schema: ${invalidSchemaName}' 改为有效的工作流模式名称`;
 
   return message;
 }

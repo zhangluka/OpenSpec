@@ -1,8 +1,8 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
-import { FileSystemUtils } from '../../../utils/file-system.js';
-import { InstallationResult } from '../factory.js';
+import { promises as fs } from "fs";
+import path from "path";
+import os from "os";
+import { FileSystemUtils } from "../../../utils/file-system.js";
+import { InstallationResult } from "../factory.js";
 
 /**
  * Installer for Zsh completion scripts.
@@ -15,8 +15,8 @@ export class ZshInstaller {
    * Markers for .zshrc configuration management
    */
   private readonly ZSHRC_MARKERS = {
-    start: '# OPENSPEC:START',
-    end: '# OPENSPEC:END',
+    start: "# OPENSPEC:START",
+    end: "# OPENSPEC:END",
   };
 
   constructor(homeDir: string = os.homedir()) {
@@ -35,7 +35,7 @@ export class ZshInstaller {
     }
 
     // Fall back to checking for ~/.oh-my-zsh directory
-    const ohMyZshPath = path.join(this.homeDir, '.oh-my-zsh');
+    const ohMyZshPath = path.join(this.homeDir, ".oh-my-zsh");
 
     try {
       const stat = await fs.stat(ohMyZshPath);
@@ -56,13 +56,19 @@ export class ZshInstaller {
     if (isOhMyZsh) {
       // Oh My Zsh custom completions directory
       return {
-        path: path.join(this.homeDir, '.oh-my-zsh', 'custom', 'completions', '_openspec'),
+        path: path.join(
+          this.homeDir,
+          ".oh-my-zsh",
+          "custom",
+          "completions",
+          "_phspec",
+        ),
         isOhMyZsh: true,
       };
     } else {
       // Standard Zsh completions directory
       return {
-        path: path.join(this.homeDir, '.zsh', 'completions', '_openspec'),
+        path: path.join(this.homeDir, ".zsh", "completions", "_phspec"),
         isOhMyZsh: false,
       };
     }
@@ -78,7 +84,7 @@ export class ZshInstaller {
     try {
       await fs.access(targetPath);
       // File exists, create a backup
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const backupPath = `${targetPath}.backup-${timestamp}`;
       await fs.copyFile(targetPath, backupPath);
       return backupPath;
@@ -94,7 +100,7 @@ export class ZshInstaller {
    * @returns Path to .zshrc
    */
   private getZshrcPath(): string {
-    return path.join(this.homeDir, '.zshrc');
+    return path.join(this.homeDir, ".zshrc");
   }
 
   /**
@@ -105,11 +111,11 @@ export class ZshInstaller {
    */
   private generateZshrcConfig(completionsDir: string): string {
     return [
-      '# OpenSpec shell completions configuration',
+      "# PhSpec shell completions configuration",
       `fpath=("${completionsDir}" $fpath)`,
-      'autoload -Uz compinit',
-      'compinit',
-    ].join('\n');
+      "autoload -Uz compinit",
+      "compinit",
+    ].join("\n");
   }
 
   /**
@@ -121,7 +127,7 @@ export class ZshInstaller {
    */
   async configureZshrc(completionsDir: string): Promise<boolean> {
     // Check if auto-configuration is disabled
-    if (process.env.OPENSPEC_NO_AUTO_CONFIG === '1') {
+    if (process.env.PHSPEC_NO_AUTO_CONFIG === "1") {
       return false;
     }
 
@@ -140,27 +146,32 @@ export class ZshInstaller {
         zshrcPath,
         config,
         this.ZSHRC_MARKERS.start,
-        this.ZSHRC_MARKERS.end
+        this.ZSHRC_MARKERS.end,
       );
 
       return true;
     } catch (error: any) {
       // Fail gracefully - don't break installation
-      console.debug(`Unable to configure .zshrc for completions: ${error.message}`);
+      console.debug(
+        `Unable to configure .zshrc for completions: ${error.message}`,
+      );
       return false;
     }
   }
 
   /**
-   * Check if .zshrc has OpenSpec configuration markers
+   * Check if .zshrc has PhSpec configuration markers
    *
    * @returns true if .zshrc exists and has markers
    */
   private async hasZshrcConfig(): Promise<boolean> {
     try {
       const zshrcPath = this.getZshrcPath();
-      const content = await fs.readFile(zshrcPath, 'utf-8');
-      return content.includes(this.ZSHRC_MARKERS.start) && content.includes(this.ZSHRC_MARKERS.end);
+      const content = await fs.readFile(zshrcPath, "utf-8");
+      return (
+        content.includes(this.ZSHRC_MARKERS.start) &&
+        content.includes(this.ZSHRC_MARKERS.end)
+      );
     } catch {
       return false;
     }
@@ -176,13 +187,15 @@ export class ZshInstaller {
   private async needsFpathConfig(completionsDir: string): Promise<boolean> {
     try {
       const zshrcPath = this.getZshrcPath();
-      const content = await fs.readFile(zshrcPath, 'utf-8');
+      const content = await fs.readFile(zshrcPath, "utf-8");
 
       // Check if fpath already includes this directory
       return !content.includes(completionsDir);
     } catch (error) {
       // If we can't read .zshrc, assume config is needed
-      console.debug(`Unable to read .zshrc to check fpath config: ${error instanceof Error ? error.message : String(error)}`);
+      console.debug(
+        `Unable to read .zshrc to check fpath config: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return true;
     }
   }
@@ -206,18 +219,25 @@ export class ZshInstaller {
       }
 
       // Read file content
-      const content = await fs.readFile(zshrcPath, 'utf-8');
+      const content = await fs.readFile(zshrcPath, "utf-8");
 
       // Check if markers exist
-      if (!content.includes(this.ZSHRC_MARKERS.start) || !content.includes(this.ZSHRC_MARKERS.end)) {
+      if (
+        !content.includes(this.ZSHRC_MARKERS.start) ||
+        !content.includes(this.ZSHRC_MARKERS.end)
+      ) {
         // Markers don't exist, nothing to remove
         return true;
       }
 
       // Remove content between markers (including markers)
-      const lines = content.split('\n');
-      const startIndex = lines.findIndex((line) => line.trim() === this.ZSHRC_MARKERS.start);
-      const endIndex = lines.findIndex((line) => line.trim() === this.ZSHRC_MARKERS.end);
+      const lines = content.split("\n");
+      const startIndex = lines.findIndex(
+        (line) => line.trim() === this.ZSHRC_MARKERS.start,
+      );
+      const endIndex = lines.findIndex(
+        (line) => line.trim() === this.ZSHRC_MARKERS.end,
+      );
 
       if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
         // Invalid marker placement
@@ -228,12 +248,12 @@ export class ZshInstaller {
       lines.splice(startIndex, endIndex - startIndex + 1);
 
       // Remove trailing empty lines at the start if the markers were at the top
-      while (lines.length > 0 && lines[0].trim() === '') {
+      while (lines.length > 0 && lines[0].trim() === "") {
         lines.shift();
       }
 
       // Write back
-      await fs.writeFile(zshrcPath, lines.join('\n'), 'utf-8');
+      await fs.writeFile(zshrcPath, lines.join("\n"), "utf-8");
 
       return true;
     } catch (error: any) {
@@ -256,17 +276,17 @@ export class ZshInstaller {
       // Check if already installed with same content
       let isUpdate = false;
       try {
-        const existingContent = await fs.readFile(targetPath, 'utf-8');
+        const existingContent = await fs.readFile(targetPath, "utf-8");
         if (existingContent === completionScript) {
           // Already installed and up to date
           return {
             success: true,
             installedPath: targetPath,
             isOhMyZsh,
-            message: 'Completion script is already installed (up to date)',
+            message: "Completion script is already installed (up to date)",
             instructions: [
-              'The completion script is already installed and up to date.',
-              'If completions are not working, try: exec zsh',
+              "The completion script is already installed and up to date.",
+              "If completions are not working, try: exec zsh",
             ],
           };
         }
@@ -274,7 +294,9 @@ export class ZshInstaller {
         isUpdate = true;
       } catch (error: any) {
         // File doesn't exist or can't be read, proceed with installation
-        console.debug(`Unable to read existing completion file at ${targetPath}: ${error.message}`);
+        console.debug(
+          `Unable to read existing completion file at ${targetPath}: ${error.message}`,
+        );
       }
 
       // Ensure the directory exists
@@ -282,10 +304,12 @@ export class ZshInstaller {
       await fs.mkdir(targetDir, { recursive: true });
 
       // Backup existing file if updating
-      const backupPath = isUpdate ? await this.backupExistingFile(targetPath) : undefined;
+      const backupPath = isUpdate
+        ? await this.backupExistingFile(targetPath)
+        : undefined;
 
       // Write the completion script
-      await fs.writeFile(targetPath, completionScript, 'utf-8');
+      await fs.writeFile(targetPath, completionScript, "utf-8");
 
       // Auto-configure .zshrc
       let zshrcConfigured = false;
@@ -302,13 +326,17 @@ export class ZshInstaller {
       }
 
       // Generate instructions (only if .zshrc wasn't auto-configured)
-      let instructions = zshrcConfigured ? undefined : this.generateInstructions(isOhMyZsh, targetPath);
+      let instructions = zshrcConfigured
+        ? undefined
+        : this.generateInstructions(isOhMyZsh, targetPath);
 
       // Add fpath guidance for Oh My Zsh installations
       if (isOhMyZsh) {
         const fpathGuidance = this.generateOhMyZshFpathGuidance(targetDir);
         if (fpathGuidance) {
-          instructions = instructions ? [...instructions, '', ...fpathGuidance] : fpathGuidance;
+          instructions = instructions
+            ? [...instructions, "", ...fpathGuidance]
+            : fpathGuidance;
         }
       }
 
@@ -316,14 +344,14 @@ export class ZshInstaller {
       let message: string;
       if (isUpdate) {
         message = backupPath
-          ? 'Completion script updated successfully (previous version backed up)'
-          : 'Completion script updated successfully';
+          ? "Completion script updated successfully (previous version backed up)"
+          : "Completion script updated successfully";
       } else {
         message = isOhMyZsh
-          ? 'Completion script installed successfully for Oh My Zsh'
+          ? "Completion script installed successfully for Oh My Zsh"
           : zshrcConfigured
-            ? 'Completion script installed and .zshrc configured successfully'
-            : 'Completion script installed successfully for Zsh';
+            ? "Completion script installed and .zshrc configured successfully"
+            : "Completion script installed successfully for Zsh";
       }
 
       return {
@@ -350,13 +378,15 @@ export class ZshInstaller {
    * @param completionsDir - Custom completions directory path
    * @returns Array of guidance strings, or undefined if not needed
    */
-  private generateOhMyZshFpathGuidance(completionsDir: string): string[] | undefined {
+  private generateOhMyZshFpathGuidance(
+    completionsDir: string,
+  ): string[] | undefined {
     return [
-      'Note: Oh My Zsh typically auto-loads completions from custom/completions.',
+      "Note: Oh My Zsh typically auto-loads completions from custom/completions.",
       `Verify that ${completionsDir} is in your fpath by running:`,
       '  echo $fpath | grep "custom/completions"',
-      '',
-      'If not found, completions may not work. Restart your shell to ensure changes take effect.',
+      "",
+      "If not found, completions may not work. Restart your shell to ensure changes take effect.",
     ];
   }
 
@@ -367,31 +397,34 @@ export class ZshInstaller {
    * @param installedPath - Path where the script was installed
    * @returns Array of instruction strings
    */
-  private generateInstructions(isOhMyZsh: boolean, installedPath: string): string[] {
+  private generateInstructions(
+    isOhMyZsh: boolean,
+    installedPath: string,
+  ): string[] {
     if (isOhMyZsh) {
       return [
-        'Completion script installed to Oh My Zsh completions directory.',
-        'Restart your shell or run: exec zsh',
-        'Completions should activate automatically.',
+        "Completion script installed to Oh My Zsh completions directory.",
+        "Restart your shell or run: exec zsh",
+        "Completions should activate automatically.",
       ];
     } else {
       const completionsDir = path.dirname(installedPath);
-      const zshrcPath = path.join(this.homeDir, '.zshrc');
+      const zshrcPath = path.join(this.homeDir, ".zshrc");
 
       return [
-        'Completion script installed to ~/.zsh/completions/',
-        '',
-        'To enable completions, add the following to your ~/.zshrc file:',
-        '',
+        "Completion script installed to ~/.zsh/completions/",
+        "",
+        "To enable completions, add the following to your ~/.zshrc file:",
+        "",
         `  # Add completions directory to fpath`,
         `  fpath=(${completionsDir} $fpath)`,
-        '',
-        '  # Initialize completion system',
-        '  autoload -Uz compinit',
-        '  compinit',
-        '',
-        'Then restart your shell or run: exec zsh',
-        '',
+        "",
+        "  # Initialize completion system",
+        "  autoload -Uz compinit",
+        "  compinit",
+        "",
+        "Then restart your shell or run: exec zsh",
+        "",
         `Check if these lines already exist in ${zshrcPath} before adding.`,
       ];
     }
@@ -429,7 +462,7 @@ export class ZshInstaller {
       if (!scriptRemoved && !zshrcWasPresent) {
         return {
           success: false,
-          message: 'Completion script is not installed',
+          message: "Completion script is not installed",
         };
       }
 
@@ -438,12 +471,12 @@ export class ZshInstaller {
         messages.push(`Completion script removed from ${targetPath}`);
       }
       if (zshrcCleaned && !isOhMyZsh) {
-        messages.push('Removed OpenSpec configuration from ~/.zshrc');
+        messages.push("Removed PhSpec configuration from ~/.zshrc");
       }
 
       return {
         success: true,
-        message: messages.join('. '),
+        message: messages.join(". "),
       };
     } catch (error) {
       return {

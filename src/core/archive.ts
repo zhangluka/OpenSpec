@@ -61,15 +61,15 @@ export class ArchiveCommand {
     } = {},
   ): Promise<void> {
     const targetPath = ".";
-    const changesDir = path.join(targetPath, "openspec", "changes");
+    const changesDir = path.join(targetPath, "phspec", "changes");
     const archiveDir = path.join(changesDir, "archive");
-    const mainSpecsDir = path.join(targetPath, "openspec", "specs");
+    const mainSpecsDir = path.join(targetPath, "phspec", "specs");
 
     // Check if changes directory exists
     try {
       await fs.access(changesDir);
     } catch {
-      throw new Error("未找到 OpenSpec 变更目录，请先执行 'openspec init'。");
+      throw new Error("未找到 PhSpec 变更目录，请先执行 'phspec init'。");
     }
 
     // Get change name interactively if not provided

@@ -1,10 +1,10 @@
 # 多语言指南
 
-配置 OpenSpec，使生成的制品使用英语以外的语言。
+配置 PhSpec，使生成的制品使用英语以外的语言。
 
 ## 快速配置
 
-在 `openspec/config.yaml` 中加入语言说明：
+在 `phspec/config.yaml` 中加入语言说明：
 
 ```yaml
 schema: spec-driven
@@ -64,7 +64,7 @@ context: |
 确认语言配置生效：
 
 ```bash
-openspec instructions proposal --change my-change
+phspec instructions proposal --change my-change
 ```
 
 输出中应包含你配置的语言说明。

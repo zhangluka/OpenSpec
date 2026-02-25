@@ -1,6 +1,6 @@
 # 工作流
 
-本文介绍 OpenSpec 的常见工作流模式及各命令的使用时机。基础配置见 [入门](getting-started.md)，命令详情见 [命令](commands.md)。
+本文介绍 PhSpec 的常见工作流模式及各命令的使用时机。基础配置见 [入门](getting-started.md)，命令详情见 [命令](commands.md)。
 
 ## 理念：动作而非阶段
 
@@ -33,7 +33,7 @@ OPSX（灵活动作）：
 目标清晰、只需执行时：
 
 ```text
-/opsx:new ──► /opsx:ff ──► /opsx:apply ──► /opsx:verify ──► /opsx:archive
+/phsx:new ──► /phsx:ff ──► /phsx:apply ──► /phsx:verify ──► /phsx:archive
 ```
 
 **适合：** 中小功能、修 bug、简单变更。
@@ -43,7 +43,7 @@ OPSX（灵活动作）：
 需求不清或需要先调研时：
 
 ```text
-/opsx:explore ──► /opsx:new ──► /opsx:continue ──► ... ──► /opsx:apply
+/phsx:explore ──► /phsx:new ──► /phsx:continue ──► ... ──► /phsx:apply
 ```
 
 **适合：** 性能优化、排查问题、架构决策、需求不明确。
@@ -53,14 +53,14 @@ OPSX（灵活动作）：
 同时推进多个变更：
 
 ```text
-变更 A: /opsx:new ──► /opsx:ff ──► /opsx:apply（进行中）
+变更 A: /phsx:new ──► /phsx:ff ──► /phsx:apply（进行中）
                                         │
                                   切换上下文
                                         │
-变更 B: /opsx:new ──► /opsx:ff ──────► /opsx:apply
+变更 B: /phsx:new ──► /phsx:ff ──────► /phsx:apply
 ```
 
-多个变更都完成后，可用 `/opsx:bulk-archive` 一次性归档。批量归档会检测多个变更是否改同一规范，并通过检查实际实现来化解冲突。
+多个变更都完成后，可用 `/phsx:bulk-archive` 一次性归档。批量归档会检测多个变更是否改同一规范，并通过检查实际实现来化解冲突。
 
 **适合：** 并行多条线、紧急插入、团队协作。
 
@@ -69,32 +69,32 @@ OPSX（灵活动作）：
 推荐收尾流程：
 
 ```text
-/opsx:apply ──► /opsx:verify ──► /opsx:archive
+/phsx:apply ──► /phsx:verify ──► /phsx:archive
                     │                 │
               校验实现            需要时提示同步
 ```
 
 #### 校验：检查成果
 
-`/opsx:verify` 从三个维度校验实现与制品是否一致：完整性（任务与需求是否都落地）、正确性（实现是否符合规范意图）、一致性（设计是否体现在代码中）。校验不会阻止归档，但会暴露建议先处理的问题。
+`/phsx:verify` 从三个维度校验实现与制品是否一致：完整性（任务与需求是否都落地）、正确性（实现是否符合规范意图）、一致性（设计是否体现在代码中）。校验不会阻止归档，但会暴露建议先处理的问题。
 
 #### 归档：收尾变更
 
-`/opsx:archive` 完成变更并移入归档。若增量规范尚未同步到主规范，会提示是否同步。任务未完成时仍可归档，但会给出警告。
+`/phsx:archive` 完成变更并移入归档。若增量规范尚未同步到主规范，会提示是否同步。任务未完成时仍可归档，但会给出警告。
 
 ## 何时用哪个
 
-### `/opsx:ff` 与 `/opsx:continue`
+### `/phsx:ff` 与 `/phsx:continue`
 
 | 情况                   | 使用             |
 | ---------------------- | ---------------- |
-| 需求清晰、准备开干     | `/opsx:ff`       |
-| 在探索、希望每步都审阅 | `/opsx:continue` |
-| 想先打磨提案再写规范   | `/opsx:continue` |
-| 时间紧、要快速推进     | `/opsx:ff`       |
-| 变更复杂、希望更多控制 | `/opsx:continue` |
+| 需求清晰、准备开干     | `/phsx:ff`       |
+| 在探索、希望每步都审阅 | `/phsx:continue` |
+| 想先打磨提案再写规范   | `/phsx:continue` |
+| 时间紧、要快速推进     | `/phsx:ff`       |
+| 变更复杂、希望更多控制 | `/phsx:continue` |
 
-**经验法则：** 能 upfront 说清范围就用 `/opsx:ff`；边做边摸清就用 `/opsx:continue`。
+**经验法则：** 能 upfront 说清范围就用 `/phsx:ff`；边做边摸清就用 `/phsx:continue`。
 
 ### 更新既有变更 vs 新建变更
 
@@ -104,7 +104,7 @@ OPSX（灵活动作）：
 
 ### 命名要清晰
 
-`openspec list` 是否好用取决于变更名。推荐：`add-dark-mode`、`fix-login-redirect`；避免：`feature-1`、`update`、`changes`、`wip`。
+`phspec list` 是否好用取决于变更名。推荐：`add-dark-mode`、`fix-login-redirect`；避免：`feature-1`、`update`、`changes`、`wip`。
 
 ## 命令速查
 
@@ -112,15 +112,15 @@ OPSX（灵活动作）：
 
 | 命令                 | 用途             | 使用时机              |
 | -------------------- | ---------------- | --------------------- |
-| `/opsx:explore`      | 梳理想法         | 需求不清、需要调研    |
-| `/opsx:new`          | 启动变更         | 任何新工作的开始      |
-| `/opsx:continue`     | 创建下一制品     | 逐步创建制品          |
-| `/opsx:ff`           | 创建全部规划制品 | 范围清晰、准备实施    |
-| `/opsx:apply`        | 实施任务         | 准备写代码            |
-| `/opsx:verify`       | 校验实现         | 归档前、发现偏差      |
-| `/opsx:sync`         | 合并增量规范     | 可选—需要时归档会提示 |
-| `/opsx:archive`      | 完成变更         | 工作全部完成          |
-| `/opsx:bulk-archive` | 归档多个变更     | 并行工作、批量收尾    |
+| `/phsx:explore`      | 梳理想法         | 需求不清、需要调研    |
+| `/phsx:new`          | 启动变更         | 任何新工作的开始      |
+| `/phsx:continue`     | 创建下一制品     | 逐步创建制品          |
+| `/phsx:ff`           | 创建全部规划制品 | 范围清晰、准备实施    |
+| `/phsx:apply`        | 实施任务         | 准备写代码            |
+| `/phsx:verify`       | 校验实现         | 归档前、发现偏差      |
+| `/phsx:sync`         | 合并增量规范     | 可选—需要时归档会提示 |
+| `/phsx:archive`      | 完成变更         | 工作全部完成          |
+| `/phsx:bulk-archive` | 归档多个变更     | 并行工作、批量收尾    |
 
 ## 下一步
 

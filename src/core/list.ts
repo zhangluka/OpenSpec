@@ -86,13 +86,13 @@ export class ListCommand {
     const { sort = "recent", json = false } = options;
 
     if (mode === "changes") {
-      const changesDir = path.join(targetPath, "openspec", "changes");
+      const changesDir = path.join(targetPath, "phspec", "changes");
 
       // Check if changes directory exists
       try {
         await fs.access(changesDir);
       } catch {
-        throw new Error("未找到 OpenSpec 变更目录，请先执行 'openspec init'。");
+        throw new Error("未找到 PhSpec 变更目录，请先执行 'phspec init'。");
       }
 
       // Get all directories in changes (excluding archive)
@@ -171,7 +171,7 @@ export class ListCommand {
     }
 
     // specs mode
-    const specsDir = path.join(targetPath, "openspec", "specs");
+    const specsDir = path.join(targetPath, "phspec", "specs");
     try {
       await fs.access(specsDir);
     } catch {

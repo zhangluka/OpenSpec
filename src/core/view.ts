@@ -9,14 +9,14 @@ import { MarkdownParser } from "./parsers/markdown-parser.js";
 
 export class ViewCommand {
   async execute(targetPath: string = "."): Promise<void> {
-    const openspecDir = path.join(targetPath, "openspec");
+    const openspecDir = path.join(targetPath, "phspec");
 
     if (!fs.existsSync(openspecDir)) {
-      console.error(chalk.red("未找到 openspec 目录"));
+      console.error(chalk.red("未找到 phspec 目录"));
       process.exit(1);
     }
 
-    console.log(chalk.bold("\nOpenSpec 仪表盘\n"));
+    console.log(chalk.bold("\nPhSpec 仪表盘\n"));
     console.log("═".repeat(60));
 
     // Get changes and specs data
@@ -85,7 +85,7 @@ export class ViewCommand {
     console.log("\n" + "═".repeat(60));
     console.log(
       chalk.dim(
-        `\n使用 ${chalk.white("openspec list --changes")} 或 ${chalk.white("openspec list --specs")} 查看详细列表`,
+        `\n使用 ${chalk.white("phspec list --changes")} 或 ${chalk.white("phspec list --specs")} 查看详细列表`,
       ),
     );
   }

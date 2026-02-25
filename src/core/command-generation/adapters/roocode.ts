@@ -5,19 +5,19 @@
  * RooCode uses markdown headers instead of YAML frontmatter.
  */
 
-import path from 'path';
-import type { CommandContent, ToolCommandAdapter } from '../types.js';
+import path from "path";
+import type { CommandContent, ToolCommandAdapter } from "../types.js";
 
 /**
  * RooCode adapter for command generation.
- * File path: .roo/commands/opsx-<id>.md
+ * File path: .roo/commands/phsx-<id>.md
  * Format: Markdown header with description
  */
 export const roocodeAdapter: ToolCommandAdapter = {
-  toolId: 'roocode',
+  toolId: "roocode",
 
   getFilePath(commandId: string): string {
-    return path.join('.roo', 'commands', `opsx-${commandId}.md`);
+    return path.join(".roo", "commands", `phsx-${commandId}.md`);
   },
 
   formatFile(content: CommandContent): string {

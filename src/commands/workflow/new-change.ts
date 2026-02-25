@@ -55,7 +55,7 @@ export async function newChangeCommand(
     // If description provided, create README.md with description
     if (options.description) {
       const { promises: fs } = await import("fs");
-      const changeDir = path.join(projectRoot, "openspec", "changes", name);
+      const changeDir = path.join(projectRoot, "phspec", "changes", name);
       const readmePath = path.join(changeDir, "README.md");
       await fs.writeFile(
         readmePath,

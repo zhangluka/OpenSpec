@@ -29,13 +29,13 @@ const COMMON_FLAGS = {
 } as const;
 
 /**
- * Registry of all OpenSpec CLI commands with their flags and metadata.
+ * Registry of all PhSpec CLI commands with their flags and metadata.
  * This registry is used to generate shell completion scripts.
  */
 export const COMMAND_REGISTRY: CommandDefinition[] = [
   {
     name: "init",
-    description: "在项目中初始化 OpenSpec",
+    description: "在项目中初始化 PhSpec",
     acceptsPositional: true,
     positionalType: "path",
     flags: [
@@ -49,7 +49,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     name: "update",
-    description: "更新 OpenSpec 指令文件",
+    description: "更新 PhSpec 指令文件",
     acceptsPositional: true,
     positionalType: "path",
     flags: [],
@@ -96,7 +96,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
       COMMON_FLAGS.jsonValidation,
       {
         name: "concurrency",
-        description: "最大并发校验数（默认取 OPENSPEC_CONCURRENCY 或 6）",
+        description: "最大并发校验数（默认取 PHSPEC_CONCURRENCY 或 6）",
         takesValue: true,
       },
       COMMON_FLAGS.noInteractive,
@@ -158,7 +158,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     name: "feedback",
-    description: "提交 OpenSpec 相关反馈",
+    description: "提交 PhSpec 相关反馈",
     acceptsPositional: true,
     flags: [
       {
@@ -170,7 +170,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     name: "change",
-    description: "管理 OpenSpec 变更提案（已弃用）",
+    description: "管理 PhSpec 变更提案（已弃用）",
     flags: [],
     subcommands: [
       {
@@ -217,7 +217,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     name: "spec",
-    description: "管理 OpenSpec 规范",
+    description: "管理 PhSpec 规范",
     flags: [],
     subcommands: [
       {
@@ -270,7 +270,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     name: "completion",
-    description: "管理 OpenSpec CLI 的 Shell 补全",
+    description: "管理 PhSpec CLI 的 Shell 补全",
     flags: [],
     subcommands: [
       {
@@ -309,7 +309,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     name: "config",
-    description: "查看与修改全局 OpenSpec 配置",
+    description: "查看与修改全局 PhSpec 配置",
     flags: [
       {
         name: "scope",

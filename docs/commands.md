@@ -1,6 +1,6 @@
 # 斜杠命令
 
-本文档是 OpenSpec 斜杠命令的参考。这些命令在 AI 编程助手的对话界面中调用（如 Claude Code、Cursor、Windsurf）。
+本文档是 PhSpec 斜杠命令的参考。这些命令在 AI 编程助手的对话界面中调用（如 Claude Code、Cursor、Windsurf）。
 
 工作流模式及各命令的使用时机见 [工作流](workflows.md)。CLI 命令见 [CLI](cli.md)。
 
@@ -8,29 +8,29 @@
 
 | 命令                 | 用途                         |
 | -------------------- | ---------------------------- |
-| `/opsx:explore`      | 在确定变更前梳理思路         |
-| `/opsx:new`          | 新建一个变更                 |
-| `/opsx:continue`     | 按依赖创建下一个制品         |
-| `/opsx:ff`           | 快进：一次性创建所有规划制品 |
-| `/opsx:apply`        | 按变更实施任务               |
-| `/opsx:verify`       | 校验实现与变更制品是否一致   |
-| `/opsx:sync`         | 将增量规范合并到主规范       |
-| `/opsx:archive`      | 归档已完成的变更             |
-| `/opsx:bulk-archive` | 一次性归档多个变更           |
-| `/opsx:onboard`      | 完整工作流引导教程           |
+| `/phsx:explore`      | 在确定变更前梳理思路         |
+| `/phsx:new`          | 新建一个变更                 |
+| `/phsx:continue`     | 按依赖创建下一个制品         |
+| `/phsx:ff`           | 快进：一次性创建所有规划制品 |
+| `/phsx:apply`        | 按变更实施任务               |
+| `/phsx:verify`       | 校验实现与变更制品是否一致   |
+| `/phsx:sync`         | 将增量规范合并到主规范       |
+| `/phsx:archive`      | 归档已完成的变更             |
+| `/phsx:bulk-archive` | 一次性归档多个变更           |
+| `/phsx:onboard`      | 完整工作流引导教程           |
 
 ---
 
 ## 命令说明
 
-### `/opsx:explore`
+### `/phsx:explore`
 
 在确定变更前梳理想法、排查问题、澄清需求。
 
 **语法：**
 
 ```
-/opsx:explore [topic]
+/phsx:explore [topic]
 ```
 
 **参数：**
@@ -44,12 +44,12 @@
 - 通过查阅代码库回答问题
 - 比较不同方案与做法
 - 用图示厘清思路
-- 思路清晰后可转向 `/opsx:new`
+- 思路清晰后可转向 `/phsx:new`
 
 **示例：**
 
 ```text
-You: /opsx:explore
+You: /phsx:explore
 
 AI:  What would you like to explore?
 
@@ -69,7 +69,7 @@ AI:  Let me investigate your current auth setup...
 
 You: Let's go with JWT. Can we start a change for that?
 
-AI:  Ready when you are. Run /opsx:new add-jwt-auth to begin.
+AI:  Ready when you are. Run /phsx:new add-jwt-auth to begin.
 ```
 
 **提示：**
@@ -81,14 +81,14 @@ AI:  Ready when you are. Run /opsx:new add-jwt-auth to begin.
 
 ---
 
-### `/opsx:new`
+### `/phsx:new`
 
 新建一个变更。创建变更目录结构并按所选工作流模式搭建脚手架。
 
 **语法：**
 
 ```
-/opsx:new [change-name] [--schema <schema-name>]
+/phsx:new [change-name] [--schema <schema-name>]
 ```
 
 **参数：**
@@ -99,46 +99,46 @@ AI:  Ready when you are. Run /opsx:new add-jwt-auth to begin.
 
 **作用：**
 
-- 创建 `openspec/changes/<change-name>/` 目录
-- 在变更目录下创建 `.openspec.yaml` 元数据文件
+- 创建 `phspec/changes/<change-name>/` 目录
+- 在变更目录下创建 `.phspec.yaml` 元数据文件
 - 显示第一个可创建的制品模板
 - 未提供变更名或模式时会提示输入
 
 **会创建：**
 
 ```
-openspec/changes/<change-name>/
-└── .openspec.yaml    # 变更元数据（模式、创建日期）
+phspec/changes/<change-name>/
+└── .phspec.yaml    # 变更元数据（模式、创建日期）
 ```
 
 **示例：**
 
 ```
-You: /opsx:new add-dark-mode
+You: /phsx:new add-dark-mode
 
-AI:  Created openspec/changes/add-dark-mode/
+AI:  Created phspec/changes/add-dark-mode/
      Schema: spec-driven
 
      Ready to create: proposal
-     Use /opsx:continue to create it, or /opsx:ff to create all artifacts.
+     Use /phsx:continue to create it, or /phsx:ff to create all artifacts.
 ```
 
 **提示：**
 
 - 使用有辨识度的名称：`add-feature`、`fix-bug`、`refactor-module`
 - 避免泛用名：`update`、`changes`、`wip`
-- 工作流模式也可在项目配置（`openspec/config.yaml`）中设置
+- 工作流模式也可在项目配置（`phspec/config.yaml`）中设置
 
 ---
 
-### `/opsx:continue`
+### `/phsx:continue`
 
 在依赖链中创建下一个制品。每次创建一个，便于逐步推进。
 
 **语法：**
 
 ```
-/opsx:continue [change-name]
+/phsx:continue [change-name]
 ```
 
 **参数：**
@@ -157,7 +157,7 @@ AI:  Created openspec/changes/add-dark-mode/
 **示例：**
 
 ```
-You: /opsx:continue
+You: /phsx:continue
 
 AI:  Change: add-dark-mode
 
@@ -171,10 +171,10 @@ AI:  Change: add-dark-mode
 
      [Reads proposal.md, creates specs based on requirements]
 
-     ✓ Created openspec/changes/add-dark-mode/specs/ui/spec.md
+     ✓ Created phspec/changes/add-dark-mode/specs/ui/spec.md
 
      Now available: tasks
-     Run /opsx:continue to create the next artifact.
+     Run /phsx:continue to create the next artifact.
 ```
 
 **提示：**
@@ -186,14 +186,14 @@ AI:  Change: add-dark-mode
 
 ---
 
-### `/opsx:ff`
+### `/phsx:ff`
 
 快进式创建制品。一次性创建所有规划制品。
 
 **语法：**
 
 ```
-/opsx:ff [change-name]
+/phsx:ff [change-name]
 ```
 
 **参数：**
@@ -211,7 +211,7 @@ AI:  Change: add-dark-mode
 **示例：**
 
 ```
-You: /opsx:ff add-dark-mode
+You: /phsx:ff add-dark-mode
 
 AI:  Fast-forwarding add-dark-mode...
 
@@ -221,26 +221,26 @@ AI:  Fast-forwarding add-dark-mode...
      ✓ Creating tasks.md
 
      All planning artifacts complete!
-     Ready for implementation. Run /opsx:apply to begin.
+     Ready for implementation. Run /phsx:apply to begin.
 ```
 
 **提示：**
 
 - 对要做的内容已有清晰认识时使用
-- 对简单变更比 `/opsx:continue` 更快
+- 对简单变更比 `/phsx:continue` 更快
 - 创建后仍可编辑制品
 - 适合中小型功能
 
 ---
 
-### `/opsx:apply`
+### `/phsx:apply`
 
 按变更实施任务。按任务列表推进，写代码并勾选完成项。
 
 **语法：**
 
 ```
-/opsx:apply [change-name]
+/phsx:apply [change-name]
 ```
 
 **参数：**
@@ -258,7 +258,7 @@ AI:  Fast-forwarding add-dark-mode...
 **示例：**
 
 ```
-You: /opsx:apply
+You: /phsx:apply
 
 AI:  Implementing add-dark-mode...
 
@@ -287,14 +287,14 @@ AI:  Implementing add-dark-mode...
 
 ---
 
-### `/opsx:verify`
+### `/phsx:verify`
 
 校验实现是否与变更制品一致。检查完整性、正确性与一致性。
 
 **语法：**
 
 ```
-/opsx:verify [change-name]
+/phsx:verify [change-name]
 ```
 
 **参数：**
@@ -320,7 +320,7 @@ AI:  Implementing add-dark-mode...
 **示例：**
 
 ```
-You: /opsx:verify
+You: /phsx:verify
 
 AI:  Verifying add-dark-mode...
 
@@ -359,14 +359,14 @@ AI:  Verifying add-dark-mode...
 
 ---
 
-### `/opsx:sync`
+### `/phsx:sync`
 
 **可选命令。** 将变更中的增量规范合并到主规范。归档时如需会提示是否执行 sync，一般无需手动执行。
 
 **语法：**
 
 ```
-/opsx:sync [change-name]
+/phsx:sync [change-name]
 ```
 
 **参数：**
@@ -378,28 +378,28 @@ AI:  Verifying add-dark-mode...
 
 - 读取变更目录中的增量规范
 - 解析 ADDED/MODIFIED/REMOVED/RENAMED 段落
-- 将变更合并到主目录 `openspec/specs/`
+- 将变更合并到主目录 `phspec/specs/`
 - 保留增量中未提及的既有内容
 - 不归档变更（变更仍为进行中）
 
 **示例：**
 
 ```text
-You: /opsx:sync
+You: /phsx:sync
 
 AI:  Syncing add-dark-mode delta specs...
 
-     Reading: openspec/changes/add-dark-mode/specs/ui/spec.md
-     Target:  openspec/specs/ui/spec.md
+     Reading: phspec/changes/add-dark-mode/specs/ui/spec.md
+     Target:  phspec/specs/ui/spec.md
 
      Changes to apply:
      ✓ ADDED: Theme Selection requirement (2 scenarios)
      ✓ ADDED: Accessibility requirement (1 scenario)
 
      Merging...
-     ✓ openspec/specs/ui/spec.md updated
+     ✓ phspec/specs/ui/spec.md updated
 
-     Change remains active. Run /opsx:archive when ready to complete.
+     Change remains active. Run /phsx:archive when ready to complete.
 ```
 
 **何时需手动执行：**
@@ -420,14 +420,14 @@ AI:  Syncing add-dark-mode delta specs...
 
 ---
 
-### `/opsx:archive`
+### `/phsx:archive`
 
 归档已完成的变更。收尾变更并将其移入归档目录。
 
 **语法：**
 
 ```
-/opsx:archive [change-name]
+/phsx:archive [change-name]
 ```
 
 **参数：**
@@ -440,13 +440,13 @@ AI:  Syncing add-dark-mode delta specs...
 - 检查制品完成情况
 - 检查任务完成情况（未完成会警告）
 - 若尚未同步则询问是否同步增量规范
-- 将变更目录移至 `openspec/changes/archive/YYYY-MM-DD-<name>/`
+- 将变更目录移至 `phspec/changes/archive/YYYY-MM-DD-<name>/`
 - 保留全部制品便于追溯
 
 **示例：**
 
 ```text
-You: /opsx:archive
+You: /phsx:archive
 
 AI:  Archiving add-dark-mode...
 
@@ -461,8 +461,8 @@ AI:  Archiving add-dark-mode...
 
 You: Yes
 
-AI:  ✓ Synced specs to openspec/specs/ui/spec.md
-     ✓ Moved to openspec/changes/archive/2025-01-24-add-dark-mode/
+AI:  ✓ Synced specs to phspec/specs/ui/spec.md
+     ✓ Moved to phspec/changes/archive/2025-01-24-add-dark-mode/
 
      Change archived successfully.
 ```
@@ -472,18 +472,18 @@ AI:  ✓ Synced specs to openspec/specs/ui/spec.md
 - 任务未完成时仍可归档，但会给出警告
 - 增量规范可在归档时或之前同步
 - 已归档变更会保留用于历史
-- 建议先执行 `/opsx:verify` 再归档
+- 建议先执行 `/phsx:verify` 再归档
 
 ---
 
-### `/opsx:bulk-archive`
+### `/phsx:bulk-archive`
 
 一次性归档多个已完成的变更。会处理变更之间的规范冲突。
 
 **语法：**
 
 ```
-/opsx:bulk-archive [change-names...]
+/phsx:bulk-archive [change-names...]
 ```
 
 **参数：**
@@ -502,7 +502,7 @@ AI:  ✓ Synced specs to openspec/specs/ui/spec.md
 **示例：**
 
 ```
-You: /opsx:bulk-archive
+You: /phsx:bulk-archive
 
 AI:  Found 3 completed changes:
      - add-dark-mode (8/8 tasks complete)
@@ -536,14 +536,14 @@ AI:  ✓ Archived add-dark-mode
 
 ---
 
-### `/opsx:onboard`
+### `/phsx:onboard`
 
-完整 OpenSpec 工作流引导。基于你真实代码库的交互式教程。
+完整 PhSpec 工作流引导。基于你真实代码库的交互式教程。
 
 **语法：**
 
 ```
-/opsx:onboard
+/phsx:onboard
 ```
 
 **作用：**
@@ -559,12 +559,12 @@ AI:  ✓ Archived add-dark-mode
 
 1. 欢迎与代码库分析
 2. 寻找改进点
-3. 创建变更（`/opsx:new`）
+3. 创建变更（`/phsx:new`）
 4. 撰写提案
 5. 创建规范
 6. 撰写设计
 7. 创建任务
-8. 实施任务（`/opsx:apply`）
+8. 实施任务（`/phsx:apply`）
 9. 校验实现
 10. 归档变更
 11. 总结与下一步
@@ -572,9 +572,9 @@ AI:  ✓ Archived add-dark-mode
 **示例：**
 
 ```
-You: /opsx:onboard
+You: /phsx:onboard
 
-AI:  Welcome to OpenSpec!
+AI:  Welcome to PhSpec!
 
      I'll walk you through the complete workflow using your actual codebase.
      We'll find something small to improve, create a proper change for it,
@@ -605,13 +605,13 @@ AI:  Welcome to OpenSpec!
 
 不同 AI 工具的斜杠命令格式略有差异，请按你使用的工具书写：
 
-| 工具          | 写法示例                                         |
-| ------------- | ------------------------------------------------ |
-| Claude Code   | `/opsx:new`、`/opsx:apply`                       |
-| Cursor        | `/opsx-new`、`/opsx-apply`                       |
-| Windsurf      | `/opsx-new`、`/opsx-apply`                       |
-| Copilot (IDE) | `/opsx-new`、`/opsx-apply`                       |
-| Trae          | `/openspec-new-change`、`/openspec-apply-change` |
+| 工具          | 写法示例                                 |
+| ------------- | ---------------------------------------- |
+| Claude Code   | `/phsx:new`、`/phsx:apply`               |
+| Cursor        | `/phsx-new`、`/phsx-apply`               |
+| Windsurf      | `/phsx-new`、`/phsx-apply`               |
+| Copilot (IDE) | `/phsx-new`、`/phsx-apply`               |
+| Trae          | `/phsx-new-change`、`/phsx-apply-change` |
 
 功能一致，仅写法不同。
 
@@ -621,7 +621,7 @@ AI:  Welcome to OpenSpec!
 
 ## 旧版命令
 
-以下命令属于较早的「一次性」工作流，仍可使用，但推荐使用 OPSX 命令。
+以下命令属于较早的「一次性」工作流，仍可使用，但推荐使用 PHSX 命令。
 
 | 命令                 | 作用                                         |
 | -------------------- | -------------------------------------------- |
@@ -635,8 +635,8 @@ AI:  Welcome to OpenSpec!
 - 简单变更、不需要逐步创建制品
 - 偏好一次性完成的方式
 
-**迁移到 OPSX：**
-旧版变更可用 OPSX 命令继续推进，制品结构兼容。
+**迁移到 PHSX：**
+旧版变更可用 PHSX 命令继续推进，制品结构兼容。
 
 ---
 
@@ -648,8 +648,8 @@ AI:  Welcome to OpenSpec!
 
 **处理：**
 
-- 显式指定变更名：`/opsx:apply add-dark-mode`
-- 确认变更目录存在：`openspec list`
+- 显式指定变更名：`/phsx:apply add-dark-mode`
+- 确认变更目录存在：`phspec list`
 - 确认当前在正确项目目录
 
 ### 「没有就绪的制品」
@@ -658,7 +658,7 @@ AI:  Welcome to OpenSpec!
 
 **处理：**
 
-- 运行 `openspec status --change <name>` 查看阻塞原因
+- 运行 `phspec status --change <name>` 查看阻塞原因
 - 检查依赖制品是否存在
 - 先创建缺失的依赖制品
 
@@ -668,18 +668,18 @@ AI:  Welcome to OpenSpec!
 
 **处理：**
 
-- 列出可用模式：`openspec schemas`
+- 列出可用模式：`phspec schemas`
 - 检查模式名拼写
-- 若为自定义模式，先创建：`openspec schema init <name>`
+- 若为自定义模式，先创建：`phspec schema init <name>`
 
 ### 命令不被识别
 
-AI 工具无法识别 OpenSpec 命令。
+AI 工具无法识别 PhSpec 命令。
 
 **处理：**
 
-- 确认已初始化：`openspec init`
-- 重新生成技能：`openspec update`
+- 确认已初始化：`phspec init`
+- 重新生成技能：`phspec update`
 - 检查 `.claude/skills/` 等目录是否存在（Claude Code）
 - 重启 AI 工具以加载新技能
 
@@ -689,10 +689,10 @@ AI 生成的制品不完整或不符合预期。
 
 **处理：**
 
-- 在 `openspec/config.yaml` 中补充项目上下文
+- 在 `phspec/config.yaml` 中补充项目上下文
 - 为特定制品添加规则以细化指引
 - 在变更描述中提供更多信息
-- 需要更多控制时用 `/opsx:continue` 代替 `/opsx:ff`
+- 需要更多控制时用 `/phsx:continue` 代替 `/phsx:ff`
 
 ---
 

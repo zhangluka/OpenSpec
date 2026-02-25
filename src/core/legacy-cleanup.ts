@@ -1,5 +1,5 @@
 /**
- * Legacy cleanup module for detecting and removing OpenSpec artifacts
+ * Legacy cleanup module for detecting and removing PhSpec artifacts
  * from previous init versions during the migration to the skill-based workflow.
  */
 
@@ -14,7 +14,7 @@ import { OPENSPEC_MARKERS } from "./config.js";
 
 /**
  * Legacy config file names from the old ToolRegistry.
- * These were config files created at project root with OpenSpec markers.
+ * These were config files created at project root with PhSpec markers.
  */
 export const LEGACY_CONFIG_FILES = [
   "CLAUDE.md",
@@ -83,7 +83,7 @@ export interface LegacySlashCommandPattern {
  * Result of legacy artifact detection
  */
 export interface LegacyDetectionResult {
-  /** Config files with OpenSpec markers detected */
+  /** Config files with PhSpec markers detected */
   configFiles: string[];
   /** Config files to update (remove markers only, never delete) */
   configFilesToUpdate: string[];
@@ -95,14 +95,14 @@ export interface LegacyDetectionResult {
   hasOpenspecAgents: boolean;
   /** Whether openspec/project.md exists (preserved, migration hint only) */
   hasProjectMd: boolean;
-  /** Whether root AGENTS.md has OpenSpec markers */
+  /** Whether root AGENTS.md has PhSpec markers */
   hasRootAgentsWithMarkers: boolean;
   /** Whether any legacy artifacts were found */
   hasLegacyArtifacts: boolean;
 }
 
 /**
- * Detects all legacy OpenSpec artifacts in a project.
+ * Detects all legacy PhSpec artifacts in a project.
  *
  * @param projectPath - The root path of the project
  * @returns Detection result with all found legacy artifacts
@@ -150,7 +150,7 @@ export async function detectLegacyArtifacts(
 }
 
 /**
- * Detects legacy config files with OpenSpec markers.
+ * Detects legacy config files with PhSpec markers.
  * All config files with markers are candidates for update (marker removal only).
  * Config files are NEVER deleted - they belong to the user's project root.
  *
@@ -266,7 +266,7 @@ async function findLegacySlashCommandFiles(
 }
 
 /**
- * Detects legacy OpenSpec structure files (AGENTS.md and project.md).
+ * Detects legacy PhSpec structure files (AGENTS.md and project.md).
  *
  * @param projectPath - The root path of the project
  * @returns Object with detection results for structure files
@@ -296,7 +296,7 @@ export async function detectLegacyStructureFiles(projectPath: string): Promise<{
   );
   hasProjectMd = await FileSystemUtils.fileExists(projectMdPath);
 
-  // Check for root AGENTS.md with OpenSpec markers
+  // Check for root AGENTS.md with PhSpec markers
   const rootAgentsPath = FileSystemUtils.joinPath(projectPath, "AGENTS.md");
   if (await FileSystemUtils.fileExists(rootAgentsPath)) {
     const content = await FileSystemUtils.readFile(rootAgentsPath);
@@ -307,7 +307,7 @@ export async function detectLegacyStructureFiles(projectPath: string): Promise<{
 }
 
 /**
- * Checks if content contains OpenSpec markers.
+ * Checks if content contains PhSpec markers.
  *
  * @param content - File content to check
  * @returns True if both start and end markers are present
@@ -320,7 +320,7 @@ export function hasOpenSpecMarkers(content: string): boolean {
 }
 
 /**
- * Checks if file content is 100% OpenSpec content (only markers and whitespace outside).
+ * Checks if file content is 100% PhSpec content (only markers and whitespace outside).
  *
  * @param content - File content to check
  * @returns True if content outside markers is only whitespace
@@ -340,11 +340,11 @@ export function isOnlyOpenSpecContent(content: string): boolean {
 }
 
 /**
- * Removes the OpenSpec marker block from file content.
+ * Removes the PhSpec marker block from file content.
  * Only removes markers that are on their own lines (ignores inline mentions).
  * Cleans up double blank lines that may result from removal.
  *
- * @param content - File content with OpenSpec markers
+ * @param content - File content with PhSpec markers
  * @returns Content with marker block removed
  */
 export function removeMarkerBlock(content: string): string {
@@ -372,7 +372,7 @@ export interface CleanupResult {
 }
 
 /**
- * Cleans up legacy OpenSpec artifacts from a project.
+ * Cleans up legacy PhSpec artifacts from a project.
  * Preserves openspec/project.md (shows migration hint instead of deleting).
  *
  * @param projectPath - The root path of the project
@@ -406,7 +406,7 @@ export async function cleanupLegacyArtifacts(
     }
   }
 
-  // Delete legacy slash command directories (these are 100% OpenSpec-managed)
+  // Delete legacy slash command directories (these are 100% PhSpec-managed)
   for (const dirPath of detection.slashCommandDirs) {
     const fullPath = FileSystemUtils.joinPath(projectPath, dirPath);
     try {
@@ -419,7 +419,7 @@ export async function cleanupLegacyArtifacts(
     }
   }
 
-  // Delete legacy slash command files (these are 100% OpenSpec-managed)
+  // Delete legacy slash command files (these are 100% PhSpec-managed)
   for (const filePath of detection.slashCommandFiles) {
     const fullPath = FileSystemUtils.joinPath(projectPath, filePath);
     try {
@@ -430,7 +430,7 @@ export async function cleanupLegacyArtifacts(
     }
   }
 
-  // Delete openspec/AGENTS.md (this is inside openspec/, it's OpenSpec-managed)
+  // Delete openspec/AGENTS.md (this is inside openspec/, it's PhSpec-managed)
   if (detection.hasOpenspecAgents) {
     const agentsPath = FileSystemUtils.joinPath(
       projectPath,
@@ -449,7 +449,7 @@ export async function cleanupLegacyArtifacts(
     }
   }
 
-  // Handle root AGENTS.md with OpenSpec markers - remove markers only, NEVER delete
+  // Handle root AGENTS.md with PhSpec markers - remove markers only, NEVER delete
   // Note: Root AGENTS.md is handled via configFilesToUpdate above (it's in LEGACY_CONFIG_FILES)
   // This hasRootAgentsWithMarkers flag is just for detection, cleanup happens via configFilesToUpdate
 
@@ -477,11 +477,11 @@ export function formatCleanupSummary(result: CleanupResult): string {
     }
 
     for (const dir of result.deletedDirs) {
-      lines.push(`  ✓ Removed ${dir}/ (replaced by /opsx:*)`);
+      lines.push(`  ✓ Removed ${dir}/ (replaced by /phsx:*)`);
     }
 
     for (const file of result.modifiedFiles) {
-      lines.push(`  ✓ Removed OpenSpec markers from ${file}`);
+      lines.push(`  ✓ Removed PhSpec markers from ${file}`);
     }
   }
 
@@ -507,7 +507,7 @@ export function formatCleanupSummary(result: CleanupResult): string {
 
 /**
  * Build list of files to be removed with explanations.
- * Only includes OpenSpec-managed files (slash commands, openspec/AGENTS.md).
+ * Only includes PhSpec-managed files (slash commands, openspec/AGENTS.md).
  * Config files like CLAUDE.md, AGENTS.md are NEVER deleted.
  *
  * @param detection - Detection result from detectLegacyArtifacts
@@ -518,7 +518,7 @@ function buildRemovalsList(
 ): Array<{ path: string; explanation: string }> {
   const removals: Array<{ path: string; explanation: string }> = [];
 
-  // Slash command directories (these are 100% OpenSpec-managed)
+  // Slash command directories (these are 100% PhSpec-managed)
   for (const dir of detection.slashCommandDirs) {
     // Split on both forward and backward slashes for Windows compatibility
     const toolDir = dir.split(/[\/\\]/)[0];
@@ -528,12 +528,12 @@ function buildRemovalsList(
     });
   }
 
-  // Slash command files (these are 100% OpenSpec-managed)
+  // Slash command files (these are 100% PhSpec-managed)
   for (const file of detection.slashCommandFiles) {
     removals.push({ path: file, explanation: "replaced by skills/" });
   }
 
-  // openspec/AGENTS.md (inside openspec/, it's OpenSpec-managed)
+  // openspec/AGENTS.md (inside openspec/, it's PhSpec-managed)
   if (detection.hasOpenspecAgents) {
     removals.push({
       path: "openspec/AGENTS.md",
@@ -561,7 +561,7 @@ function buildUpdatesList(
 
   // All config files with markers get updated (markers removed, file preserved)
   for (const file of detection.configFilesToUpdate) {
-    updates.push({ path: file, explanation: "removing OpenSpec markers" });
+    updates.push({ path: file, explanation: "removing PhSpec markers" });
   }
 
   return updates;
@@ -592,10 +592,10 @@ export function formatDetectionSummary(
   }
 
   // Header - welcoming upgrade message
-  lines.push(chalk.bold("Upgrading to the new OpenSpec"));
+  lines.push(chalk.bold("Upgrading to the new PhSpec"));
   lines.push("");
   lines.push(
-    "OpenSpec now uses agent skills, the emerging standard across coding",
+    "PhSpec now uses agent skills, the emerging standard across coding",
   );
   lines.push(
     "agents. This simplifies your setup while keeping everything working",
@@ -617,7 +617,7 @@ export function formatDetectionSummary(
     if (removals.length > 0) lines.push("");
     lines.push(chalk.bold("Files to update"));
     lines.push(
-      chalk.dim("OpenSpec markers will be removed, your content preserved:"),
+      chalk.dim("PhSpec markers will be removed, your content preserved:"),
     );
     for (const { path } of updates) {
       lines.push(`  • ${path}`);
@@ -700,12 +700,12 @@ export function formatProjectMdMigrationHint(): string {
   lines.push("");
   lines.push(
     chalk.dim(
-      '    The new openspec/config.yaml has a "context:" section for planning',
+      '    The new phspec/config.yaml has a "context:" section for planning',
     ),
   );
   lines.push(
     chalk.dim(
-      "    context. This is included in every OpenSpec request and works more",
+      "    context. This is included in every PhSpec request and works more",
     ),
   );
   lines.push(chalk.dim("    reliably than the old project.md approach."));

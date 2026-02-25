@@ -50,18 +50,18 @@ function getCommandPath(command: Command): string {
 
   while (current) {
     const name = current.name();
-    // Skip the root 'openspec' command
-    if (name && name !== "openspec") {
+    // Skip the root 'phspec' command
+    if (name && name !== "phspec") {
       names.unshift(name);
     }
     current = current.parent;
   }
 
-  return names.join(":") || "openspec";
+  return names.join(":") || "phspec";
 }
 
 program
-  .name("openspec")
+  .name("phspec")
   .description("面向规范驱动的 AI 原生开发系统")
   .version(version);
 
@@ -98,7 +98,7 @@ const toolsOptionDescription = `非交互配置 AI 工具。可选 "all"、"none
 
 program
   .command("init [path]")
-  .description("在项目中初始化 OpenSpec")
+  .description("在项目中初始化 PhSpec")
   .option("--tools <tools>", toolsOptionDescription)
   .option("--force", "自动清理旧版文件且不提示")
   .action(
@@ -150,7 +150,7 @@ program
   .action(async (options?: { tool?: string; noInteractive?: boolean }) => {
     try {
       console.log(
-        '提示："openspec experimental" 已弃用，请改用 "openspec init"。',
+        '提示："phspec experimental" 已弃用，请改用 "phspec init"。',
       );
       const { InitCommand } = await import("../core/init.js");
       const initCommand = new InitCommand({
@@ -167,7 +167,7 @@ program
 
 program
   .command("update [path]")
-  .description("更新 OpenSpec 指令文件")
+  .description("更新 PhSpec 指令文件")
   .option("--force", "即使工具已是最新也强制更新")
   .action(async (targetPath = ".", options?: { force?: boolean }) => {
     try {
@@ -225,12 +225,12 @@ program
 // Change command with subcommands
 const changeCmd = program
   .command("change")
-  .description("管理 OpenSpec 变更提案");
+  .description("管理 PhSpec 变更提案");
 
 // Deprecation notice for noun-based commands
 changeCmd.hook("preAction", () => {
   console.error(
-    '警告："openspec change ..." 命令已弃用，请使用动词优先命令（如 "openspec list"、"openspec validate --changes"）。',
+    '警告："phspec change ..." 命令已弃用，请使用动词优先命令（如 "phspec list"、"phspec validate --changes"）。',
   );
 });
 
@@ -263,13 +263,13 @@ changeCmd
 
 changeCmd
   .command("list")
-  .description('列出所有进行中变更（已弃用：请用 "openspec list"）')
+  .description('列出所有进行中变更（已弃用：请用 "phspec list"）')
   .option("--json", "输出 JSON")
   .option("--long", "显示 id 与标题及数量")
   .action(async (options?: { json?: boolean; long?: boolean }) => {
     try {
       console.error(
-        '警告："openspec change list" 已弃用，请使用 "openspec list"。',
+        '警告："phspec change list" 已弃用，请使用 "phspec list"。',
       );
       const changeCommand = new ChangeCommand();
       await changeCommand.list(options);
@@ -346,7 +346,7 @@ program
   .option("--json", "以 JSON 输出校验结果")
   .option(
     "--concurrency <n>",
-    "最大并发校验数（默认取 OPENSPEC_CONCURRENCY 或 6）",
+    "最大并发校验数（默认取 PHSPEC_CONCURRENCY 或 6）",
   )
   .option("--no-interactive", "关闭交互提示")
   .action(
@@ -414,7 +414,7 @@ program
 // Feedback command
 program
   .command("feedback <message>")
-  .description("提交 OpenSpec 相关反馈")
+  .description("提交 PhSpec 相关反馈")
   .option("--body <text>", "反馈的详细说明")
   .action(async (message: string, options?: { body?: string }) => {
     try {
@@ -430,7 +430,7 @@ program
 // Completion command with subcommands
 const completionCmd = program
   .command("completion")
-  .description("管理 OpenSpec CLI 的 Shell 补全");
+  .description("管理 PhSpec CLI 的 Shell 补全");
 
 completionCmd
   .command("generate [shell]")
