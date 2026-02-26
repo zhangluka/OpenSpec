@@ -1,7 +1,7 @@
 {
   "name": "@bobby_z/phspec",
-  "version": "0.0.1",
-  "description": "AI-native system for spec-driven development",
+  "version": "0.0.2",
+  "description": "OpenSpec-based system with internalization support and internal Agent tools for spec-driven development",
   "keywords": [
     "phspec",
     "specs",
