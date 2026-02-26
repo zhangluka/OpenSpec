@@ -31,6 +31,8 @@ artifacts:
     description: 本变更的详细规范
     template: spec.md
     instruction: |
+      请用中文撰写需求与场景的正文（标题与格式保持英文，如 Requirement/Scenario/WHEN/THEN）。
+
       创建定义「系统应做什么」的规范文件。
 
       按提案中「能力」一节列出的每项能力各写一个规范文件。
@@ -63,18 +65,18 @@ artifacts:
       ```
       ## ADDED Requirements
 
-      ### Requirement: User can export data
-      The system SHALL allow users to export their data in CSV format.
+      ### Requirement: 用户可导出数据
+      系统 SHALL 允许用户以 CSV 格式导出其数据。
 
-      #### Scenario: Successful export
-      - **WHEN** user clicks "Export" button
-      - **THEN** system downloads a CSV file with all user data
+      #### Scenario: 导出成功
+      - **WHEN** 用户点击「导出」按钮
+      - **THEN** 系统下载包含全部用户数据的 CSV 文件
 
       ## REMOVED Requirements
 
-      ### Requirement: Legacy export
-      **Reason**: Replaced by new export system
-      **Migration**: Use new export endpoint at /api/v2/export
+      ### Requirement: 旧版导出
+      **Reason**: 已由新导出系统替代
+      **Migration**: 使用新导出接口 /api/v2/export
       ```
 
       规范应可检验——每个场景都是潜在测试用例。

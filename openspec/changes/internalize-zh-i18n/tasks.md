@@ -84,7 +84,21 @@
 
 - [x] 8.1 汉化 `src/core/templates/skill-templates.ts` 中所有技能的 `description`（简短描述，会出现在各 AI 工具的指令列表中）。
 - [x] 8.2 汉化 `src/core/templates/skill-templates.ts` 中所有技能的 `instructions`（完整指令正文，供 AI 执行斜杠命令时使用），包括 explore、new、continue、ff、apply、sync、archive、bulk-archive、verify、onboard、feedback；保持 Markdown 结构、代码块与命令名不翻译。
-- [x] 8.3 汉化同文件中所有 `CommandTemplate` 的 `description` 与 `body`（与 skills 对应处保持一致）。（description 已在 8.1 汉化；content/body 已汉化 getOpsxExploreCommandTemplate；其余 getOpsx\*CommandTemplate 的 content 与各 skill instructions 对应，可后续按需补全。）
+- [x] 8.3 汉化同文件中所有 `CommandTemplate` 的 `description` 与 `body`（与 skills 对应处保持一致）。（description 已在 8.1 汉化；content/body 已汉化 getOpsxExploreCommandTemplate；其余 getOpsx\*CommandTemplate 的 content 见 11.3 补全。）
+
+---
+
+## 11. 发布后反馈：变更生成的 spec 与 command 汉化补全
+
+**问题来源**：发布到 npm 后在实际项目中使用 phspec 发现：（1）变更任务生成的 `spec.md`（变更目录下 `specs/<capability>/spec.md` 以及归档时新建的主规范）内容仍为英文；（2）为 AI 工具生成的 command 文件中，仅 `phsx-explore.md` 为中文，其余 `.cursor/commands/phsx-*.md` 的正文为英文。
+
+**原因简述**：
+- **spec 英文**：① 归档时若新建主规范，`src/core/specs-apply.ts` 的 `buildSpecSkeleton()` 返回的骨架是英文（"Specification"、"Purpose"、"TBD - created by archiving change"、"Requirements"）。② AI 按 schema 的 instruction 撰写变更下 specs 时，`schemas/spec-driven/schema.yaml` 中 specs 的 instruction 主体已是中文，但**示例块**为英文（如 "### Requirement: User can export data"），模型会模仿示例导致生成英文正文。
+- **command 英文**：写入 `.cursor/commands/` 的是 `skill-templates.ts` 中各 `getOpsx*CommandTemplate()` 的 `content`。当前仅 `getOpsxExploreCommandTemplate` 与 `getOpsxOnboardCommandTemplate`（使用 `getOnboardInstructions()`）为中文，其余 new/continue/apply/ff/sync/archive/bulk-archive/verify 的 `content` 仍为英文。
+
+- [x] 11.1 **归档时新建主规范的骨架汉化**：在 `src/core/specs-apply.ts` 中汉化 `buildSpecSkeleton()` 的返回值（标题、Purpose、TBD 说明、Requirements 等），使归档时新建的 `phspec/specs/<capability>/spec.md` 为中文。
+- [x] 11.2 **schema 中 specs 示例与撰写语言约定**：在 `schemas/spec-driven/schema.yaml` 的 specs.instruction 中，（1）在 instruction 中明确「请用中文撰写需求与场景的正文（标题与格式保持英文，如 Requirement/Scenario/WHEN/THEN）」或等效表述；（2）将示例块（## ADDED Requirements / REMOVED Requirements 等）改为中文示例（需求名、描述、场景、Reason/Migration 等），避免 AI 模仿英文示例生成整篇英文。
+- [x] 11.3 **其余斜杠命令 CommandTemplate 的 content 汉化**：在 `src/core/templates/skill-templates.ts` 中，将以下函数的 `content` 汉化，与 8.2 中对应 skill 的 `instructions` 一致（保持 Markdown 结构、代码块与命令名不翻译）：`getOpsxNewCommandTemplate`、`getOpsxContinueCommandTemplate`、`getOpsxApplyCommandTemplate`、`getOpsxFfCommandTemplate`、`getOpsxSyncCommandTemplate`、`getOpsxArchiveCommandTemplate`、`getOpsxBulkArchiveCommandTemplate`、`getOpsxVerifyCommandTemplate`。`getOpsxExploreCommandTemplate` 与 `getOpsxOnboardCommandTemplate` 已为中文，无需修改。
 
 ---
 

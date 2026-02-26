@@ -372,17 +372,17 @@ export async function generateApplyInstructions(
 
   if (missingArtifacts.length > 0) {
     state = "blocked";
-    instruction = `Cannot apply this change yet. Missing artifacts: ${missingArtifacts.join(", ")}.\nUse the openspec-continue-change skill to create the missing artifacts first.`;
+    instruction = `当前无法实施此变更。缺失制品：${missingArtifacts.join(", ")}。\n请先使用 phspec-continue-change 技能创建上述制品。`;
   } else if (tracksFile && !tracksFileExists) {
     // Tracking file configured but doesn't exist yet
     const tracksFilename = path.basename(tracksFile);
     state = "blocked";
-    instruction = `缺少 ${tracksFilename} 文件，需先创建。\n请使用 openspec-continue-change 生成跟踪文件。`;
+    instruction = `缺少 ${tracksFilename} 文件，需先创建。\n请使用 phspec-continue-change 生成跟踪文件。`;
   } else if (tracksFile && tracksFileExists && total === 0) {
     // Tracking file exists but contains no tasks
     const tracksFilename = path.basename(tracksFile);
     state = "blocked";
-    instruction = `文件 ${tracksFilename} 存在但无任务。\n请在 ${tracksFilename} 中添加任务，或使用 openspec-continue-change 重新生成。`;
+    instruction = `文件 ${tracksFilename} 存在但无任务。\n请在 ${tracksFilename} 中添加任务，或使用 phspec-continue-change 重新生成。`;
   } else if (tracksFile && remaining === 0 && total > 0) {
     state = "all_done";
     instruction =
@@ -470,7 +470,7 @@ export function printApplyInstructionsText(
     console.log("### ⚠️ 受阻");
     console.log();
     console.log(`缺失制品：${missingArtifacts.join(", ")}`);
-    console.log("请先用 openspec-continue-change 技能创建上述制品。");
+    console.log("请先用 phspec-continue-change 技能创建上述制品。");
     console.log();
   }
 

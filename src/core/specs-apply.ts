@@ -401,7 +401,7 @@ export function buildSpecSkeleton(
   changeName: string,
 ): string {
   const titleBase = specFolderName;
-  return `# ${titleBase} Specification\n\n## Purpose\nTBD - created by archiving change ${changeName}. Update Purpose after archive.\n\n## Requirements\n`;
+  return `# ${titleBase} 规范\n\n## 目的\n待补充 - 由归档变更 ${changeName} 时创建。归档后请更新此处目的说明。\n\n## 需求\n`;
 }
 
 /**
