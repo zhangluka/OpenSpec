@@ -832,7 +832,7 @@ export function registerSchemaCommand(program: Command): void {
                       created: false,
                       error: `工作流模式 '${name}' 已存在`,
                       suggestion:
-                        '使用 --force 覆盖或 "openspec schema fork" 复制',
+                        '使用 --force 覆盖或 "phspec schema fork" 复制',
                     },
                     null,
                     2,
@@ -842,9 +842,7 @@ export function registerSchemaCommand(program: Command): void {
                 console.error(
                   `错误：工作流模式 '${name}' 已存在于 ${schemaDir}`,
                 );
-                console.error(
-                  '使用 --force 覆盖或 "openspec schema fork" 复制',
-                );
+                console.error('使用 --force 覆盖或 "phspec schema fork" 复制');
               }
               process.exitCode = 1;
               return;

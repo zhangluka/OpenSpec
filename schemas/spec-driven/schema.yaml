@@ -14,7 +14,7 @@ artifacts:
       - **变更内容**：变更的要点列表。对新能力、修改或移除保持具体。破坏性变更用 **BREAKING** 标出。
       - **能力**：标明将新增或修改的规范：
         - **新增能力**：列出将要引入的能力。每项对应新的 `specs/<name>/spec.md`。使用 kebab-case 名称（如 `user-auth`、`data-export`）。
-        - **修改的能力**：其「需求」会发生变化的既有能力。仅当规范级行为变化时列入（而非仅实现细节）。每项需有对应的增量规范文件。在 `openspec/specs/` 中查看已有规范名称。若无需求级变化可留空。
+        - **修改的能力**：其「需求」会发生变化的既有能力。仅当规范级行为变化时列入（而非仅实现细节）。每项需有对应的增量规范文件。在 `phspec/specs/` 中查看已有规范名称。若无需求级变化可留空。
       - **影响**：受影响的代码、API、依赖或系统。
 
       重要：能力一节是提案与规范阶段之间的契约，填写前请先查阅现有规范。
@@ -35,7 +35,7 @@ artifacts:
 
       按提案中「能力」一节列出的每项能力各写一个规范文件。
       - 新增能力：使用提案中的 kebab-case 名称（specs/<capability>/spec.md）。
-      - 修改的能力：使用 openspec/specs/<capability>/ 下已有规范目录名，在变更目录下创建增量规范 specs/<capability>/spec.md。
+      - 修改的能力：使用 phspec/specs/<capability>/ 下已有规范目录名，在变更目录下创建增量规范 specs/<capability>/spec.md。
 
       增量操作（使用 ## 标题）：
       - **ADDED Requirements**：新增能力
@@ -51,7 +51,7 @@ artifacts:
       - 每条需求至少有一个场景。
 
       MODIFIED 需求的操作步骤：
-      1. 在 openspec/specs/<capability>/spec.md 中找到现有需求
+      1. 在 phspec/specs/<capability>/spec.md 中找到现有需求
       2. 复制整条需求块（从 `### Requirement:` 到其下所有场景）
       3. 粘贴到 `## MODIFIED Requirements` 下并修改为新行为
       4. 确保标题文字完全匹配（忽略首尾空白）

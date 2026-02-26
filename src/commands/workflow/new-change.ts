@@ -65,7 +65,7 @@ export async function newChangeCommand(
     }
 
     spinner.succeed(
-      `Created change '${name}' at openspec/changes/${name}/ (schema: ${result.schema})`,
+      `Created change '${name}' at phspec/changes/${name}/ (schema: ${result.schema})`,
     );
   } catch (error) {
     spinner.fail(`Failed to create change '${name}'`);

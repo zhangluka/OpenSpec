@@ -52,7 +52,7 @@ export class ChangeCommand {
         } else {
           console.error(`未指定变更。可用 ID：${changes.join(", ")}`);
         }
-        console.error('提示：使用 "openspec change list" 查看可用变更。');
+        console.error('提示：使用 "phspec change list" 查看可用变更。');
         process.exitCode = 1;
         return;
       }
@@ -229,7 +229,7 @@ export class ChangeCommand {
         } else {
           console.error(`未指定变更。可用 ID：${changes.join(", ")}`);
         }
-        console.error('提示：使用 "openspec change list" 查看可用变更。');
+        console.error('提示：使用 "phspec change list" 查看可用变更。');
         process.exitCode = 1;
         return;
       }

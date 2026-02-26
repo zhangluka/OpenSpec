@@ -98,7 +98,7 @@ export function registerConfigCommand(program: Command): void {
             ? ` ${keyValidation.reason}.`
             : "";
           console.error(`错误：无效的配置键 "${key}".${reason}`);
-          console.error('使用 "openspec config list" 查看可用键。');
+          console.error('使用 "phspec config list" 查看可用键。');
           console.error("传入 --allow-unknown 可跳过校验。");
           process.exitCode = 1;
           return;
