@@ -191,7 +191,7 @@ export class UpdateCommand {
       console.log("  /phsx:apply     实施任务");
       console.log();
       console.log(
-        `了解更多：${chalk.cyan("https://github.com/Fission-AI/OpenSpec")}`,
+        `了解更多：${chalk.cyan("https://github.com/zhangluka/OpenSpec")}`,
       );
     }
 

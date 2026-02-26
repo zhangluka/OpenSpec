@@ -649,16 +649,16 @@ export class InitCommand {
     // Links
     console.log();
     console.log(
-      `了解更多：${chalk.cyan("https://github.com/Fission-AI/OpenSpec")}`,
+      `了解更多：${chalk.cyan("https://github.com/zhangluka/OpenSpec")}`,
     );
     console.log(
-      `反馈：    ${chalk.cyan("https://github.com/Fission-AI/OpenSpec/issues")}`,
+      `反馈：    ${chalk.cyan("https://github.com/zhangluka/OpenSpec/issues")}`,
     );
 
     // Restart instruction if any tools were configured
     if (results.createdTools.length > 0 || results.refreshedTools.length > 0) {
       console.log();
-      console.log(chalk.white("请重启 IDE 以使斜杠命令生效。"));
+      console.log(chalk.white("请重启 IDE 以使slash命令生效。"));
     }
 
     console.log();
