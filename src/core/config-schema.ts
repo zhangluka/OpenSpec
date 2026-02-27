@@ -10,6 +10,11 @@ export const GlobalConfigSchema = z
       .record(z.string(), z.boolean())
       .optional()
       .default({}),
+    telemetry: z
+      .object({
+        enabled: z.boolean().optional(),
+      })
+      .optional(),
   })
   .passthrough();
 
@@ -20,6 +25,7 @@ export type GlobalConfigType = z.infer<typeof GlobalConfigSchema>;
  */
 export const DEFAULT_CONFIG: GlobalConfigType = {
   featureFlags: {},
+  telemetry: undefined,
 };
 
 const KNOWN_TOP_LEVEL_KEYS = new Set(Object.keys(DEFAULT_CONFIG));
@@ -43,6 +49,13 @@ export function validateConfigKeyPath(path: string): { valid: boolean; reason?: 
   if (rootKey === 'featureFlags') {
     if (rawKeys.length > 2) {
       return { valid: false, reason: 'featureFlags values are booleans and do not support nested keys' };
+    }
+    return { valid: true };
+  }
+
+  if (rootKey === 'telemetry') {
+    if (rawKeys.length !== 2 || rawKeys[1] !== 'enabled') {
+      return { valid: false, reason: 'Only telemetry.enabled is supported (boolean)' };
     }
     return { valid: true };
   }

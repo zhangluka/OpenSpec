@@ -4,12 +4,13 @@
  * Privacy-first design:
  * - Only tracks command name and version
  * - No arguments, file paths, or content
- * - Opt-out via PHSPEC_TELEMETRY=0 or DO_NOT_TRACK=1
- * - Auto-disabled in CI environments
+ * - Off by default (opt-in): enable with telemetry.enabled=true or PHSPEC_TELEMETRY=1
+ * - Disabled when DO_NOT_TRACK=1 or CI=true
  * - Anonymous ID is a random UUID with no relation to the user
  */
 import { PostHog } from "posthog-node";
 import { randomUUID } from "crypto";
+import { getGlobalConfig } from "../core/global-config.js";
 import { getTelemetryConfig, updateTelemetryConfig } from "./config.js";
 
 // PostHog API key - public key for client-side analytics
@@ -24,28 +25,32 @@ let anonymousId: string | null = null;
 /**
  * Check if telemetry is enabled.
  *
- * Disabled when:
- * - PHSPEC_TELEMETRY=0
- * - DO_NOT_TRACK=1
- * - CI=true (any CI environment)
+ * Off by default (opt-in). Enabled only when:
+ * - telemetry.enabled=true in global config, or
+ * - PHSPEC_TELEMETRY=1
+ * and not overridden by DO_NOT_TRACK=1 or CI=true.
  */
 export function isTelemetryEnabled(): boolean {
-  // Check explicit opt-out
+  // Always respect DO_NOT_TRACK and CI
+  if (process.env.DO_NOT_TRACK === "1" || process.env.CI === "true") {
+    return false;
+  }
+
+  // Explicit opt-out
   if (process.env.PHSPEC_TELEMETRY === "0") {
     return false;
   }
 
-  // Respect DO_NOT_TRACK standard
-  if (process.env.DO_NOT_TRACK === "1") {
-    return false;
+  // Opt-in: config or env must explicitly enable
+  const globalConfig = getGlobalConfig();
+  if (globalConfig.telemetry?.enabled === true) {
+    return true;
+  }
+  if (process.env.PHSPEC_TELEMETRY === "1") {
+    return true;
   }
 
-  // Auto-disable in CI environments
-  if (process.env.CI === "true") {
-    return false;
-  }
-
-  return true;
+  return false;
 }
 
 /**
@@ -135,7 +140,7 @@ export async function maybeShowTelemetryNotice(): Promise<void> {
 
     // Display notice
     console.log(
-      "Note: PhSpec collects anonymous usage stats. Opt out: PHSPEC_TELEMETRY=0",
+      "Note: PhSpec collects anonymous usage stats. Disable: phspec config set telemetry.enabled false",
     );
 
     // Mark as seen

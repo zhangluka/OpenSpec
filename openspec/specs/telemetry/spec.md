@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This spec defines how PhSpec collects anonymous usage telemetry to help improve the tool. It governs the `src/telemetry/` module, which handles PostHog integration, privacy-preserving event design, user opt-out mechanisms, and first-run notice display. The spec ensures telemetry is minimal, transparent, and respects user privacy.
+This spec defines how PhSpec collects anonymous usage telemetry to help improve the tool. It governs the `src/telemetry/` module, which handles PostHog integration, privacy-preserving event design, and first-run notice display. **Telemetry is off by default (opt-in)** so that global installs (e.g. in air-gapped networks) work without configuration or PostHog errors. The spec ensures telemetry is minimal, transparent, and respects user privacy.
 
 ## Requirements
 
@@ -28,8 +28,23 @@ The system SHALL NOT include command arguments, file paths, project names, spec 
 - **WHEN** the system sends a telemetry event
 - **THEN** the event explicitly sets `$ip: null` to prevent IP tracking
 
+### Requirement: Opt-in by default
+The system SHALL have telemetry **disabled by default**. Telemetry SHALL be enabled only when the user explicitly opts in via `telemetry.enabled=true` in global config or `PHSPEC_TELEMETRY=1` in the environment.
+
+#### Scenario: Default (no opt-in)
+- **WHEN** the user has not set `telemetry.enabled=true` or `PHSPEC_TELEMETRY=1`
+- **THEN** the system sends no telemetry events (no PostHog client, no network calls)
+
+#### Scenario: Opt-in via config
+- **WHEN** the user runs `phspec config set telemetry.enabled true`
+- **THEN** subsequent commands send telemetry events
+
+#### Scenario: Opt-in via environment
+- **WHEN** `PHSPEC_TELEMETRY=1` is set in the environment
+- **THEN** the system sends telemetry events
+
 ### Requirement: Environment variable opt-out
-The system SHALL disable telemetry when `PHSPEC_TELEMETRY=0` or `DO_NOT_TRACK=1` environment variables are set.
+The system SHALL disable telemetry when `PHSPEC_TELEMETRY=0` or `DO_NOT_TRACK=1` environment variables are set, even if the user has opted in via config.
 
 #### Scenario: PHSPEC_TELEMETRY opt-out
 - **WHEN** `PHSPEC_TELEMETRY=0` is set in the environment
@@ -38,11 +53,6 @@ The system SHALL disable telemetry when `PHSPEC_TELEMETRY=0` or `DO_NOT_TRACK=1`
 #### Scenario: DO_NOT_TRACK opt-out
 - **WHEN** `DO_NOT_TRACK=1` is set in the environment
 - **THEN** the system sends no telemetry events
-
-#### Scenario: Environment variable takes precedence
-- **WHEN** the user has previously used the CLI (config exists)
-- **AND** the user sets `PHSPEC_TELEMETRY=0`
-- **THEN** telemetry is disabled regardless of config state
 
 ### Requirement: CI environment auto-disable
 The system SHALL automatically disable telemetry when `CI=true` environment variable is detected.
@@ -60,9 +70,8 @@ The system SHALL automatically disable telemetry when `CI=true` environment vari
 The system SHALL display a one-line telemetry disclosure notice on the first command execution, before any telemetry is sent.
 
 #### Scenario: First command execution
-- **WHEN** a user runs their first openspec command
-- **AND** telemetry is enabled
-- **THEN** the system displays: "Note: PhSpec collects anonymous usage stats. Opt out: PHSPEC_TELEMETRY=0"
+- **WHEN** a user runs their first command with telemetry enabled (opt-in)
+- **THEN** the system displays a one-line notice that includes how to disable (e.g. `phspec config set telemetry.enabled false`)
 
 #### Scenario: Subsequent command execution
 - **WHEN** a user has already seen the notice (noticeSeen: true in config)

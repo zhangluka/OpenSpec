@@ -77,14 +77,49 @@ describe("telemetry/index", () => {
       expect(isTelemetryEnabled()).toBe(false);
     });
 
-    it("should return true when no opt-out is set", () => {
+    it("should return false when no opt-in is set (default off)", () => {
       delete process.env.PHSPEC_TELEMETRY;
       delete process.env.DO_NOT_TRACK;
       delete process.env.CI;
+      expect(isTelemetryEnabled()).toBe(false);
+    });
+
+    it("should return true when PHSPEC_TELEMETRY=1", () => {
+      delete process.env.DO_NOT_TRACK;
+      delete process.env.CI;
+      process.env.PHSPEC_TELEMETRY = "1";
       expect(isTelemetryEnabled()).toBe(true);
     });
 
-    it("should prioritize PHSPEC_TELEMETRY=0 over other settings", () => {
+    it("should return true when telemetry.enabled is true in global config", () => {
+      delete process.env.PHSPEC_TELEMETRY;
+      delete process.env.DO_NOT_TRACK;
+      delete process.env.CI;
+      process.env.XDG_CONFIG_HOME = path.join(tempDir, ".config");
+      const configDir = path.join(tempDir, ".config", "phspec");
+      fs.mkdirSync(configDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(configDir, "config.json"),
+        JSON.stringify({ telemetry: { enabled: true } }, null, 2),
+      );
+      expect(isTelemetryEnabled()).toBe(true);
+    });
+
+    it("should return false when telemetry.enabled is false in global config", () => {
+      delete process.env.PHSPEC_TELEMETRY;
+      delete process.env.DO_NOT_TRACK;
+      delete process.env.CI;
+      process.env.XDG_CONFIG_HOME = path.join(tempDir, ".config");
+      const configDir = path.join(tempDir, ".config", "phspec");
+      fs.mkdirSync(configDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(configDir, "config.json"),
+        JSON.stringify({ telemetry: { enabled: false } }, null, 2),
+      );
+      expect(isTelemetryEnabled()).toBe(false);
+    });
+
+    it("should prioritize PHSPEC_TELEMETRY=0 and DO_NOT_TRACK over opt-in", () => {
       process.env.PHSPEC_TELEMETRY = "0";
       delete process.env.DO_NOT_TRACK;
       delete process.env.CI;
@@ -111,8 +146,8 @@ describe("telemetry/index", () => {
       expect(PostHog).not.toHaveBeenCalled();
     });
 
-    it("should track when telemetry is enabled", async () => {
-      delete process.env.PHSPEC_TELEMETRY;
+    it("should track when telemetry is enabled via PHSPEC_TELEMETRY=1", async () => {
+      process.env.PHSPEC_TELEMETRY = "1";
       delete process.env.DO_NOT_TRACK;
       delete process.env.CI;
 

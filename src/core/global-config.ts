@@ -10,6 +10,8 @@ export const GLOBAL_DATA_DIR_NAME = "phspec";
 // TypeScript interfaces
 export interface GlobalConfig {
   featureFlags?: Record<string, boolean>;
+  /** When false, disables telemetry permanently (e.g. for air-gapped networks). */
+  telemetry?: { enabled?: boolean; [key: string]: unknown };
 }
 
 const DEFAULT_CONFIG: GlobalConfig = {
@@ -114,6 +116,8 @@ export function getGlobalConfig(): GlobalConfig {
         ...DEFAULT_CONFIG.featureFlags,
         ...(parsed.featureFlags || {}),
       },
+      // Preserve telemetry (enabled, anonymousId, noticeSeen, etc.)
+      telemetry: parsed.telemetry ?? DEFAULT_CONFIG.telemetry,
     };
   } catch (error) {
     // Log warning for parse errors, but not for missing files
