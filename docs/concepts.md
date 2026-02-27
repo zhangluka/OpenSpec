@@ -329,4 +329,5 @@ phspec schema fork spec-driven research-first
 - [入门](getting-started.md) - 实践第一步
 - [工作流](workflows.md) - 常用模式与使用时机
 - [命令](commands.md) - 完整命令参考
+- [棕地接入与 SDD 最佳实践](brownfield-sdd-best-practices.md) - 现有项目接入与业务开发流程规范
 - [自定义](customization.md) - 创建自定义模式与配置项目

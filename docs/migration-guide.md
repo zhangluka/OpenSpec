@@ -71,5 +71,6 @@ PHSX 用基于动作的灵活流程替代旧的阶段锁定流程：
 ## 相关文档
 
 - [入门](getting-started.md) - 首次使用
+- [棕地接入与 SDD 最佳实践](brownfield-sdd-best-practices.md) - 现有项目接入与业务开发流程规范
 - [自定义](customization.md) - 项目配置与模式
 - [命令](commands.md) - PHSX 斜杠命令

@@ -116,6 +116,8 @@ Now tell your AI: `/phsx:new <what-you-want-to-build>`
 → **[CLI](docs/cli.md)**: terminal reference<br>
 → **[Supported Tools](docs/supported-tools.md)**: tool integrations & install paths<br>
 → **[Concepts](docs/concepts.md)**: how it all fits<br>
+
+→ **[Brownfield & SDD Best Practices](docs/brownfield-sdd-best-practices.md)**: 棕地接入与业务开发流程规范（团队/公司接入必读）<br>
 → **[Multi-Language](docs/multi-language.md)**: multi-language support<br>
 → **[Customization](docs/customization.md)**: make it yours
 

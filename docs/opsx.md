@@ -135,5 +135,6 @@ rules:
 ## 相关文档
 
 - [概念](concepts.md) - 规范、制品与工作流模式
+- [棕地接入与 SDD 最佳实践](brownfield-sdd-best-practices.md) - 现有项目接入与业务开发流程规范
 - [自定义](customization.md) - 项目配置与自定义模式
 - [命令](commands.md) - 斜杠命令完整说明

@@ -176,4 +176,5 @@ phspec view
 - [工作流](workflows.md) - 常用模式及各命令使用时机
 - [命令](commands.md) - 斜杠命令完整参考
 - [概念](concepts.md) - 规范、变更与工作流模式的深入说明
+- [棕地接入与 SDD 最佳实践](brownfield-sdd-best-practices.md) - 现有项目接入与业务开发流程规范（团队必读）
 - [自定义](customization.md) - 按你的方式使用 PhSpec
