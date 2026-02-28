@@ -300,7 +300,7 @@ You: 那就不一样了。
 - **不装懂** - 不清楚就继续挖
 - **不赶** - 探索是思考时间，不是任务时间
 - **不强行结构** - 让模式自然浮现
-- **不自动记录** - 提议保存洞察，不要擅自写入
+- **不自动记录** - 提议保存洞察，不要擅自写入；若环境无 AskUserQuestion 或 ask_followup_question 等用户确认工具，需要用户选择或确认时直接输出选项并写明「请回复后再继续」，不要擅自写入或继续。
 - **要可视化** - 一张好图顶很多段文字
 - **要查代码库** - 讨论要落在实际上
 - **要质疑假设** - 包括用户和你自己的`,
@@ -327,7 +327,7 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供明确输入，先问用户要做什么**
 
-   使用 **AskUserQuestion 工具**（开放问题，无预设选项）询问：
+   使用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）（开放问题，无预设选项）询问：
    > "你想做哪个变更？描述你想做或要修的内容。"
 
    从其描述推导出 kebab-case 名称（如 "add user authentication" → \`add-user-auth\`）。
@@ -367,6 +367,8 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
 
 6. **在此暂停，等待用户指示**
 
+   **必须在此步结束本技能的本次执行。** 不要在本轮中创建 proposal.md、design.md、specs、tasks 等任何制品文件；创建制品由用户稍后说「继续」或调用 \`/phsx:continue\` 时再执行。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，需要用户输入时请直接输出问题并写明「请回复后再继续」，不要自行假设或继续执行。
+
 **输出**
 
 完成上述步骤后总结：
@@ -377,8 +379,8 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
 - 提示："要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或让我继续。"
 
 **边界**
-- 先不要创建任何制品，只展示指令
-- 不要越过「展示第一个制品模板」这一步
+- 本技能职责仅到「展示第一个制品模板」；**不得**在本技能中创建任何制品（proposal、specs、design、tasks 等）。
+- 先不要创建任何制品，只展示指令；不要越过「展示第一个制品模板」这一步。
 - 若名称无效（非 kebab-case），请用户给出合法名称
 - 若该名称的变更已存在，建议改为继续该变更
 - 使用非默认工作流时传入 --schema`,
@@ -405,7 +407,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`phspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion 工具** 让用户选择要继续的变更。
+   运行 \`phspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择要继续的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出 3～4 个变更选项并写明「请回复后再继续」，不要猜测或自动选变更。
 
    将最近修改的 3～4 个变更作为选项展示，包含：
    - 变更名
@@ -457,7 +459,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
      - 写作时遵守 \`context\` 与 \`rules\`，但不要原样抄进文件
      - 写入指令中的 outputPath
    - 说明创建了什么、接下来可做哪些
-   - 创建完一个制品后即停止
+   - **创建完一个制品后必须在此步结束本次执行**；不要在本轮中继续创建下一个制品，等用户说「继续」或再次调用本技能后再创建下一个。
 
    ---
 
@@ -484,7 +486,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 制品类型与用途由模式决定。以指令输出中的 \`instruction\` 为准。
 
 常见模式（spec-driven）：proposal → specs → design → tasks
-- **proposal.md**：若不清楚可先问用户，填写 Why、What Changes、Capabilities、Impact。Capabilities 很关键，每项能力对应一个 spec 文件。
+- **proposal.md**：若不清楚可先问用户，填写 Why、What Changes、Capabilities、Impact。Capabilities 很关键，每项能力对应一个 spec 文件。若环境无 AskUserQuestion 或 ask_followup_question，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
 - **specs/<capability>/spec.md**：按提案 Capabilities 每项建一个规范（用能力名，不是变更名）。
 - **design.md**：记录技术决策、架构与实现思路。
 - **tasks.md**：把实现拆成可勾选任务。
@@ -492,7 +494,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
 其他模式以 CLI 输出的 \`instruction\` 为准。
 
 **边界**
-- 每次调用只创建一个制品
+- 每次调用**仅**创建一个制品；创建完一个制品后必须停止，等用户说「继续」或再次调用本技能后再创建下一个；不得在本轮中连续创建多个制品。
 - 创建新制品前先读依赖制品
 - 不跳过、不乱序
 - 上下文不清时先问用户
@@ -525,7 +527,7 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
    若提供了名称则用该名称。否则：
    - 用户提到过某变更则从上下文推断
    - 仅有一个进行中变更则自动选中
-   - 有歧义时运行 \`phspec list --json\` 获取列表，用 **AskUserQuestion 工具** 让用户选择
+   - 有歧义时运行 \`phspec list --json\` 获取列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。若环境无 AskUserQuestion 或 ask_followup_question，直接输出变更选项并写明「请回复后再继续」，不要自行假设。
 
    始终说明：「当前变更：<name>」，以及如何切换（如 \`/phsx:apply <其他>\`）。
 
@@ -572,9 +574,9 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
    - 在任务文件中勾选完成：\`- [ ]\` → \`- [x]\`
    - 继续下一项
 
-   **以下情况暂停：**
-   - 任务不清晰 → 先澄清
-   - 实施暴露出设计问题 → 建议更新制品
+   **以下情况必须暂停**（不要自行假设或继续下一项任务）：
+   - 任务不清晰 → 先澄清；若环境无 AskUserQuestion 或 ask_followup_question，直接输出问题并写明「请回复后再继续」
+   - 实施暴露出设计问题 → 建议更新制品并等待指示
    - 报错或受阻 → 说明并等待指示
    - 用户打断
 
@@ -634,9 +636,9 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
 \`\`\`
 
 **边界**
-- 按任务顺序做到完成或受阻
+- 按任务顺序做到完成或受阻；遇需暂停的情形必须停止，等用户回复后再继续。
 - 开始前先读 apply 指令中的上下文文件
-- 任务不明确时先暂停询问再实施
+- 任务不明确时先暂停询问再实施；若环境无用户确认工具，直接输出问题并写明「请回复后再继续」
 - 实施暴露出问题时暂停并建议更新制品
 - 代码改动保持最小、限定在当前任务
 - 每完成一项立即勾选
@@ -672,8 +674,10 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供明确输入，先问用户要做什么**
 
-   使用 **AskUserQuestion 工具**（开放问题）询问：
+   使用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）（开放问题）询问：
    > "你想做哪个变更？描述你想做或要修的内容。"
+
+   若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出该问题并写明「请回复后再继续」，不要自行假设名称后继续。
 
    从其描述推导 kebab-case 名称（如 "add user authentication" → \`add-user-auth\`）。
 
@@ -712,7 +716,7 @@ export function getFfChangeSkillTemplate(): SkillTemplate {
       - 每创建一个制品后重跑 \`phspec status --change "<name>" --json\`
       - 当 \`applyRequires\` 中每个 ID 在 artifacts 中均为 \`status: "done"\` 时停止
 
-   c. **若某制品需要用户输入**（上下文不清）：用 **AskUserQuestion 工具** 澄清后继续
+   c. **若某制品需要用户输入**（上下文不清）：用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 澄清后继续；若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
 
 5. **展示最终状态**
    \`\`\`bash
@@ -749,7 +753,7 @@ export function getSyncSpecsSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。
 
    **重要**：不要猜测或自动选择，始终让用户选择。
 
@@ -1352,7 +1356,7 @@ phspec archive "<name>"
 
 ## 边界
 
-- **在关键节点遵循「说明 → 执行 → 展示 → 暂停」**（探索后、提案草案后、任务后、归档后）
+- **在关键节点遵循「说明 → 执行 → 展示 → 暂停」**（探索后、提案草案后、任务后、归档后）；在标记的「暂停」处必须停止，等用户回复后再继续。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，直接输出说明或选项并写明「请回复后再继续」，不要自行继续下一阶段。
 - **实施时叙述简洁**——教流程不教逐行
 - **不跳过阶段**——即便变更很小，目标是学会工作流
 - **在标记处暂停等确认**，但不要过度暂停
@@ -1511,7 +1515,7 @@ phspec list --json
 - **不装懂** - 不清楚就继续挖
 - **不赶** - 探索是思考时间，不是任务时间
 - **不强行结构** - 让模式自然浮现
-- **不自动记录** - 提议保存洞察，不要擅自写入
+- **不自动记录** - 提议保存洞察，不要擅自写入；若环境无 AskUserQuestion 或 ask_followup_question 等用户确认工具，需要用户选择或确认时直接输出选项并写明「请回复后再继续」，不要擅自写入或继续。
 - **要可视化** - 一张好图顶很多段文字
 - **要查代码库** - 讨论要落在实际上
 - **要质疑假设** - 包括用户和你自己的`,
@@ -1535,7 +1539,7 @@ export function getOpsxNewCommandTemplate(): CommandTemplate {
 
 1. **若未提供输入，先问用户要做什么**
 
-   使用 **AskUserQuestion 工具**（开放问题，无预设选项）询问：
+   使用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）（开放问题，无预设选项）询问：
    > "你想做哪个变更？描述你想做或要修的内容。"
 
    从其描述推导出 kebab-case 名称（如 "add user authentication" → \`add-user-auth\`）。
@@ -1575,6 +1579,8 @@ export function getOpsxNewCommandTemplate(): CommandTemplate {
 
 6. **在此暂停，等待用户指示**
 
+   **必须在此步结束本命令的本次执行。** 不要在本轮中创建 proposal.md、design.md、specs、tasks 等任何制品文件；创建制品由用户稍后说「继续」或调用 \`/phsx:continue\` 时再执行。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，需要用户输入时请直接输出问题并写明「请回复后再继续」，不要自行假设或继续执行。
+
 **输出**
 
 完成上述步骤后总结：
@@ -1585,8 +1591,8 @@ export function getOpsxNewCommandTemplate(): CommandTemplate {
 - 提示："要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或让我继续。"
 
 **边界**
-- 先不要创建任何制品，只展示指令
-- 不要越过「展示第一个制品模板」这一步
+- 本命令职责仅到「展示第一个制品模板」；**不得**在本命令中创建任何制品（proposal、specs、design、tasks 等）。
+- 先不要创建任何制品，只展示指令；不要越过「展示第一个制品模板」这一步。
 - 若名称无效（非 kebab-case），请用户给出合法名称
 - 若该名称的变更已存在，建议改为继续该变更
 - 使用非默认工作流时传入 --schema`,
@@ -1610,7 +1616,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`phspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion 工具** 让用户选择要继续的变更。
+   运行 \`phspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择要继续的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出 3～4 个变更选项并写明「请回复后再继续」，不要猜测或自动选变更。
 
    将最近修改的 3～4 个变更作为选项展示，包含：变更名、工作流模式（有 \`schema\` 字段则用其值，否则为 "spec-driven"）、状态（如 "0/5 tasks"、"complete"、"no tasks"）、最近修改时间（来自 \`lastModified\` 字段）。将最近修改的变更标为「推荐」。
 
@@ -1626,7 +1632,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
 
    **若全部制品已完成（\`isComplete: true\`）**：祝贺用户，展示最终状态，建议「全部制品已就绪！可以用 \`/phsx:apply\` 实施或归档。」并停止。
 
-   **若有制品可创建**（存在 \`status: "ready"\`）：选第一个 ready 制品，运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 \`context\`、\`rules\`、\`template\`、\`instruction\`、\`outputPath\`、\`dependencies\`；先读依赖制品，按 template 填写，遵守 context/rules 但不抄入文件，写入 outputPath；说明创建了什么、接下来可做哪些；创建完一个制品后即停止。
+   **若有制品可创建**（存在 \`status: "ready"\`）：选第一个 ready 制品，运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 \`context\`、\`rules\`、\`template\`、\`instruction\`、\`outputPath\`、\`dependencies\`；先读依赖制品，按 template 填写，遵守 context/rules 但不抄入文件，写入 outputPath；说明创建了什么、接下来可做哪些；**创建完一个制品后必须在此步结束本次执行**，不要在本轮中继续创建下一个制品。
 
    **若没有可创建制品（全部 blocked）**：展示状态并建议检查问题。
 
@@ -1636,6 +1642,8 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
    \`\`\`
 
 **输出**：每次调用后展示创建了哪个制品、所用工作流、当前进度（N/M 已完成）、当前可创建的制品，并提示「要继续吗？说继续或告诉我下一步即可。」
+
+**边界**：本命令每次调用**仅**创建一个制品；创建完一个制品后必须停止，等用户说「继续」或再次调用本命令后再创建下一个。不得在本轮中连续创建多个制品。
 
 **制品创建指引**：制品类型与用途由模式决定，以指令输出中的 \`instruction\` 为准。常见模式（spec-driven）：proposal → specs → design → tasks；proposal.md / specs/<capability>/spec.md / design.md / tasks.md 的用途见 schema。**重要**：\`context\` 与 \`rules\` 是给你的约束，不要将 \`<context>\`、\`<rules>\`、\`<project_context>\` 抄进制品。`,
   };
@@ -1658,7 +1666,7 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
 
 1. **选定变更**
 
-   若提供了名称则用该名称。否则：从上下文推断、仅有一个进行中变更则自动选中、有歧义时用 **AskUserQuestion 工具** 让用户选择。
+   若提供了名称则用该名称。否则：从上下文推断、仅有一个进行中变更则自动选中、有歧义时用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。若环境无该工具，直接输出变更选项并写明「请回复后再继续」，不要自行假设。
 
    始终说明：「当前变更：<name>」，以及如何切换（如 \`/phsx:apply <其他>\`）。
 
@@ -1690,7 +1698,7 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
 
    对每个未完成任务：说明正在做哪项任务、完成所需代码改动、改动保持最小紧扣该任务、在任务文件中勾选完成 \`- [ ]\` → \`- [x]\`、继续下一项。
 
-   **以下情况暂停**：任务不清晰 → 先澄清；实施暴露出设计问题 → 建议更新制品；报错或受阻 → 说明并等待指示；用户打断。
+   **以下情况必须暂停**（不要自行假设或继续下一项任务）：任务不清晰 → 先澄清（若环境无 AskUserQuestion 或 ask_followup_question，直接输出问题并写明「请回复后再继续」）；实施暴露出设计问题 → 建议更新制品并等待指示；报错或受阻 → 说明并等待指示；用户打断。
 
 7. **完成或暂停时展示状态**
 
@@ -1698,7 +1706,7 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
 
 **实施过程输出示例**：见技能指令中的「实施过程输出示例」「全部完成时输出」「暂停时输出」。
 
-**边界**：始终先读上下文文件；任务不明确时暂停并询问；改动最小化并紧扣任务；完成每项后立即勾选；遇错或受阻时暂停不猜测；以 CLI 的 contextFiles 为准。本技能可随时调用（制品未全完成时若已有任务、部分实施后、与其他操作交替），实施中若发现设计问题可建议更新制品。`,
+**边界**：始终先读上下文文件；任务不明确时暂停并询问（若环境无用户确认工具，直接输出问题并写明「请回复后再继续」）；改动最小化并紧扣任务；完成每项后立即勾选；遇错或受阻时暂停不猜测；以 CLI 的 contextFiles 为准。本技能可随时调用（制品未全完成时若已有任务、部分实施后、与其他操作交替），实施中若发现设计问题可建议更新制品。`,
   };
 }
 
@@ -1719,7 +1727,7 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
 
 1. **若未提供明确输入，先问用户要做什么**
 
-   用 **AskUserQuestion 工具** 询问并推导 kebab-case 名称。**重要**：未弄清用户要做什么前不要继续。
+   用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 询问并推导 kebab-case 名称。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出问题并写明「请回复后再继续」，不要自行假设后继续。**重要**：未弄清用户要做什么前不要继续。
 
 2. **创建变更目录**
    \`\`\`bash
@@ -1735,7 +1743,7 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
 
 4. **按顺序创建制品直至可实施**
 
-   用 **TodoWrite 工具** 跟踪进度。按依赖顺序遍历：对每个 \`ready\` 制品运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 context/rules/template/instruction/outputPath/dependencies；先读依赖制品，按 template 创建文件，遵守 context 与 rules 但不抄入文件；简要提示「✓ 已创建 <artifact-id>」。每创建一个制品后重跑 status，当 \`applyRequires\` 中制品均为 \`done\` 时停止。若某制品需用户输入则用 AskUserQuestion 澄清后继续。
+   用 **TodoWrite 工具** 跟踪进度。按依赖顺序遍历：对每个 \`ready\` 制品运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 context/rules/template/instruction/outputPath/dependencies；先读依赖制品，按 template 创建文件，遵守 context 与 rules 但不抄入文件；简要提示「✓ 已创建 <artifact-id>」。每创建一个制品后重跑 status，当 \`applyRequires\` 中制品均为 \`done\` 时停止。若某制品需用户输入则用 AskUserQuestion 或 ask_followup_question 澄清后继续；若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
 
 5. **展示最终状态**
    \`\`\`bash
@@ -1764,21 +1772,21 @@ export function getArchiveChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。只展示进行中的变更（未归档的），若有则展示每个变更所用工作流模式。
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示进行中的变更（未归档的），若有则展示每个变更所用工作流模式。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。
 
    **重要**：不要猜测或自动选择，始终让用户选择。
 
 2. **检查制品完成状态**
 
-   运行 \`phspec status --change "<name>" --json\` 查看制品完成情况。解析 JSON：\`schemaName\`、\`artifacts\` 及各状态（\`done\` 或其他）。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion 工具** 确认是否继续，用户确认后继续。
+   运行 \`phspec status --change "<name>" --json\` 查看制品完成情况。解析 JSON：\`schemaName\`、\`artifacts\` 及各状态（\`done\` 或其他）。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 确认是否继续，用户确认后继续。若环境无该工具，直接输出警告与「是否继续？」并写明「请回复后再继续」，不要自行假设。
 
 3. **检查任务完成状态**
 
-   阅读任务文件（通常为 \`tasks.md\`），统计 \`- [ ]\`（未完成）与 \`- [x]\`（已完成）。若有未完成任务：展示未完成数量并警告，用 **AskUserQuestion 工具** 确认是否继续，用户确认后继续。若无任务文件：不提示任务相关警告，继续。
+   阅读任务文件（通常为 \`tasks.md\`），统计 \`- [ ]\`（未完成）与 \`- [x]\`（已完成）。若有未完成任务：展示未完成数量并警告，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 确认是否继续，用户确认后继续。若环境无该工具，直接输出问题并写明「请回复后再继续」。若无任务文件：不提示任务相关警告，继续。
 
 4. **评估增量规范同步状态**
 
-   检查 \`phspec/changes/<name>/specs/\` 是否有增量规范。若无则不必提示同步。若有：将各增量规范与主规范 \`phspec/specs/<capability>/spec.md\` 对比，说明会应用哪些变更（增/改/删/重命名），在提示前展示合并摘要。选项：若需同步则「立即同步（推荐）」「不同步直接归档」；若已同步则「立即归档」「仍同步一次」「取消」。若用户选同步，用 Task 工具（subagent_type: "general-purpose", prompt: "用 Skill 工具调用 phspec-sync-specs 处理变更 '<name>'。增量分析：<上述摘要>"）。无论是否同步，最终执行归档。
+   检查 \`phspec/changes/<name>/specs/\` 是否有增量规范。若无则不必提示同步。若有：将各增量规范与主规范 \`phspec/specs/<capability>/spec.md\` 对比，说明会应用哪些变更（增/改/删/重命名），在提示前展示合并摘要。选项：若需同步则「立即同步（推荐）」「不同步直接归档」；若已同步则「立即归档」「仍同步一次」「取消」。若用户选同步，用 Task 工具（subagent_type: "general-purpose", prompt: "用 Skill 工具调用 phspec-sync-specs 处理变更 '<name>'。增量分析：<上述摘要>"）。若环境无 AskUserQuestion 或 ask_followup_question，直接输出选项并写明「请回复后再继续」，不要自行选择并执行。无论是否同步，最终执行归档。
 
 5. **执行归档**
 
@@ -1836,7 +1844,7 @@ export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
 
 2. **让用户选择要归档的变更**
 
-   用 **AskUserQuestion 工具** 多选：展示每个变更及其工作流模式，提供「全部变更」选项，允许选任意数量（1+ 即可，通常 2+）。
+   用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 多选：展示每个变更及其工作流模式，提供「全部变更」选项，允许选任意数量（1+ 即可，通常 2+）。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出选项并写明「请回复后再继续」，不要自动选择。
 
    **重要**：不要自动选择，始终让用户选择。
 
@@ -1858,7 +1866,7 @@ export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
 
 7. **确认批量操作**
 
-   用 **AskUserQuestion 工具** 一次确认：「归档 N 个变更？」选项可包括「全部归档」「仅归档 N 个就绪的（跳过未完成）」「取消」。若有未完成变更，明确说明将带警告归档。
+   用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 一次确认：「归档 N 个变更？」选项可包括「全部归档」「仅归档 N 个就绪的（跳过未完成）」「取消」。若有未完成变更，明确说明将带警告归档。若环境无该工具，直接输出选项并写明「请回复后再继续」，不要自行执行归档。
 
 8. **对每个确认的变更执行归档**
 
@@ -1904,7 +1912,7 @@ export function getOpsxSyncCommandTemplate(): CommandTemplate {
 
 **步骤**
 
-1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion 工具** 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。**重要**：不要猜测或自动选择。
+1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择。
 
 2. **定位增量规范**：在 \`phspec/changes/<name>/specs/*/spec.md\` 查找增量规范文件。若未找到则告知用户并停止。
 
@@ -1933,7 +1941,7 @@ export function getVerifyChangeSkillTemplate(): SkillTemplate {
 
 1. **若未提供变更名，让用户选择**
 
-   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion 工具** 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。**重要**：不要猜测或自动选择，始终让用户选择。
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择，始终让用户选择。
 
 2. **查看状态以了解工作流**
    \`\`\`bash
@@ -1997,9 +2005,9 @@ export function getOpsxArchiveCommandTemplate(): CommandTemplate {
 
 **步骤**
 
-1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion 工具** 让用户选择。只展示进行中的变更，若有则展示每个变更所用工作流模式。**重要**：不要猜测或自动选择。
+1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示进行中的变更，若有则展示每个变更所用工作流模式。若环境无该工具，直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择。
 
-2. **检查制品完成状态**：运行 \`phspec status --change "<name>" --json\`，解析 \`schemaName\`、\`artifacts\` 及各状态。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion 工具** 确认是否继续，用户确认后继续。
+2. **检查制品完成状态**：运行 \`phspec status --change "<name>" --json\`，解析 \`schemaName\`、\`artifacts\` 及各状态。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 确认是否继续，用户确认后继续。若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设。
 
 3. **检查任务完成状态**：阅读任务文件（通常为 \`tasks.md\`），统计 \`- [ ]\` 与 \`- [x]\`。若有未完成任务：展示未完成数量并警告并确认后继续。若无任务文件：不提示任务相关警告，继续。
 
@@ -2009,7 +2017,7 @@ export function getOpsxArchiveCommandTemplate(): CommandTemplate {
 
    若不存在则创建 \`phspec/changes/archive\`。目标名用当前日期 \`YYYY-MM-DD-<change-name>\`。若目标已存在则报错并建议重命名或换日期；否则执行 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`。
 
-6. **展示摘要**：包含变更名、所用工作流模式、归档路径、规范是否已同步（若适用）、任何警告。成功时输出「## 归档完成」及规范状态；目标已存在时输出「## 归档失败」并说明选项。**边界**：未提供变更时始终让用户选择；有警告时仅提示并确认不阻止归档；移动目录时保留 .phspec.yaml；若需同步则用 phspec-sync-specs；有增量规范时先做同步评估并展示合并摘要再提示。`,
+6. **展示摘要**：包含变更名、所用工作流模式、归档路径、规范是否已同步（若适用）、任何警告。成功时输出「## 归档完成」及规范状态；目标已存在时输出「## 归档失败」并说明选项。**边界**：未提供变更时始终让用户选择；有警告时仅提示并确认不阻止归档；移动目录时保留 .phspec.yaml；若需同步则用 phspec-sync-specs；有增量规范时先做同步评估并展示合并摘要再提示；需用户选择或确认时若环境无 AskUserQuestion 或 ask_followup_question，直接输出选项并写明「请回复后再继续」，不要自行执行。`,
   };
 }
 
@@ -2046,7 +2054,7 @@ export function getOpsxBulkArchiveCommandTemplate(): CommandTemplate {
 
 1. **获取进行中的变更**：运行 \`phspec list --json\` 获取所有进行中的变更。若无则告知用户并结束。
 
-2. **让用户选择要归档的变更**：用 **AskUserQuestion 工具** 多选，展示每个变更及其工作流模式，提供「全部变更」选项，允许选任意数量（1+ 即可，通常 2+）。**重要**：不要自动选择，始终让用户选择。
+2. **让用户选择要归档的变更**：用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 多选，展示每个变更及其工作流模式，提供「全部变更」选项，允许选任意数量（1+ 即可，通常 2+）。若环境无该工具，直接输出选项并写明「请回复后再继续」，不要自动选择。**重要**：不要自动选择，始终让用户选择。
 
 3. **批量校验 - 收集所选变更的状态**
 
@@ -2058,7 +2066,7 @@ export function getOpsxBulkArchiveCommandTemplate(): CommandTemplate {
 
 6. **展示汇总状态表**：表格汇总各变更（制品、任务、增量规范、冲突、状态）；有冲突时展示解决结果；有不完整变更时展示警告。
 
-7. **确认批量操作**：用 **AskUserQuestion 工具** 单次确认（如「归档 N 个变更？」），选项可含「归档全部」「仅归档就绪的」「取消」。有不完整变更时说明将带警告归档。
+7. **确认批量操作**：用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 单次确认（如「归档 N 个变更？」），选项可含「归档全部」「仅归档就绪的」「取消」。有不完整变更时说明将带警告归档。若环境无该工具，直接输出选项并写明「请回复后再继续」，不要自行执行归档。
 
 8. **按确认执行归档**：按既定顺序（含冲突解决顺序）：若有增量规范则先同步（phspec-sync-specs，冲突按解决顺序应用）；执行 \`mkdir -p phspec/changes/archive\` 与 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`；记录每项结果（成功/失败/跳过）。
 
@@ -2083,7 +2091,7 @@ export function getOpsxVerifyCommandTemplate(): CommandTemplate {
 
 **步骤**
 
-1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion 工具** 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。**重要**：不要猜测或自动选择。
+1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。若环境无该工具，直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择。
 
 2. **查看状态以了解工作流**：\`phspec status --change "<name>" --json\`，解析 \`schemaName\` 及该变更有哪些制品。
 
@@ -2156,6 +2164,6 @@ export function getFeedbackSkillTemplate(): SkillTemplate {
 - 未经用户确认不得提交
 - 保留相关技术上下文与对话中的洞察
 
-**用户确认话术**：展示标题与正文后询问「这样可以吗？需要改哪里可以说，或按原样提交。」仅在用户确认后再执行提交。`,
+**用户确认话术**：展示标题与正文后询问「这样可以吗？需要改哪里可以说，或按原样提交。」仅在用户确认后再执行提交。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，直接输出该询问并写明「请回复后再继续」，不要未经确认即提交。`,
   };
 }
