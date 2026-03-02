@@ -62,24 +62,29 @@ phspec init --tools none
 
 每个工具会生成 10 个驱动 PHSX 工作流的技能文件，对应：探索、新建变更、继续、快进、实施、校验、同步规范、归档、批量归档、入门引导。通过 `/phsx:new`、`/phsx:apply` 等斜杠命令调用。完整列表见 [命令](commands.md)。
 
-## 工具差异：每步暂停与 AskUserQuestion
+## 工具差异：每步暂停与用户确认工具
 
-部分 AI 助手（如 Cline、或使用 DeepSeek 等模型时）执行 `/phsx:new` 可能会**一口气跑完** proposal、design 并产出所有制品，而不是在「展示第一个制品模板」后暂停、等用户确认再继续。
+部分 AI 助手（如 Cline、DevAgent + 部分模型）执行 `/phsx:new` 或 `/phsx:continue` 可能会**一口气跑完** proposal、design、tasks，而不是每步暂停让用户选择「修改或继续」。
 
 **原因简述：**
 
-1. **用户确认工具**：PhSpec 指令里要求在需要时使用用户确认类工具询问用户。各环境等效工具为：**Cursor 等** 使用 `AskUserQuestion`，**DevAgent** 使用 `ask_followup_question`。若当前助手没有此类工具，模型可能忽略询问、直接继续执行。
-2. **「在此暂停」是自然语言约束**：没有强制技术阻断时，模型可能把「完成用户想要的变更」理解为继续创建后续制品，从而自动做完 proposal → design → …。
-3. **助手执行模式**：若助手配置为「自动执行到完成」、或单次任务不区分「等用户一轮」的边界，也会出现一步到底的现象。
+1. **必须显式调用工具才会暂停**：在 DevAgent 等以 workflow 方式执行的环境中，只有**真正调用了** `ask_followup_question`（DevAgent）或 `AskUserQuestion`（Cursor）并结束当次执行，界面才会暂停等用户回复。仅用自然语言写「在此暂停」而不调用工具，模型常会继续执行。
+2. **「在此暂停」是自然语言约束**：没有「先调用工具再结束」的强制表述时，模型容易把「完成用户想要的变更」理解为继续创建后续制品。
+3. **用错 workflow**：若希望每步暂停，应使用 **`/phsx:new`**（只做到展示第一个制品模板即停）和 **`/phsx:continue`**（每次只创建一个制品然后停）。**`/phsx:ff`**（快进）设计上就是一次性生成全部制品，不会每步暂停。
 
-**可通过修改 PhSpec 做的纠正：**
+**PhSpec 已做的强化（技能/命令模板）：**
 
-- **强化模板**：在技能/命令模板中已加强「执行完步骤 5 后必须停止、不要在本命令中创建任何制品」的表述；若你本地已改过模板，运行 `phspec update` 会覆盖，可考虑在项目级规则中再次强调（见下）。
-- **项目级规则（推荐）**：在 Cline 的 `.clinerules/` 或 Cursor 的 `.cursor/rules` 中加一条规则，例如：
-  - 「执行 `/phsx:new` 时：只做到创建变更目录并展示第一个制品的指令与模板即停止；不要在本轮中创建 proposal.md、design.md、specs 或 tasks。用户说『继续』或调用 `/phsx:continue` 后再创建制品。」
-- **无用户确认工具时的退路**：若环境既无 `AskUserQuestion` 也无 `ask_followup_question`（如 Cline + 部分模型），指令中已补充：需要用户输入时**直接输出问题并写明「请回复后再继续」**，不要自行假设或继续执行。这样至少会停在一句问话而不是静默跑完。
+- **执行约定**：在 `/phsx:new` 与 `/phsx:continue` 的 workflow 开头增加了「执行约定」，明确：步骤 6（new）或创建完一个制品后（continue）**必须先调用**用户确认工具并**立即结束**，不得在本轮中继续创建制品。
+- **DevAgent 显式步骤**：在暂停点写明「在 DevAgent 中必须先调用 `ask_followup_question`，……，调用后立即结束本次 workflow 执行」，减少模型跳过工具直接写文件的情况。
+- **无用户确认工具时的退路**：若环境既无 `AskUserQuestion` 也无 `ask_followup_question`，指令要求直接输出问题并写明「请回复后再继续」然后结束。
 
-这不是 PhSpec 的 bug，而是不同助手/模型对「步骤边界」和「用户确认工具」的支持差异；通过上述方式可以在不换模型的前提下改善行为。
+**你本地可做的：**
+
+- 运行 `phspec update` 刷新 `.devagentrules/workflows/` 与 `.devagent/skills/`，使上述强化生效。
+- 确认使用的是 **`/phsx:new`** + 多次 **`/phsx:continue`**，而不是 `/phsx:ff`。
+- 若仍会一口气跑完，在 DevAgent 项目规则中加一条：执行 phsx-new 时在步骤 6 必须调用 ask_followup_question 并结束；执行 phsx-continue 时每创建完一个制品必须调用 ask_followup_question 并结束。
+
+这是技能/规则设计问题（需显式「调用工具并结束」），不是模型能力问题；通过模板强化和上述约定可在多数环境下实现每步暂停。
 
 ## 添加新工具
 
