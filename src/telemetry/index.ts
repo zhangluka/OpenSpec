@@ -4,19 +4,20 @@
  * Privacy-first design:
  * - Only tracks command name and version
  * - No arguments, file paths, or content
- * - Opt-out via OPENSPEC_TELEMETRY=0 or DO_NOT_TRACK=1
- * - Auto-disabled in CI environments
+ * - Off by default (opt-in): enable with telemetry.enabled=true or PHSPEC_TELEMETRY=1
+ * - Disabled when DO_NOT_TRACK=1 or CI=true
  * - Anonymous ID is a random UUID with no relation to the user
  */
-import { PostHog } from 'posthog-node';
-import { randomUUID } from 'crypto';
-import { getTelemetryConfig, updateTelemetryConfig } from './config.js';
+import { PostHog } from "posthog-node";
+import { randomUUID } from "crypto";
+import { getGlobalConfig } from "../core/global-config.js";
+import { getTelemetryConfig, updateTelemetryConfig } from "./config.js";
 
 // PostHog API key - public key for client-side analytics
 // This is safe to embed as it only allows sending events, not reading data
-const POSTHOG_API_KEY = 'phc_Hthu8YvaIJ9QaFKyTG4TbVwkbd5ktcAFzVTKeMmoW2g';
+const POSTHOG_API_KEY = "phc_Hthu8YvaIJ9QaFKyTG4TbVwkbd5ktcAFzVTKeMmoW2g";
 // Using reverse proxy to avoid ad blockers and keep traffic on our domain
-const POSTHOG_HOST = 'https://edge.openspec.dev';
+const POSTHOG_HOST = "https://edge.openspec.dev";
 
 let posthogClient: PostHog | null = null;
 let anonymousId: string | null = null;
@@ -24,28 +25,32 @@ let anonymousId: string | null = null;
 /**
  * Check if telemetry is enabled.
  *
- * Disabled when:
- * - OPENSPEC_TELEMETRY=0
- * - DO_NOT_TRACK=1
- * - CI=true (any CI environment)
+ * Off by default (opt-in). Enabled only when:
+ * - telemetry.enabled=true in global config, or
+ * - PHSPEC_TELEMETRY=1
+ * and not overridden by DO_NOT_TRACK=1 or CI=true.
  */
 export function isTelemetryEnabled(): boolean {
-  // Check explicit opt-out
-  if (process.env.OPENSPEC_TELEMETRY === '0') {
+  // Always respect DO_NOT_TRACK and CI
+  if (process.env.DO_NOT_TRACK === "1" || process.env.CI === "true") {
     return false;
   }
 
-  // Respect DO_NOT_TRACK standard
-  if (process.env.DO_NOT_TRACK === '1') {
+  // Explicit opt-out
+  if (process.env.PHSPEC_TELEMETRY === "0") {
     return false;
   }
 
-  // Auto-disable in CI environments
-  if (process.env.CI === 'true') {
-    return false;
+  // Opt-in: config or env must explicitly enable
+  const globalConfig = getGlobalConfig();
+  if (globalConfig.telemetry?.enabled === true) {
+    return true;
+  }
+  if (process.env.PHSPEC_TELEMETRY === "1") {
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 /**
@@ -92,7 +97,10 @@ function getClient(): PostHog {
  * @param commandName - The command name (e.g., 'init', 'change:apply')
  * @param version - The OpenSpec version
  */
-export async function trackCommand(commandName: string, version: string): Promise<void> {
+export async function trackCommand(
+  commandName: string,
+  version: string,
+): Promise<void> {
   if (!isTelemetryEnabled()) {
     return;
   }
@@ -103,11 +111,11 @@ export async function trackCommand(commandName: string, version: string): Promis
 
     client.capture({
       distinctId: userId,
-      event: 'command_executed',
+      event: "command_executed",
       properties: {
         command: commandName,
         version: version,
-        surface: 'cli',
+        surface: "cli",
         $ip: null, // Explicitly disable IP tracking
       },
     });
@@ -132,7 +140,7 @@ export async function maybeShowTelemetryNotice(): Promise<void> {
 
     // Display notice
     console.log(
-      'Note: OpenSpec collects anonymous usage stats. Opt out: OPENSPEC_TELEMETRY=0'
+      "Note: PhSpec collects anonymous usage stats. Disable: phspec config set telemetry.enabled false",
     );
 
     // Mark as seen

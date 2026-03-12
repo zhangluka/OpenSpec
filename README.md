@@ -1,15 +1,15 @@
 <p align="center">
-  <a href="https://github.com/Fission-AI/OpenSpec">
+  <a href="https://github.com/zhangluka/PhSpec">
     <picture>
-      <source srcset="assets/openspec_bg.png">
-      <img src="assets/openspec_bg.png" alt="OpenSpec logo">
+      <source srcset="assets/phspec_bg.png">
+      <img src="assets/phspec_bg.png" alt="PhSpec logo">
     </picture>
   </a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Fission-AI/OpenSpec/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Fission-AI/OpenSpec/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://www.npmjs.com/package/@fission-ai/openspec"><img alt="npm version" src="https://img.shields.io/npm/v/@fission-ai/openspec?style=flat-square" /></a>
+  <a href="https://github.com/zhangluka/PhSpec/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/zhangluka/PhSpec/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://www.npmjs.com/package/@bobby_z/phspec"><img alt="npm version" src="https://img.shields.io/npm/v/@bobby_z/phspec?style=flat-square" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" /></a>
   <a href="https://discord.gg/YctCnvvshC"><img alt="Discord" src="https://img.shields.io/discord/1411657095639601154?style=flat-square&logo=discord&logoColor=white&label=Discord&suffix=%20online" /></a>
 </p>
@@ -17,9 +17,9 @@
 <details>
 <summary><strong>The most loved spec framework.</strong></summary>
 
-[![Stars](https://img.shields.io/github/stars/Fission-AI/OpenSpec?style=flat-square&label=Stars)](https://github.com/Fission-AI/OpenSpec/stargazers)
-[![Downloads](https://img.shields.io/npm/dm/@fission-ai/openspec?style=flat-square&label=Downloads/mo)](https://www.npmjs.com/package/@fission-ai/openspec)
-[![Contributors](https://img.shields.io/github/contributors/Fission-AI/OpenSpec?style=flat-square&label=Contributors)](https://github.com/Fission-AI/OpenSpec/graphs/contributors)
+[![Stars](https://img.shields.io/github/stars/zhangluka/PhSpec?style=flat-square&label=Stars)](https://github.com/zhangluka/PhSpec/stargazers)
+[![Downloads](https://img.shields.io/npm/dm/@bobby_z/phspec?style=flat-square&label=Downloads/mo)](https://www.npmjs.com/package/@bobby_z/phspec)
+[![Contributors](https://img.shields.io/github/contributors/zhangluka/PhSpec?style=flat-square&label=Contributors)](https://github.com/zhangluka/PhSpec/graphs/contributors)
 
 </details>
 <p></p>
@@ -34,35 +34,35 @@ Our philosophy:
 ```
 
 > [!TIP]
-> **New workflow now available!** We've rebuilt OpenSpec with a new artifact-guided workflow.
+> **New workflow now available!** We've rebuilt PhSpec with a new artifact-guided workflow.
 >
-> Run `/opsx:onboard` to get started. → [Learn more here](docs/opsx.md)
+> Run `/phsx:onboard` to get started. → [Learn more here](docs/phsx.md)
 
 <p align="center">
-  Follow <a href="https://x.com/0xTab">@0xTab on X</a> for updates · Join the <a href="https://discord.gg/YctCnvvshC">OpenSpec Discord</a> for help and questions.
+  Follow <a href="https://x.com/0xTab">@0xTab on X</a> for updates · Join the <a href="https://discord.gg/YctCnvvshC">PhSpec Discord</a> for help and questions.
 </p>
 
 ### Teams
 
-Using OpenSpec in a team? [Email here](mailto:teams@openspec.dev) for access to our Slack channel.
+Using PhSpec in a team? [Email here](mailto:teams@phspec.dev) for access to our Slack channel.
 
-<!-- TODO: Add GIF demo of /opsx:new → /opsx:archive workflow -->
+<!-- TODO: Add GIF demo of /phsx:new → /phsx:archive workflow -->
 
 ## See it in action
 
 ```text
-You: /opsx:new add-dark-mode
-AI:  Created openspec/changes/add-dark-mode/
+You: /phsx:new add-dark-mode
+AI:  Created phspec/changes/add-dark-mode/
      Ready to create: proposal
 
-You: /opsx:ff   # "fast-forward" - generate all planning docs
+You: /phsx:ff   # "fast-forward" - generate all planning docs
 AI:  ✓ proposal.md — why we're doing this, what's changing
      ✓ specs/       — requirements and scenarios
      ✓ design.md    — technical approach
      ✓ tasks.md     — implementation checklist
      Ready for implementation!
 
-You: /opsx:apply
+You: /phsx:apply
 AI:  Implementing tasks...
      ✓ 1.1 Add theme context provider
      ✓ 1.2 Create toggle component
@@ -70,16 +70,16 @@ AI:  Implementing tasks...
      ✓ 2.2 Wire up localStorage
      All tasks complete!
 
-You: /opsx:archive
-AI:  Archived to openspec/changes/archive/2025-01-23-add-dark-mode/
+You: /phsx:archive
+AI:  Archived to phspec/changes/archive/2025-01-23-add-dark-mode/
      Specs updated. Ready for the next feature.
 ```
 
 <details>
-<summary><strong>OpenSpec Dashboard</strong></summary>
+<summary><strong>PhSpec Dashboard</strong></summary>
 
 <p align="center">
-  <img src="assets/openspec_dashboard.png" alt="OpenSpec dashboard preview" width="90%">
+  <img src="assets/phspec_dashboard.png" alt="PhSpec dashboard preview" width="90%">
 </p>
 
 </details>
@@ -88,20 +88,20 @@ AI:  Archived to openspec/changes/archive/2025-01-23-add-dark-mode/
 
 **Requires Node.js 20.19.0 or higher.**
 
-Install OpenSpec globally:
+Install PhSpec globally:
 
 ```bash
-npm install -g @fission-ai/openspec@latest
+npm install -g @bobby_z/phspec@latest
 ```
 
 Then navigate to your project directory and initialize:
 
 ```bash
 cd your-project
-openspec init
+phspec init
 ```
 
-Now tell your AI: `/opsx:new <what-you-want-to-build>`
+Now tell your AI: `/phsx:new <what-you-want-to-build>`
 
 > [!NOTE]
 > Not sure if your tool is supported? [View the full list](docs/supported-tools.md) – we support 20+ tools and growing.
@@ -116,13 +116,14 @@ Now tell your AI: `/opsx:new <what-you-want-to-build>`
 → **[CLI](docs/cli.md)**: terminal reference<br>
 → **[Supported Tools](docs/supported-tools.md)**: tool integrations & install paths<br>
 → **[Concepts](docs/concepts.md)**: how it all fits<br>
+
+→ **[Brownfield & SDD Best Practices](docs/brownfield-sdd-best-practices.md)**: 棕地接入与业务开发流程规范（团队/公司接入必读）<br>
 → **[Multi-Language](docs/multi-language.md)**: multi-language support<br>
 → **[Customization](docs/customization.md)**: make it yours
 
+## Why PhSpec?
 
-## Why OpenSpec?
-
-AI coding assistants are powerful but unpredictable when requirements live only in chat history. OpenSpec adds a lightweight spec layer so you agree on what to build before any code is written.
+AI coding assistants are powerful but unpredictable when requirements live only in chat history. PhSpec adds a lightweight spec layer so you agree on what to build before any code is written.
 
 - **Agree before you build** — human and AI align on specs before code gets written
 - **Stay organized** — each change gets its own folder with proposal, specs, design, and tasks
@@ -131,18 +132,18 @@ AI coding assistants are powerful but unpredictable when requirements live only 
 
 ### How we compare
 
-**vs. [Spec Kit](https://github.com/github/spec-kit)** (GitHub) — Thorough but heavyweight. Rigid phase gates, lots of Markdown, Python setup. OpenSpec is lighter and lets you iterate freely.
+**vs. [Spec Kit](https://github.com/github/spec-kit)** (GitHub) — Thorough but heavyweight. Rigid phase gates, lots of Markdown, Python setup. PhSpec is lighter and lets you iterate freely.
 
-**vs. [Kiro](https://kiro.dev)** (AWS) — Powerful but you're locked into their IDE and limited to Claude models. OpenSpec works with the tools you already use.
+**vs. [Kiro](https://kiro.dev)** (AWS) — Powerful but you're locked into their IDE and limited to Claude models. PhSpec works with the tools you already use.
 
-**vs. nothing** — AI coding without specs means vague prompts and unpredictable results. OpenSpec brings predictability without the ceremony.
+**vs. nothing** — AI coding without specs means vague prompts and unpredictable results. PhSpec brings predictability without the ceremony.
 
-## Updating OpenSpec
+## Updating PhSpec
 
 **Upgrade the package**
 
 ```bash
-npm install -g @fission-ai/openspec@latest
+npm install -g @bobby_z/phspec@latest
 ```
 
 **Refresh agent instructions**
@@ -150,22 +151,22 @@ npm install -g @fission-ai/openspec@latest
 Run this inside each project to regenerate AI guidance and ensure the latest slash commands are active:
 
 ```bash
-openspec update
+phspec update
 ```
 
 ## Usage Notes
 
-**Model selection**: OpenSpec works best with high-reasoning models. We recommend Opus 4.5 and GPT 5.2 for both planning and implementation.
+**Model selection**: PhSpec works best with high-reasoning models. We recommend Opus 4.5 and GPT 5.2 for both planning and implementation.
 
-**Context hygiene**: OpenSpec benefits from a clean context window. Clear your context before starting implementation and maintain good context hygiene throughout your session.
+**Context hygiene**: PhSpec benefits from a clean context window. Clear your context before starting implementation and maintain good context hygiene throughout your session.
 
 ## Contributing
 
 **Small fixes** — Bug fixes, typo corrections, and minor improvements can be submitted directly as PRs.
 
-**Larger changes** — For new features, significant refactors, or architectural changes, please submit an OpenSpec change proposal first so we can align on intent and goals before implementation begins.
+**Larger changes** — For new features, significant refactors, or architectural changes, please submit an PhSpec change proposal first so we can align on intent and goals before implementation begins.
 
-When writing proposals, keep the OpenSpec philosophy in mind: we serve a wide variety of users across different coding agents, models, and use cases. Changes should work well for everyone.
+When writing proposals, keep the PhSpec philosophy in mind: we serve a wide variety of users across different coding agents, models, and use cases. Changes should work well for everyone.
 
 **AI-generated code is welcome** — as long as it's been tested and verified. PRs containing AI-generated code should mention the coding agent and model used (e.g., "Generated with Claude Code using claude-opus-4-5-20251101").
 
@@ -182,11 +183,11 @@ When writing proposals, keep the OpenSpec philosophy in mind: we serve a wide va
 <details>
 <summary><strong>Telemetry</strong></summary>
 
-OpenSpec collects anonymous usage stats.
+PhSpec collects anonymous usage stats.
 
 We collect only command names and version to understand usage patterns. No arguments, paths, content, or PII. Automatically disabled in CI.
 
-**Opt-out:** `export OPENSPEC_TELEMETRY=0` or `export DO_NOT_TRACK=1`
+**Opt-out:** `export PHSPEC_TELEMETRY=0` or `export DO_NOT_TRACK=1`
 
 </details>
 
@@ -196,8 +197,6 @@ We collect only command names and version to understand usage patterns. No argum
 See [MAINTAINERS.md](MAINTAINERS.md) for the list of core maintainers and advisors who help guide the project.
 
 </details>
-
-
 
 ## License
 

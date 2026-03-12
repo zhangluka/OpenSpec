@@ -3,8 +3,8 @@
  * Shows side-by-side layout with animated ASCII art on left and welcome text on right.
  */
 
-import chalk from 'chalk';
-import { WELCOME_ANIMATION } from './ascii-patterns.js';
+import chalk from "chalk";
+import { WELCOME_ANIMATION } from "./ascii-patterns.js";
 
 // Minimum terminal width for side-by-side layout
 const MIN_WIDTH = 60;
@@ -17,19 +17,19 @@ const ART_COLUMN_WIDTH = 24;
  */
 function getWelcomeText(): string[] {
   return [
-    chalk.white.bold('Welcome to OpenSpec'),
-    chalk.dim('A lightweight spec-driven framework'),
-    '',
-    chalk.white('This setup will configure:'),
-    chalk.dim('  • Agent Skills for AI tools'),
-    chalk.dim('  • /opsx:* slash commands'),
-    '',
-    chalk.white('Quick start after setup:'),
-    `  ${chalk.yellow('/opsx:new')}      ${chalk.dim('Create a change')}`,
-    `  ${chalk.yellow('/opsx:continue')} ${chalk.dim('Next artifact')}`,
-    `  ${chalk.yellow('/opsx:apply')}    ${chalk.dim('Implement tasks')}`,
-    '',
-    chalk.cyan('Press Enter to select tools...'),
+    chalk.white.bold("Welcome to PhSpec"),
+    chalk.dim("A lightweight spec-driven framework"),
+    "",
+    chalk.white("This setup will configure:"),
+    chalk.dim("  • Agent Skills for AI tools"),
+    chalk.dim("  • /phsx:* slash commands"),
+    "",
+    chalk.white("Quick start after setup:"),
+    `  ${chalk.yellow("/phsx:new")}      ${chalk.dim("Create a change")}`,
+    `  ${chalk.yellow("/phsx:continue")} ${chalk.dim("Next artifact")}`,
+    `  ${chalk.yellow("/phsx:apply")}    ${chalk.dim("Implement tasks")}`,
+    "",
+    chalk.cyan("Press Enter to select tools..."),
   ];
 }
 
@@ -41,8 +41,8 @@ function renderFrame(artLines: string[], textLines: string[]): string {
   const lines: string[] = [];
 
   for (let i = 0; i < maxLines; i++) {
-    const artLine = artLines[i] || '';
-    const textLine = textLines[i] || '';
+    const artLine = artLines[i] || "";
+    const textLine = textLines[i] || "";
 
     // Pad the art column to fixed width
     const paddedArt = artLine.padEnd(ART_COLUMN_WIDTH);
@@ -54,7 +54,7 @@ function renderFrame(artLines: string[], textLines: string[]): string {
     lines.push(`\x1b[2K${coloredArt}${textLine}`);
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -95,14 +95,14 @@ function waitForEnter(): Promise<void> {
       const char = data.toString();
 
       // Enter key or Ctrl+C
-      if (char === '\r' || char === '\n' || char === '\u0003') {
-        stdin.removeListener('data', onData);
+      if (char === "\r" || char === "\n" || char === "\u0003") {
+        stdin.removeListener("data", onData);
         stdin.setRawMode(wasRaw);
         stdin.pause();
 
         // Handle Ctrl+C
-        if (char === '\u0003') {
-          process.stdout.write('\n');
+        if (char === "\u0003") {
+          process.stdout.write("\n");
           process.exit(0);
         }
 
@@ -110,7 +110,7 @@ function waitForEnter(): Promise<void> {
       }
     };
 
-    stdin.on('data', onData);
+    stdin.on("data", onData);
   });
 }
 
@@ -124,7 +124,7 @@ export async function showWelcomeScreen(): Promise<void> {
   if (!canAnimate()) {
     // Fallback: show static welcome
     const frame = WELCOME_ANIMATION.frames[3]; // Peak frame
-    process.stdout.write('\n' + renderFrame(frame, textLines) + '\n\n');
+    process.stdout.write("\n" + renderFrame(frame, textLines) + "\n\n");
     return;
   }
 
@@ -133,14 +133,17 @@ export async function showWelcomeScreen(): Promise<void> {
   let isFirstRender = true;
 
   // Content height for cursor movement between frames
-  const numContentLines = Math.max(WELCOME_ANIMATION.frames[0].length, textLines.length);
+  const numContentLines = Math.max(
+    WELCOME_ANIMATION.frames[0].length,
+    textLines.length,
+  );
   const frameHeight = numContentLines + 1; // internal newlines (11) + trailing newlines (2) = 13
 
   // Total height including initial newline (for cleanup)
   const totalHeight = frameHeight + 1; // 14
 
   // Initial render
-  process.stdout.write('\n');
+  process.stdout.write("\n");
 
   // Animation loop
   const interval = setInterval(() => {
@@ -155,7 +158,7 @@ export async function showWelcomeScreen(): Promise<void> {
     isFirstRender = false;
 
     // Render current frame
-    process.stdout.write(renderFrame(frame, textLines) + '\n\n');
+    process.stdout.write(renderFrame(frame, textLines) + "\n\n");
 
     // Advance to next frame
     frameIndex = (frameIndex + 1) % WELCOME_ANIMATION.frames.length;
@@ -171,7 +174,7 @@ export async function showWelcomeScreen(): Promise<void> {
   // Clear the welcome screen and move on
   process.stdout.write(`\x1b[${totalHeight}A`);
   for (let i = 0; i < totalHeight; i++) {
-    process.stdout.write('\x1b[2K\n'); // Clear line
+    process.stdout.write("\x1b[2K\n"); // Clear line
   }
   process.stdout.write(`\x1b[${totalHeight}A`); // Move back up
 }

@@ -4,19 +4,19 @@
  * Formats commands for Antigravity following its frontmatter specification.
  */
 
-import path from 'path';
-import type { CommandContent, ToolCommandAdapter } from '../types.js';
+import path from "path";
+import type { CommandContent, ToolCommandAdapter } from "../types.js";
 
 /**
  * Antigravity adapter for command generation.
- * File path: .agent/workflows/opsx-<id>.md
+ * File path: .agent/workflows/phsx-<id>.md
  * Frontmatter: description
  */
 export const antigravityAdapter: ToolCommandAdapter = {
-  toolId: 'antigravity',
+  toolId: "antigravity",
 
   getFilePath(commandId: string): string {
-    return path.join('.agent', 'workflows', `opsx-${commandId}.md`);
+    return path.join(".agent", "workflows", `phsx-${commandId}.md`);
   },
 
   formatFile(content: CommandContent): string {

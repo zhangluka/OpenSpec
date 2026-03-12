@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as os from 'node:os';
-import { randomUUID } from 'node:crypto';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as os from "node:os";
+import { randomUUID } from "node:crypto";
 
 // Mock posthog-node before importing the module
-vi.mock('posthog-node', () => {
+vi.mock("posthog-node", () => {
   return {
     PostHog: vi.fn().mockImplementation(() => ({
       capture: vi.fn(),
@@ -15,10 +15,15 @@ vi.mock('posthog-node', () => {
 });
 
 // Import after mocking
-import { isTelemetryEnabled, maybeShowTelemetryNotice, shutdown, trackCommand } from '../../src/telemetry/index.js';
-import { PostHog } from 'posthog-node';
+import {
+  isTelemetryEnabled,
+  maybeShowTelemetryNotice,
+  shutdown,
+  trackCommand,
+} from "../../src/telemetry/index.js";
+import { PostHog } from "posthog-node";
 
-describe('telemetry/index', () => {
+describe("telemetry/index", () => {
   let tempDir: string;
   let originalEnv: NodeJS.ProcessEnv;
   let consoleLogSpy: ReturnType<typeof vi.spyOn>;
@@ -38,7 +43,7 @@ describe('telemetry/index', () => {
     vi.clearAllMocks();
 
     // Spy on console.log for notice tests
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -56,40 +61,75 @@ describe('telemetry/index', () => {
     vi.restoreAllMocks();
   });
 
-  describe('isTelemetryEnabled', () => {
-    it('should return false when OPENSPEC_TELEMETRY=0', () => {
-      process.env.OPENSPEC_TELEMETRY = '0';
+  describe("isTelemetryEnabled", () => {
+    it("should return false when PHSPEC_TELEMETRY=0", () => {
+      process.env.PHSPEC_TELEMETRY = "0";
       expect(isTelemetryEnabled()).toBe(false);
     });
 
-    it('should return false when DO_NOT_TRACK=1', () => {
-      process.env.DO_NOT_TRACK = '1';
+    it("should return false when DO_NOT_TRACK=1", () => {
+      process.env.DO_NOT_TRACK = "1";
       expect(isTelemetryEnabled()).toBe(false);
     });
 
-    it('should return false when CI=true', () => {
-      process.env.CI = 'true';
+    it("should return false when CI=true", () => {
+      process.env.CI = "true";
       expect(isTelemetryEnabled()).toBe(false);
     });
 
-    it('should return true when no opt-out is set', () => {
-      delete process.env.OPENSPEC_TELEMETRY;
+    it("should return false when no opt-in is set (default off)", () => {
+      delete process.env.PHSPEC_TELEMETRY;
       delete process.env.DO_NOT_TRACK;
       delete process.env.CI;
+      expect(isTelemetryEnabled()).toBe(false);
+    });
+
+    it("should return true when PHSPEC_TELEMETRY=1", () => {
+      delete process.env.DO_NOT_TRACK;
+      delete process.env.CI;
+      process.env.PHSPEC_TELEMETRY = "1";
       expect(isTelemetryEnabled()).toBe(true);
     });
 
-    it('should prioritize OPENSPEC_TELEMETRY=0 over other settings', () => {
-      process.env.OPENSPEC_TELEMETRY = '0';
+    it("should return true when telemetry.enabled is true in global config", () => {
+      delete process.env.PHSPEC_TELEMETRY;
+      delete process.env.DO_NOT_TRACK;
+      delete process.env.CI;
+      process.env.XDG_CONFIG_HOME = path.join(tempDir, ".config");
+      const configDir = path.join(tempDir, ".config", "phspec");
+      fs.mkdirSync(configDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(configDir, "config.json"),
+        JSON.stringify({ telemetry: { enabled: true } }, null, 2),
+      );
+      expect(isTelemetryEnabled()).toBe(true);
+    });
+
+    it("should return false when telemetry.enabled is false in global config", () => {
+      delete process.env.PHSPEC_TELEMETRY;
+      delete process.env.DO_NOT_TRACK;
+      delete process.env.CI;
+      process.env.XDG_CONFIG_HOME = path.join(tempDir, ".config");
+      const configDir = path.join(tempDir, ".config", "phspec");
+      fs.mkdirSync(configDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(configDir, "config.json"),
+        JSON.stringify({ telemetry: { enabled: false } }, null, 2),
+      );
+      expect(isTelemetryEnabled()).toBe(false);
+    });
+
+    it("should prioritize PHSPEC_TELEMETRY=0 and DO_NOT_TRACK over opt-in", () => {
+      process.env.PHSPEC_TELEMETRY = "0";
       delete process.env.DO_NOT_TRACK;
       delete process.env.CI;
       expect(isTelemetryEnabled()).toBe(false);
     });
   });
 
-  describe('maybeShowTelemetryNotice', () => {
-    it('should not show notice when telemetry is disabled', async () => {
-      process.env.OPENSPEC_TELEMETRY = '0';
+  describe("maybeShowTelemetryNotice", () => {
+    it("should not show notice when telemetry is disabled", async () => {
+      process.env.PHSPEC_TELEMETRY = "0";
 
       await maybeShowTelemetryNotice();
 
@@ -97,35 +137,35 @@ describe('telemetry/index', () => {
     });
   });
 
-  describe('trackCommand', () => {
-    it('should not track when telemetry is disabled', async () => {
-      process.env.OPENSPEC_TELEMETRY = '0';
+  describe("trackCommand", () => {
+    it("should not track when telemetry is disabled", async () => {
+      process.env.PHSPEC_TELEMETRY = "0";
 
-      await trackCommand('test', '1.0.0');
+      await trackCommand("test", "1.0.0");
 
       expect(PostHog).not.toHaveBeenCalled();
     });
 
-    it('should track when telemetry is enabled', async () => {
-      delete process.env.OPENSPEC_TELEMETRY;
+    it("should track when telemetry is enabled via PHSPEC_TELEMETRY=1", async () => {
+      process.env.PHSPEC_TELEMETRY = "1";
       delete process.env.DO_NOT_TRACK;
       delete process.env.CI;
 
-      await trackCommand('test', '1.0.0');
+      await trackCommand("test", "1.0.0");
 
       expect(PostHog).toHaveBeenCalled();
     });
   });
 
-  describe('shutdown', () => {
-    it('should not throw when no client exists', async () => {
+  describe("shutdown", () => {
+    it("should not throw when no client exists", async () => {
       await expect(shutdown()).resolves.not.toThrow();
     });
 
-    it('should handle shutdown errors silently', async () => {
+    it("should handle shutdown errors silently", async () => {
       const mockPostHog = {
         capture: vi.fn(),
-        shutdown: vi.fn().mockRejectedValue(new Error('Network error')),
+        shutdown: vi.fn().mockRejectedValue(new Error("Network error")),
       };
       (PostHog as any).mockImplementation(() => mockPostHog);
 

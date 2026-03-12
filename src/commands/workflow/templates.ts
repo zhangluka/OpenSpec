@@ -4,14 +4,14 @@
  * Shows resolved template paths for all artifacts in a schema.
  */
 
-import ora from 'ora';
-import path from 'path';
+import ora from "ora";
+import path from "path";
 import {
   resolveSchema,
   getSchemaDir,
   ArtifactGraph,
-} from '../../core/artifact-graph/index.js';
-import { validateSchemaExists, DEFAULT_SCHEMA } from './shared.js';
+} from "../../core/artifact-graph/index.js";
+import { validateSchemaExists, DEFAULT_SCHEMA } from "./shared.js";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -25,28 +25,31 @@ export interface TemplatesOptions {
 export interface TemplateInfo {
   artifactId: string;
   templatePath: string;
-  source: 'project' | 'user' | 'package';
+  source: "project" | "user" | "package";
 }
 
 // -----------------------------------------------------------------------------
 // Command Implementation
 // -----------------------------------------------------------------------------
 
-export async function templatesCommand(options: TemplatesOptions): Promise<void> {
-  const spinner = ora('Loading templates...').start();
+export async function templatesCommand(
+  options: TemplatesOptions,
+): Promise<void> {
+  const spinner = ora("正在加载模板...").start();
 
   try {
     const projectRoot = process.cwd();
-    const schemaName = validateSchemaExists(options.schema ?? DEFAULT_SCHEMA, projectRoot);
+    const schemaName = validateSchemaExists(
+      options.schema ?? DEFAULT_SCHEMA,
+      projectRoot,
+    );
     const schema = resolveSchema(schemaName, projectRoot);
     const graph = ArtifactGraph.fromSchema(schema);
     const schemaDir = getSchemaDir(schemaName, projectRoot)!;
 
     // Determine the source (project, user, or package)
-    const {
-      getUserSchemasDir,
-      getProjectSchemasDir,
-    } = await import('../../core/artifact-graph/resolver.js');
+    const { getUserSchemasDir, getProjectSchemasDir } =
+      await import("../../core/artifact-graph/resolver.js");
     const projectSchemasDir = getProjectSchemasDir(projectRoot);
     const userSchemasDir = getUserSchemasDir();
 
@@ -54,23 +57,25 @@ export async function templatesCommand(options: TemplatesOptions): Promise<void>
     // Using path.relative is more robust than startsWith for path comparisons
     const isInsideDir = (child: string, parent: string): boolean => {
       const relative = path.relative(parent, child);
-      return !relative.startsWith('..') && !path.isAbsolute(relative);
+      return !relative.startsWith("..") && !path.isAbsolute(relative);
     };
 
-    let source: 'project' | 'user' | 'package';
+    let source: "project" | "user" | "package";
     if (isInsideDir(schemaDir, projectSchemasDir)) {
-      source = 'project';
+      source = "project";
     } else if (isInsideDir(schemaDir, userSchemasDir)) {
-      source = 'user';
+      source = "user";
     } else {
-      source = 'package';
+      source = "package";
     }
 
-    const templates: TemplateInfo[] = graph.getAllArtifacts().map((artifact) => ({
-      artifactId: artifact.id,
-      templatePath: path.join(schemaDir, 'templates', artifact.template),
-      source,
-    }));
+    const templates: TemplateInfo[] = graph
+      .getAllArtifacts()
+      .map((artifact) => ({
+        artifactId: artifact.id,
+        templatePath: path.join(schemaDir, "templates", artifact.template),
+        source,
+      }));
 
     spinner.stop();
 
@@ -83,8 +88,8 @@ export async function templatesCommand(options: TemplatesOptions): Promise<void>
       return;
     }
 
-    console.log(`Schema: ${schemaName}`);
-    console.log(`Source: ${source}`);
+    console.log(`工作流模式：${schemaName}`);
+    console.log(`来源：${source}`);
     console.log();
 
     for (const t of templates) {

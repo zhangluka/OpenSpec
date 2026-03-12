@@ -1,151 +1,123 @@
-# Getting Started
+# 入门
 
-This guide explains how OpenSpec works after you've installed and initialized it. For installation instructions, see the [main README](../README.md#quick-start).
+本文说明在安装并初始化 PhSpec 之后的基本用法。安装步骤见 [主 README](../README.md#quick-start)。
 
-## How It Works
+## 工作方式
 
-OpenSpec helps you and your AI coding assistant agree on what to build before any code is written. The workflow follows a simple pattern:
+PhSpec 帮助你和 AI 编程助手在写代码前就对「要做什么」达成一致。流程是一个简单循环：
 
 ```
 ┌────────────────────┐
-│ Start a Change     │  /opsx:new
+│ 启动变更           │  /phsx:new
 └────────┬───────────┘
          │
          ▼
 ┌────────────────────┐
-│ Create Artifacts   │  /opsx:ff or /opsx:continue
-│ (proposal, specs,  │
-│  design, tasks)    │
+│ 创建制品           │  /phsx:ff 或 /phsx:continue
+│ （提案、规范、     │
+│  设计、任务）      │
 └────────┬───────────┘
          │
          ▼
 ┌────────────────────┐
-│ Implement Tasks    │  /opsx:apply
-│ (AI writes code)   │
+│ 实施任务           │  /phsx:apply
+│ （AI 写代码）      │
 └────────┬───────────┘
          │
          ▼
 ┌────────────────────┐
-│ Archive & Merge    │  /opsx:archive
-│ Specs              │
+│ 归档并合并规范     │  /phsx:archive
 └────────────────────┘
 ```
 
-## What OpenSpec Creates
+## PhSpec 会创建什么
 
-After running `openspec init`, your project has this structure:
+执行 `phspec init` 后，项目会有如下结构：
 
 ```
-openspec/
-├── specs/              # Source of truth (your system's behavior)
+phspec/
+├── specs/              # 单一事实来源（系统当前行为）
 │   └── <domain>/
 │       └── spec.md
-├── changes/            # Proposed updates (one folder per change)
+├── changes/            # 拟议更新（每个变更一个目录）
 │   └── <change-name>/
 │       ├── proposal.md
 │       ├── design.md
 │       ├── tasks.md
-│       └── specs/      # Delta specs (what's changing)
+│       └── specs/      # 增量规范（在改什么）
 │           └── <domain>/
 │               └── spec.md
-└── config.yaml         # Project configuration (optional)
+└── config.yaml         # 项目配置（可选）
 ```
 
-**Two key directories:**
+**两个关键目录：**
 
-- **`specs/`** - The source of truth. These specs describe how your system currently behaves. Organized by domain (e.g., `specs/auth/`, `specs/payments/`).
+- **`specs/`** — 单一事实来源。这些规范描述系统当前行为，按领域组织（如 `specs/auth/`、`specs/payments/`）。
+- **`changes/`** — 拟议修改。每个变更有独立目录及全部相关制品。变更完成后，其规范会合并到主目录 `specs/`。
 
-- **`changes/`** - Proposed modifications. Each change gets its own folder with all related artifacts. When a change is complete, its specs merge into the main `specs/` directory.
+## 理解制品
 
-## Understanding Artifacts
+每个变更目录包含指导工作的制品：
 
-Each change folder contains artifacts that guide the work:
+| 制品          | 用途                                       |
+| ------------- | ------------------------------------------ |
+| `proposal.md` | 「为什么」和「做什么」— 意图、范围与思路   |
+| `specs/`      | 增量规范，展示 ADDED/MODIFIED/REMOVED 需求 |
+| `design.md`   | 「怎么做」— 技术方案与架构决策             |
+| `tasks.md`    | 带勾选框的实施清单                         |
 
-| Artifact | Purpose |
-|----------|---------|
-| `proposal.md` | The "why" and "what" - captures intent, scope, and approach |
-| `specs/` | Delta specs showing ADDED/MODIFIED/REMOVED requirements |
-| `design.md` | The "how" - technical approach and architecture decisions |
-| `tasks.md` | Implementation checklist with checkboxes |
-
-**Artifacts build on each other:**
-
-```
-proposal ──► specs ──► design ──► tasks ──► implement
-   ▲           ▲          ▲                    │
-   └───────────┴──────────┴────────────────────┘
-            update as you learn
-```
-
-You can always go back and refine earlier artifacts as you learn more during implementation.
-
-## How Delta Specs Work
-
-Delta specs are the key concept in OpenSpec. They show what's changing relative to your current specs.
-
-### The Format
-
-Delta specs use sections to indicate the type of change:
-
-```markdown
-# Delta for Auth
-
-## ADDED Requirements
-
-### Requirement: Two-Factor Authentication
-The system MUST require a second factor during login.
-
-#### Scenario: OTP required
-- GIVEN a user with 2FA enabled
-- WHEN the user submits valid credentials
-- THEN an OTP challenge is presented
-
-## MODIFIED Requirements
-
-### Requirement: Session Timeout
-The system SHALL expire sessions after 30 minutes of inactivity.
-(Previously: 60 minutes)
-
-#### Scenario: Idle timeout
-- GIVEN an authenticated session
-- WHEN 30 minutes pass without activity
-- THEN the session is invalidated
-
-## REMOVED Requirements
-
-### Requirement: Remember Me
-(Deprecated in favor of 2FA)
-```
-
-### What Happens on Archive
-
-When you archive a change:
-
-1. **ADDED** requirements are appended to the main spec
-2. **MODIFIED** requirements replace the existing version
-3. **REMOVED** requirements are deleted from the main spec
-
-The change folder moves to `openspec/changes/archive/` for audit history.
-
-## Example: Your First Change
-
-Let's walk through adding dark mode to an application.
-
-### 1. Start the Change
+**制品彼此依赖：**
 
 ```
-You: /opsx:new add-dark-mode
+提案 ──► 规范 ──► 设计 ──► 任务 ──► 实施
+   ▲       ▲        ▲                    │
+   └───────┴────────┴────────────────────┘
+            随实施过程更新
+```
 
-AI:  Created openspec/changes/add-dark-mode/
+实施过程中学到新信息时，可以随时回头修改前面的制品。
+
+## 增量规范如何工作
+
+增量规范是 PhSpec 的核心：它们展示**相对当前规范**的变更。
+
+### 格式
+
+增量规范用段落表示变更类型：
+
+- **ADDED Requirements** — 新增需求
+- **MODIFIED Requirements** — 修改的需求（需写完整更新后内容）
+- **REMOVED Requirements** — 废弃需求（需注明原因与迁移）
+
+### 归档时发生什么
+
+归档一个变更时：
+
+1. **ADDED** 需求会追加到主规范
+2. **MODIFIED** 需求会替换主规范中的对应版本
+3. **REMOVED** 需求会从主规范中删除
+
+变更目录会移入 `phspec/changes/archive/` 以便追溯。
+
+## 示例：你的第一个变更
+
+以为应用添加深色模式为例。
+
+### 1. 启动变更
+
+```
+You: /phsx:new add-dark-mode
+
+AI:  Created phspec/changes/add-dark-mode/
      Ready to create: proposal
 ```
 
-### 2. Create Artifacts
+### 2. 创建制品
 
-Use `/opsx:ff` (fast-forward) to create all planning artifacts at once:
+用 `/phsx:ff`（快进）一次性创建所有规划制品：
 
 ```
-You: /opsx:ff
+You: /phsx:ff
 
 AI:  Creating artifacts for add-dark-mode...
      ✓ proposal.md — why we're doing this, what's changing
@@ -155,119 +127,54 @@ AI:  Creating artifacts for add-dark-mode...
      Ready for implementation!
 ```
 
-### 3. What Gets Created
-
-**proposal.md** - Captures the intent:
-
-```markdown
-# Proposal: Add Dark Mode
-
-## Intent
-Users have requested a dark mode option to reduce eye strain
-during nighttime usage.
-
-## Scope
-- Add theme toggle in settings
-- Support system preference detection
-- Persist preference in localStorage
-
-## Approach
-Use CSS custom properties for theming with a React context
-for state management.
-```
-
-**specs/ui/spec.md** - Delta showing new requirements:
-
-```markdown
-# Delta for UI
-
-## ADDED Requirements
-
-### Requirement: Theme Selection
-The system SHALL allow users to choose between light and dark themes.
-
-#### Scenario: Manual toggle
-- GIVEN a user on any page
-- WHEN the user clicks the theme toggle
-- THEN the theme switches immediately
-- AND the preference persists across sessions
-
-#### Scenario: System preference
-- GIVEN a user with no saved preference
-- WHEN the application loads
-- THEN the system's preferred color scheme is used
-```
-
-**tasks.md** - Implementation checklist:
-
-```markdown
-# Tasks
-
-## 1. Theme Infrastructure
-- [ ] 1.1 Create ThemeContext with light/dark state
-- [ ] 1.2 Add CSS custom properties for colors
-- [ ] 1.3 Implement localStorage persistence
-
-## 2. UI Components
-- [ ] 2.1 Create ThemeToggle component
-- [ ] 2.2 Add toggle to settings page
-- [ ] 2.3 Update Header to include quick toggle
-
-## 3. Styling
-- [ ] 3.1 Define dark theme color palette
-- [ ] 3.2 Update components to use CSS variables
-```
-
-### 4. Implement
+### 3. 实施
 
 ```
-You: /opsx:apply
+You: /phsx:apply
 
 AI:  Working through tasks...
      ✓ 1.1 Created ThemeContext with light/dark state
-     ✓ 1.2 Added CSS custom properties to globals.css
-     ✓ 1.3 Implemented localStorage persistence
-     ✓ 2.1 Created ThemeToggle component
      ...
      All tasks complete!
 ```
 
-During implementation, if you discover the design needs adjustment, just update the artifact and continue.
+若实施中发现设计需要调整，直接更新对应制品后继续即可。
 
-### 5. Archive
+### 4. 归档
 
 ```
-You: /opsx:archive
+You: /phsx:archive
 
 AI:  Archiving add-dark-mode...
-     ✓ Merged specs into openspec/specs/ui/spec.md
-     ✓ Moved to openspec/changes/archive/2025-01-24-add-dark-mode/
+     ✓ Merged specs into phspec/specs/ui/spec.md
+     ✓ Moved to phspec/changes/archive/2025-01-24-add-dark-mode/
      Done! Ready for the next feature.
 ```
 
-Your delta specs are now part of the main specs, documenting how your system works.
+此时增量规范已成为主规范的一部分，记录了系统如何工作。
 
-## Verifying and Reviewing
+## 校验与查看
 
-Use the CLI to check on your changes:
+可用 CLI 查看变更状态：
 
 ```bash
-# List active changes
-openspec list
+# 列出进行中的变更
+phspec list
 
-# View change details
-openspec show add-dark-mode
+# 查看变更详情
+phspec show add-dark-mode
 
-# Validate spec formatting
-openspec validate add-dark-mode
+# 校验规范格式
+phspec validate add-dark-mode
 
-# Interactive dashboard
-openspec view
+# 交互式总览
+phspec view
 ```
 
-## Next Steps
+## 下一步
 
-- [Workflows](workflows.md) - Common patterns and when to use each command
-- [Commands](commands.md) - Full reference for all slash commands
-- [Concepts](concepts.md) - Deeper understanding of specs, changes, and schemas
-- [Customization](customization.md) - Make OpenSpec work your way
+- [工作流](workflows.md) - 常用模式及各命令使用时机
+- [命令](commands.md) - 斜杠命令完整参考
+- [概念](concepts.md) - 规范、变更与工作流模式的深入说明
+- [棕地接入与 SDD 最佳实践](brownfield-sdd-best-practices.md) - 现有项目接入与业务开发流程规范（团队必读）
+- [自定义](customization.md) - 按你的方式使用 PhSpec

@@ -1,79 +1,79 @@
-# Installation
+# 安装
 
-## Prerequisites
+## 环境要求
 
-- **Node.js 20.19.0 or higher** — Check your version: `node --version`
+- **Node.js 20.19.0 或更高** — 检查版本：`node --version`
 
-## Package Managers
+## 包管理器
 
 ### npm
 
 ```bash
-npm install -g @fission-ai/openspec@latest
+npm install -g @fission-ai/phspec@latest
 ```
 
 ### pnpm
 
 ```bash
-pnpm add -g @fission-ai/openspec@latest
+pnpm add -g @fission-ai/phspec@latest
 ```
 
 ### yarn
 
 ```bash
-yarn global add @fission-ai/openspec@latest
+yarn global add @fission-ai/phspec@latest
 ```
 
 ### bun
 
 ```bash
-bun add -g @fission-ai/openspec@latest
+bun add -g @fission-ai/phspec@latest
 ```
 
 ## Nix
 
-Run OpenSpec directly without installation:
+不安装即可直接运行 PhSpec：
 
 ```bash
-nix run github:Fission-AI/OpenSpec -- init
+nix run github:Fission-AI/PhSpec -- init
 ```
 
-Or install to your profile:
+或安装到当前 profile：
 
 ```bash
-nix profile install github:Fission-AI/OpenSpec
+nix profile install github:Fission-AI/PhSpec
 ```
 
-Or add to your development environment in `flake.nix`:
+或在 `flake.nix` 中加入开发环境：
 
 ```nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    openspec.url = "github:Fission-AI/OpenSpec";
+    phspec.url = "github:Fission-AI/PhSpec";
   };
 
-  outputs = { nixpkgs, openspec, ... }: {
+  outputs = { nixpkgs, phspec, ... }: {
     devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
-      buildInputs = [ openspec.packages.x86_64-linux.default ];
+      buildInputs = [ phspec.packages.x86_64-linux.default ];
     };
   };
 }
 ```
 
-## Verify Installation
+## 验证安装
 
 ```bash
-openspec --version
+phspec --version
 ```
 
-## Next Steps
+## 下一步
 
-After installing, initialize OpenSpec in your project:
+安装后，在项目中初始化 PhSpec：
 
 ```bash
 cd your-project
-openspec init
+phspec init
 ```
 
-See [Getting Started](getting-started.md) for a full walkthrough.
+完整流程见 [入门](getting-started.md)。

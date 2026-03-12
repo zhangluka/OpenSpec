@@ -4,19 +4,19 @@
  * Formats commands for Amazon Q Developer following its frontmatter specification.
  */
 
-import path from 'path';
-import type { CommandContent, ToolCommandAdapter } from '../types.js';
+import path from "path";
+import type { CommandContent, ToolCommandAdapter } from "../types.js";
 
 /**
  * Amazon Q adapter for command generation.
- * File path: .amazonq/prompts/opsx-<id>.md
+ * File path: .amazonq/prompts/phsx-<id>.md
  * Frontmatter: description
  */
 export const amazonQAdapter: ToolCommandAdapter = {
-  toolId: 'amazon-q',
+  toolId: "amazon-q",
 
   getFilePath(commandId: string): string {
-    return path.join('.amazonq', 'prompts', `opsx-${commandId}.md`);
+    return path.join(".amazonq", "prompts", `phsx-${commandId}.md`);
   },
 
   formatFile(content: CommandContent): string {

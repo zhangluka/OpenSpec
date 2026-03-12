@@ -1,8 +1,8 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
-import { FileSystemUtils } from '../../../utils/file-system.js';
-import { InstallationResult } from '../factory.js';
+import { promises as fs } from "fs";
+import path from "path";
+import os from "os";
+import { FileSystemUtils } from "../../../utils/file-system.js";
+import { InstallationResult } from "../factory.js";
 
 /**
  * Installer for PowerShell completion scripts.
@@ -15,8 +15,8 @@ export class PowerShellInstaller {
    * Markers for PowerShell profile configuration management
    */
   private readonly PROFILE_MARKERS = {
-    start: '# OPENSPEC:START',
-    end: '# OPENSPEC:END',
+    start: "# OPENSPEC:START",
+    end: "# OPENSPEC:END",
   };
 
   constructor(homeDir: string = os.homedir()) {
@@ -36,12 +36,22 @@ export class PowerShellInstaller {
     }
 
     // Fall back to platform-specific defaults
-    if (process.platform === 'win32') {
+    if (process.platform === "win32") {
       // Windows: Documents/PowerShell/Microsoft.PowerShell_profile.ps1
-      return path.join(this.homeDir, 'Documents', 'PowerShell', 'Microsoft.PowerShell_profile.ps1');
+      return path.join(
+        this.homeDir,
+        "Documents",
+        "PowerShell",
+        "Microsoft.PowerShell_profile.ps1",
+      );
     } else {
       // macOS/Linux: .config/powershell/Microsoft.PowerShell_profile.ps1
-      return path.join(this.homeDir, '.config', 'powershell', 'Microsoft.PowerShell_profile.ps1');
+      return path.join(
+        this.homeDir,
+        ".config",
+        "powershell",
+        "Microsoft.PowerShell_profile.ps1",
+      );
     }
   }
 
@@ -56,16 +66,33 @@ export class PowerShellInstaller {
       return [process.env.PROFILE];
     }
 
-    if (process.platform === 'win32') {
+    if (process.platform === "win32") {
       return [
         // PowerShell Core 6+ (cross-platform)
-        path.join(this.homeDir, 'Documents', 'PowerShell', 'Microsoft.PowerShell_profile.ps1'),
+        path.join(
+          this.homeDir,
+          "Documents",
+          "PowerShell",
+          "Microsoft.PowerShell_profile.ps1",
+        ),
         // Windows PowerShell 5.1 (Windows-only)
-        path.join(this.homeDir, 'Documents', 'WindowsPowerShell', 'Microsoft.PowerShell_profile.ps1'),
+        path.join(
+          this.homeDir,
+          "Documents",
+          "WindowsPowerShell",
+          "Microsoft.PowerShell_profile.ps1",
+        ),
       ];
     } else {
       // Unix systems: PowerShell Core only
-      return [path.join(this.homeDir, '.config', 'powershell', 'Microsoft.PowerShell_profile.ps1')];
+      return [
+        path.join(
+          this.homeDir,
+          ".config",
+          "powershell",
+          "Microsoft.PowerShell_profile.ps1",
+        ),
+      ];
     }
   }
 
@@ -77,7 +104,7 @@ export class PowerShellInstaller {
   getInstallationPath(): string {
     const profilePath = this.getProfilePath();
     const profileDir = path.dirname(profilePath);
-    return path.join(profileDir, 'OpenSpecCompletion.ps1');
+    return path.join(profileDir, "PhSpecCompletion.ps1");
   }
 
   /**
@@ -90,7 +117,7 @@ export class PowerShellInstaller {
     try {
       await fs.access(targetPath);
       // File exists, create a backup
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const backupPath = `${targetPath}.backup-${timestamp}`;
       await fs.copyFile(targetPath, backupPath);
       return backupPath;
@@ -108,11 +135,11 @@ export class PowerShellInstaller {
    */
   private generateProfileConfig(scriptPath: string): string {
     return [
-      '# OpenSpec shell completions configuration',
+      "# PhSpec shell completions configuration",
       `if (Test-Path "${scriptPath}") {`,
       `    . "${scriptPath}"`,
-      '}',
-    ].join('\n');
+      "}",
+    ].join("\n");
   }
 
   /**
@@ -131,9 +158,9 @@ export class PowerShellInstaller {
         const profileDir = path.dirname(profilePath);
         await fs.mkdir(profileDir, { recursive: true });
 
-        let profileContent = '';
+        let profileContent = "";
         try {
-          profileContent = await fs.readFile(profilePath, 'utf-8');
+          profileContent = await fs.readFile(profilePath, "utf-8");
         } catch {
           // Profile doesn't exist yet, that's fine
         }
@@ -144,17 +171,17 @@ export class PowerShellInstaller {
           continue; // Already configured, skip
         }
 
-        // Add OpenSpec completion configuration with markers
-        const openspecBlock = [
-          '',
-          '# OPENSPEC:START - OpenSpec completion (managed block, do not edit manually)',
+        // Add PhSpec completion configuration with markers
+        const phspecBlock = [
+          "",
+          "# OPENSPEC:START - PhSpec completion (managed block, do not edit manually)",
           scriptLine,
-          '# OPENSPEC:END',
-          '',
-        ].join('\n');
+          "# OPENSPEC:END",
+          "",
+        ].join("\n");
 
-        const newContent = profileContent + openspecBlock;
-        await fs.writeFile(profilePath, newContent, 'utf-8');
+        const newContent = profileContent + phspecBlock;
+        await fs.writeFile(profilePath, newContent, "utf-8");
         anyConfigured = true;
       } catch (error) {
         // Continue to next profile if this one fails
@@ -180,34 +207,39 @@ export class PowerShellInstaller {
         // Read profile content
         let profileContent: string;
         try {
-          profileContent = await fs.readFile(profilePath, 'utf-8');
+          profileContent = await fs.readFile(profilePath, "utf-8");
         } catch {
           continue; // Profile doesn't exist, nothing to remove
         }
 
         // Remove OPENSPEC:START -> OPENSPEC:END block
-        const startMarker = '# OPENSPEC:START';
-        const endMarker = '# OPENSPEC:END';
+        const startMarker = "# OPENSPEC:START";
+        const endMarker = "# OPENSPEC:END";
         const startIndex = profileContent.indexOf(startMarker);
 
         if (startIndex === -1) {
-          continue; // No OpenSpec block found
+          continue; // No PhSpec block found
         }
 
         const endIndex = profileContent.indexOf(endMarker, startIndex);
         if (endIndex === -1) {
-          console.warn(`Warning: Found start marker but no end marker in ${profilePath}`);
+          console.warn(
+            `Warning: Found start marker but no end marker in ${profilePath}`,
+          );
           continue;
         }
 
         // Remove the block (including markers and surrounding newlines)
         const beforeBlock = profileContent.substring(0, startIndex);
-        const afterBlock = profileContent.substring(endIndex + endMarker.length);
+        const afterBlock = profileContent.substring(
+          endIndex + endMarker.length,
+        );
 
         // Clean up extra newlines
-        const newContent = (beforeBlock.trimEnd() + '\n' + afterBlock.trimStart()).trim() + '\n';
+        const newContent =
+          (beforeBlock.trimEnd() + "\n" + afterBlock.trimStart()).trim() + "\n";
 
-        await fs.writeFile(profilePath, newContent, 'utf-8');
+        await fs.writeFile(profilePath, newContent, "utf-8");
         anyRemoved = true;
       } catch (error) {
         console.warn(`Warning: Could not clean ${profilePath}: ${error}`);
@@ -230,16 +262,16 @@ export class PowerShellInstaller {
       // Check if already installed with same content
       let isUpdate = false;
       try {
-        const existingContent = await fs.readFile(targetPath, 'utf-8');
+        const existingContent = await fs.readFile(targetPath, "utf-8");
         if (existingContent === completionScript) {
           // Already installed and up to date
           return {
             success: true,
             installedPath: targetPath,
-            message: 'Completion script is already installed (up to date)',
+            message: "Completion script is already installed (up to date)",
             instructions: [
-              'The completion script is already installed and up to date.',
-              'If completions are not working, try restarting PowerShell or run: . $PROFILE',
+              "The completion script is already installed and up to date.",
+              "If completions are not working, try restarting PowerShell or run: . $PROFILE",
             ],
           };
         }
@@ -247,7 +279,9 @@ export class PowerShellInstaller {
         isUpdate = true;
       } catch (error: any) {
         // File doesn't exist or can't be read, proceed with installation
-        console.debug(`Unable to read existing completion file at ${targetPath}: ${error.message}`);
+        console.debug(
+          `Unable to read existing completion file at ${targetPath}: ${error.message}`,
+        );
       }
 
       // Ensure the directory exists
@@ -255,27 +289,31 @@ export class PowerShellInstaller {
       await fs.mkdir(targetDir, { recursive: true });
 
       // Backup existing file if updating
-      const backupPath = isUpdate ? await this.backupExistingFile(targetPath) : undefined;
+      const backupPath = isUpdate
+        ? await this.backupExistingFile(targetPath)
+        : undefined;
 
       // Write the completion script
-      await fs.writeFile(targetPath, completionScript, 'utf-8');
+      await fs.writeFile(targetPath, completionScript, "utf-8");
 
       // Auto-configure PowerShell profile
       const profileConfigured = await this.configureProfile(targetPath);
 
       // Generate instructions if profile wasn't auto-configured
-      const instructions = profileConfigured ? undefined : this.generateInstructions(targetPath);
+      const instructions = profileConfigured
+        ? undefined
+        : this.generateInstructions(targetPath);
 
       // Determine appropriate message
       let message: string;
       if (isUpdate) {
         message = backupPath
-          ? 'Completion script updated successfully (previous version backed up)'
-          : 'Completion script updated successfully';
+          ? "Completion script updated successfully (previous version backed up)"
+          : "Completion script updated successfully";
       } else {
         message = profileConfigured
-          ? 'Completion script installed and PowerShell profile configured successfully'
-          : 'Completion script installed successfully for PowerShell';
+          ? "Completion script installed and PowerShell profile configured successfully"
+          : "Completion script installed successfully for PowerShell";
       }
 
       return {
@@ -304,16 +342,16 @@ export class PowerShellInstaller {
     const profilePath = this.getProfilePath();
 
     return [
-      'Completion script installed successfully.',
-      '',
+      "Completion script installed successfully.",
+      "",
       `To enable completions, add the following to your PowerShell profile (${profilePath}):`,
-      '',
-      '  # Source OpenSpec completions',
+      "",
+      "  # Source PhSpec completions",
       `  if (Test-Path "${installedPath}") {`,
       `      . "${installedPath}"`,
-      '  }',
-      '',
-      'Then restart PowerShell or run: . $PROFILE',
+      "  }",
+      "",
+      "Then restart PowerShell or run: . $PROFILE",
     ];
   }
 
@@ -324,7 +362,9 @@ export class PowerShellInstaller {
    * @param options.yes - Skip confirmation prompt (handled by command layer)
    * @returns Uninstallation result
    */
-  async uninstall(options?: { yes?: boolean }): Promise<{ success: boolean; message: string }> {
+  async uninstall(options?: {
+    yes?: boolean;
+  }): Promise<{ success: boolean; message: string }> {
     try {
       const targetPath = this.getInstallationPath();
 
@@ -334,7 +374,7 @@ export class PowerShellInstaller {
       } catch {
         return {
           success: false,
-          message: 'Completion script is not installed',
+          message: "Completion script is not installed",
         };
       }
 
@@ -346,7 +386,7 @@ export class PowerShellInstaller {
 
       return {
         success: true,
-        message: 'Completion script uninstalled successfully',
+        message: "Completion script uninstalled successfully",
       };
     } catch (error) {
       return {

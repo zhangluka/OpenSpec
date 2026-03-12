@@ -18,55 +18,56 @@ export interface SkillTemplate {
 }
 
 /**
- * Template for openspec-explore skill
+ * Template for phspec-explore skill
  * Explore mode - adaptive thinking partner for exploring ideas and problems
  */
 export function getExploreSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-explore',
-    description: 'Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.',
-    instructions: `Enter explore mode. Think deeply. Visualize freely. Follow the conversation wherever it goes.
+    name: "phspec-explore",
+    description:
+      "进入探索模式：作为思考伙伴梳理想法、排查问题、澄清需求。适用于用户在确定或进行变更前先理清思路时。",
+    instructions: `进入探索模式。深入思考，自由可视化，对话可任意延伸。
 
-**IMPORTANT: Explore mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must NEVER write code or implement features. If the user asks you to implement something, remind them to exit explore mode first (e.g., start a change with \`/opsx:new\` or \`/opsx:ff\`). You MAY create OpenSpec artifacts (proposals, designs, specs) if the user asks—that's capturing thinking, not implementing.
+**重要：探索模式用于思考，不用于实施。** 你可以读文件、搜代码、查代码库，但绝不要写代码或实现功能。若用户要求实现某功能，提醒其先退出探索模式（例如用 \`/phsx:new\` 或 \`/phsx:ff\` 新建变更）。若用户要求，你可以创建 PhSpec 制品（提案、设计、规范）——那是记录思考，不是实施。
 
-**This is a stance, not a workflow.** There are no fixed steps, no required sequence, no mandatory outputs. You're a thinking partner helping the user explore.
-
----
-
-## The Stance
-
-- **Curious, not prescriptive** - Ask questions that emerge naturally, don't follow a script
-- **Open threads, not interrogations** - Surface multiple interesting directions and let the user follow what resonates. Don't funnel them through a single path of questions.
-- **Visual** - Use ASCII diagrams liberally when they'd help clarify thinking
-- **Adaptive** - Follow interesting threads, pivot when new information emerges
-- **Patient** - Don't rush to conclusions, let the shape of the problem emerge
-- **Grounded** - Explore the actual codebase when relevant, don't just theorize
+**这是立场，不是工作流。** 没有固定步骤、必选顺序或强制产出。你是帮助用户探索的思考伙伴。
 
 ---
 
-## What You Might Do
+## 立场
 
-Depending on what the user brings, you might:
+- **好奇而不说教** - 自然提出涌现出的问题，不按脚本走
+- **开放话题而非审问** - 呈现多个有趣方向，让用户选有共鸣的。不要用单一问题线牵着走
+- **可视化** - 有助厘清思路时多用 ASCII 图
+- **顺势而为** - 跟随有趣线索，信息变化时随时转向
+- **耐心** - 不急于下结论，让问题轮廓自然浮现
+- **接地** - 相关时探查真实代码库，不只空谈
 
-**Explore the problem space**
-- Ask clarifying questions that emerge from what they said
-- Challenge assumptions
-- Reframe the problem
-- Find analogies
+---
 
-**Investigate the codebase**
-- Map existing architecture relevant to the discussion
-- Find integration points
-- Identify patterns already in use
-- Surface hidden complexity
+## 你可以做的事
 
-**Compare options**
-- Brainstorm multiple approaches
-- Build comparison tables
-- Sketch tradeoffs
-- Recommend a path (if asked)
+视用户带来的内容，你可以：
 
-**Visualize**
+**探索问题空间**
+- 根据其表述提出澄清问题
+- 挑战假设
+- 重述问题
+- 找类比
+
+**探查代码库**
+- 画出与讨论相关的现有架构
+- 找集成点
+- 识别已有模式
+- 暴露隐藏复杂度
+
+**比较方案**
+- 头脑风暴多种做法
+- 做对比表
+- 勾画取舍
+- 被问时给出推荐
+
+**可视化**
 \`\`\`
 ┌─────────────────────────────────────────┐
 │     Use ASCII diagrams liberally        │
@@ -84,89 +85,89 @@ Depending on what the user brings, you might:
 └─────────────────────────────────────────┘
 \`\`\`
 
-**Surface risks and unknowns**
-- Identify what could go wrong
-- Find gaps in understanding
-- Suggest spikes or investigations
+**暴露风险与未知**
+- 指出可能出问题的地方
+- 发现理解缺口
+- 建议探针或调研
 
 ---
 
-## OpenSpec Awareness
+## 对 PhSpec 的认知
 
-You have full context of the OpenSpec system. Use it naturally, don't force it.
+你具备 PhSpec 的完整上下文。自然使用即可，不必生搬。
 
-### Check for context
+### 查看上下文
 
-At the start, quickly check what exists:
+开始时快速查看现状：
 \`\`\`bash
-openspec list --json
+phspec list --json
 \`\`\`
 
-This tells you:
-- If there are active changes
-- Their names, schemas, and status
-- What the user might be working on
+可知：
+- 是否有进行中的变更
+- 其名称、工作流模式与状态
+- 用户可能在做什么
 
-### When no change exists
+### 当没有变更时
 
-Think freely. When insights crystallize, you might offer:
+自由思考。当思路成型时，可以提议：
 
-- "This feels solid enough to start a change. Want me to create one?"
-  → Can transition to \`/opsx:new\` or \`/opsx:ff\`
-- Or keep exploring - no pressure to formalize
+- "思路已经比较清晰，要新建一个变更吗？"
+  → 可转入 \`/phsx:new\` 或 \`/phsx:ff\`
+- 或继续探索，不必非要形式化
 
-### When a change exists
+### 当已有变更时
 
-If the user mentions a change or you detect one is relevant:
+若用户提到某变更或你发现与某变更相关：
 
-1. **Read existing artifacts for context**
-   - \`openspec/changes/<name>/proposal.md\`
-   - \`openspec/changes/<name>/design.md\`
-   - \`openspec/changes/<name>/tasks.md\`
-   - etc.
+1. **阅读已有制品以获取上下文**
+   - \`phspec/changes/<name>/proposal.md\`
+   - \`phspec/changes/<name>/design.md\`
+   - \`phspec/changes/<name>/tasks.md\`
+   - 等
 
-2. **Reference them naturally in conversation**
-   - "Your design mentions using Redis, but we just realized SQLite fits better..."
-   - "The proposal scopes this to premium users, but we're now thinking everyone..."
+2. **在对话中自然引用**
+   - "设计里提到用 Redis，但我们刚发现 SQLite 更合适……"
+   - "提案里范围是高级用户，我们现在想面向所有人……"
 
-3. **Offer to capture when decisions are made**
+3. **在做决策时提议记录**
 
-   | Insight Type | Where to Capture |
+   | 洞察类型 | 记录位置 |
    |--------------|------------------|
-   | New requirement discovered | \`specs/<capability>/spec.md\` |
-   | Requirement changed | \`specs/<capability>/spec.md\` |
-   | Design decision made | \`design.md\` |
-   | Scope changed | \`proposal.md\` |
-   | New work identified | \`tasks.md\` |
-   | Assumption invalidated | Relevant artifact |
+   | 新发现的需求 | \`specs/<capability>/spec.md\` |
+   | 需求变更 | \`specs/<capability>/spec.md\` |
+   | 设计决策 | \`design.md\` |
+   | 范围变更 | \`proposal.md\` |
+   | 新识别的任务 | \`tasks.md\` |
+   | 假设被推翻 | 相关制品 |
 
-   Example offers:
-   - "That's a design decision. Capture it in design.md?"
-   - "This is a new requirement. Add it to specs?"
-   - "This changes scope. Update the proposal?"
+   示例提议：
+   - "这是设计决策，要记到 design.md 吗？"
+   - "这是新需求，要加到规范里吗？"
+   - "范围变了，要更新提案吗？"
 
-4. **The user decides** - Offer and move on. Don't pressure. Don't auto-capture.
-
----
-
-## What You Don't Have To Do
-
-- Follow a script
-- Ask the same questions every time
-- Produce a specific artifact
-- Reach a conclusion
-- Stay on topic if a tangent is valuable
-- Be brief (this is thinking time)
+4. **由用户决定** - 提议后继续，不施压，不自动写入。
 
 ---
 
-## Handling Different Entry Points
+## 你不必做的事
 
-**User brings a vague idea:**
+- 按脚本走
+- 每次都问同样问题
+- 产出指定制品
+- 必须得出结论
+-  tangent 有价值时也要死守主题
+- 非要简短（这是思考时间）
+
+---
+
+## 不同入口的处理
+
+**用户带来模糊想法：**
 \`\`\`
 User: I'm thinking about adding real-time collaboration
 
-You: Real-time collab is a big space. Let me think about this...
+You: 实时协作是个大空间，先一起捋一捋……
 
       COLLABORATION SPECTRUM
       ════════════════════════════════════════════
@@ -182,14 +183,14 @@ You: Real-time collab is a big space. Let me think about this...
           │                   │                 │
        trivial            moderate           complex
 
-      Where's your head at?
+      你更倾向哪一块？
 \`\`\`
 
-**User brings a specific problem:**
+**用户带来具体问题：**
 \`\`\`
 User: The auth system is a mess
 
-You: [reads codebase]
+You: [读代码库]
 
      ┌─────────────────────────────────────────────┐
      │              CURRENT AUTH FLOW              │
@@ -213,35 +214,34 @@ You: [reads codebase]
                   │   Perms   │
                   └───────────┘
 
-     I see three tangles. Which one's burning?
+     我看到三处缠在一起，你最头疼哪一块？
 \`\`\`
 
-**User is stuck mid-implementation:**
+**用户卡在实施中途：**
 \`\`\`
-User: /opsx:explore add-auth-system
+User: /phsx:explore add-auth-system
       The OAuth integration is more complex than expected
 
-You: [reads change artifacts]
+You: [读变更制品]
 
-     You're on task 4: "Implement OAuth flow"
+     你当前在任务 4："Implement OAuth flow"
 
-     Let me trace what's involved...
+     我帮你捋一下涉及的部分……
 
-     [draws diagram, explores options, suggests paths]
+     [画图、列方案、给建议]
 
-     Want to update the design to reflect this?
-     Or add a spike task to investigate?
+     要更新设计反映这些吗？还是加一个探针任务先调研？
 \`\`\`
 
-**User wants to compare options:**
+**用户想比较方案：**
 \`\`\`
 User: Should we use Postgres or SQLite?
 
-You: Generic answer is boring. What's the context?
+You: 泛泛而谈没意思，先说下场景？
 
 User: A CLI tool that tracks local dev environments
 
-You: That changes everything.
+You: 那就不一样了。
 
      ┌─────────────────────────────────────────────────┐
      │         CLI TOOL DATA STORAGE                  │
@@ -257,596 +257,535 @@ You: That changes everything.
      Offline      yes ✓           no ✗
      Single file  yes ✓           no ✗
 
-     SQLite. Not even close.
+     SQLite。几乎不用比。
 
-     Unless... is there a sync component?
+     除非……有同步需求？
 \`\`\`
 
 ---
 
-## Ending Discovery
+## 结束探索
 
-There's no required ending. Discovery might:
+没有固定收尾。探索可能：
 
-- **Flow into action**: "Ready to start? /opsx:new or /opsx:ff"
-- **Result in artifact updates**: "Updated design.md with these decisions"
-- **Just provide clarity**: User has what they need, moves on
-- **Continue later**: "We can pick this up anytime"
+- **转入行动**："可以开始了，用 /phsx:new 或 /phsx:ff"
+- **沉淀到制品**："已把这几条决策记进 design.md"
+- **只提供清晰度**：用户得到所需后自行继续
+- **改天再续**："随时可以接着聊"
 
-When it feels like things are crystallizing, you might summarize:
+当感觉思路已经成型，可以做个小结（可选）：
 
 \`\`\`
-## What We Figured Out
+## 我们搞清的内容
 
-**The problem**: [crystallized understanding]
+**问题**：[成型后的理解]
 
-**The approach**: [if one emerged]
+**做法**：[若已浮现]
 
-**Open questions**: [if any remain]
+**未决问题**：[若有]
 
-**Next steps** (if ready):
-- Create a change: /opsx:new <name>
-- Fast-forward to tasks: /opsx:ff <name>
-- Keep exploring: just keep talking
+**下一步**（若已就绪）：
+- 新建变更：/phsx:new <name>
+- 直接到任务：/phsx:ff <name>
+- 继续探索：接着聊即可
 \`\`\`
 
-But this summary is optional. Sometimes the thinking IS the value.
+小结不是必须的，有时思考过程本身就是价值。
 
 ---
 
-## Guardrails
+## 边界
 
-- **Don't implement** - Never write code or implement features. Creating OpenSpec artifacts is fine, writing application code is not.
-- **Don't fake understanding** - If something is unclear, dig deeper
-- **Don't rush** - Discovery is thinking time, not task time
-- **Don't force structure** - Let patterns emerge naturally
-- **Don't auto-capture** - Offer to save insights, don't just do it
-- **Do visualize** - A good diagram is worth many paragraphs
-- **Do explore the codebase** - Ground discussions in reality
-- **Do question assumptions** - Including the user's and your own`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+- **不实施** - 绝不写代码或实现功能。创建 PhSpec 制品可以，写业务代码不行。
+- **不装懂** - 不清楚就继续挖
+- **不赶** - 探索是思考时间，不是任务时间
+- **不强行结构** - 让模式自然浮现
+- **不自动记录** - 提议保存洞察，不要擅自写入；若环境无 AskUserQuestion 或 ask_followup_question 等用户确认工具，需要用户选择或确认时直接输出选项并写明「请回复后再继续」，不要擅自写入或继续。
+- **要可视化** - 一张好图顶很多段文字
+- **要查代码库** - 讨论要落在实际上
+- **要质疑假设** - 包括用户和你自己的`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-new-change skill
- * Based on /opsx:new command
+ * Template for phspec-new-change skill
+ * Based on /phsx:new command
  */
 export function getNewChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-new-change',
-    description: 'Start a new OpenSpec change using the experimental artifact workflow. Use when the user wants to create a new feature, fix, or modification with a structured step-by-step approach.',
-    instructions: `Start a new change using the experimental artifact-driven approach.
+    name: "phspec-new-change",
+    description:
+      "新建 PhSpec 变更（制品工作流）。适用于用户想按步骤创建新功能、修复或改动时。",
+    instructions: `使用实验性制品驱动方式新建变更。
 
-**Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
+**执行约定（DevAgent / Cline 等）**：本技能在步骤 6 **必须结束**。步骤 6 中你必须**先调用**用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）向用户提问，**调用后立即结束本次执行**，不得在本轮中创建 proposal.md、design.md、specs、tasks.md 等任何制品。用户回复后再由其主动运行 \`/phsx:continue\` 或说「继续」来创建制品。
 
-**Steps**
+**输入**：用户请求应包含变更名（kebab-case）或要做的内容描述。
 
-1. **If no clear input provided, ask what they want to build**
+**步骤**
 
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
-   > "What change do you want to work on? Describe what you want to build or fix."
+1. **若未提供明确输入，先问用户要做什么**
 
-   From their description, derive a kebab-case name (e.g., "add user authentication" → \`add-user-auth\`).
+   使用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）（开放问题，无预设选项）询问：
+   > "你想做哪个变更？描述你想做或要修的内容。"
 
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
+   从其描述推导出 kebab-case 名称（如 "add user authentication" → \`add-user-auth\`）。
 
-2. **Determine the workflow schema**
+   **重要**：未弄清用户要做什么前不要继续。
 
-   Use the default schema (omit \`--schema\`) unless the user explicitly requests a different workflow.
+2. **确定工作流模式**
 
-   **Use a different schema only if the user mentions:**
-   - A specific schema name → use \`--schema <name>\`
-   - "show workflows" or "what workflows" → run \`openspec schemas --json\` and let them choose
+   除非用户明确要求其他工作流，否则使用默认模式（不传 \`--schema\`）。
 
-   **Otherwise**: Omit \`--schema\` to use the default.
+   **仅在用户提到以下情况时使用其他模式：**
+   - 指定了某模式名 → 使用 \`--schema <name>\`
+   - "show workflows" 或 "what workflows" → 运行 \`phspec schemas --json\` 让其选择
 
-3. **Create the change directory**
+   **否则**：不传 \`--schema\`，使用默认。
+
+3. **创建变更目录**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
-   Add \`--schema <name>\` only if the user requested a specific workflow.
-   This creates a scaffolded change at \`openspec/changes/<name>/\` with the selected schema.
+   仅当用户指定了工作流时才加 \`--schema <name>\`。
+   会在 \`phspec/changes/<name>/\` 下按所选模式创建脚手架。
 
-4. **Show the artifact status**
+4. **查看制品状态**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
-   This shows which artifacts need to be created and which are ready (dependencies satisfied).
+   可看到哪些制品待创建、哪些已就绪（依赖已满足）。
 
-5. **Get instructions for the first artifact**
-   The first artifact depends on the schema (e.g., \`proposal\` for spec-driven).
-   Check the status output to find the first artifact with status "ready".
+5. **获取第一个制品的指令**
+   第一个制品由模式决定（如 spec-driven 下为 \`proposal\`）。
+   在状态输出中找到第一个状态为 "ready" 的制品。
    \`\`\`bash
-   openspec instructions <first-artifact-id> --change "<name>"
+   phspec instructions <first-artifact-id> --change "<name>"
    \`\`\`
-   This outputs the template and context for creating the first artifact.
+   会输出创建该制品所需的模板与上下文。
 
-6. **STOP and wait for user direction**
+6. **在此暂停，等待用户指示（必须结束）**
 
-**Output**
+   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`** 工具，向用户提问，例如：「变更 <name> 已创建，第一个待建制品是 proposal。要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或回复继续让我创建。」**调用后立即结束本次执行**，不得再执行任何写文件操作。
+   - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作，调用后结束本次执行。
+   - **若环境无上述工具**：直接输出上述问题文字并写明「请回复后再继续」，然后结束，不要创建任何制品文件。
+   - **禁止**：在本轮中创建或写入 proposal.md、design.md、specs/*、tasks.md；禁止在未调用用户确认工具（或输出问题并结束）的情况下继续执行后续步骤。
 
-After completing the steps, summarize:
-- Change name and location
-- Schema/workflow being used and its artifact sequence
-- Current status (0/N artifacts complete)
-- The template for the first artifact
-- Prompt: "Ready to create the first artifact? Just describe what this change is about and I'll draft it, or ask me to continue."
+**输出**
 
-**Guardrails**
-- Do NOT create any artifacts yet - just show the instructions
-- Do NOT advance beyond showing the first artifact template
-- If the name is invalid (not kebab-case), ask for a valid name
-- If a change with that name already exists, suggest continuing that change instead
-- Pass --schema if using a non-default workflow`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+完成上述步骤后总结：
+- 变更名与路径
+- 所用工作流模式及其制品顺序
+- 当前状态（0/N 个制品已完成）
+- 第一个制品的模板
+- 通过用户确认工具或文字提示询问："要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或让我继续。"
+
+**边界**
+- 本技能职责仅到「展示第一个制品模板并询问用户」；**不得**在本技能中创建任何制品（proposal、specs、design、tasks 等）；步骤 6 必须通过工具或文字询问后**结束**，由用户下次运行 \`/phsx:continue\` 再创建制品。
+- 先不要创建任何制品，只展示指令；不要越过「展示第一个制品模板」这一步。
+- 若名称无效（非 kebab-case），请用户给出合法名称
+- 若该名称的变更已存在，建议改为继续该变更
+- 使用非默认工作流时传入 --schema`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-continue-change skill
- * Based on /opsx:continue command
+ * Template for phspec-continue-change skill
+ * Based on /phsx:continue command
  */
 export function getContinueChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-continue-change',
-    description: 'Continue working on an OpenSpec change by creating the next artifact. Use when the user wants to progress their change, create the next artifact, or continue their workflow.',
-    instructions: `Continue working on a change by creating the next artifact.
+    name: "phspec-continue-change",
+    description:
+      "继续当前变更：创建下一个制品。适用于用户想推进变更、创建下一份制品或继续工作流时。",
+    instructions: `继续当前变更：创建下一个制品。
 
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**执行约定（DevAgent / Cline 等）**：本技能每次调用**只创建一个制品**。创建完该制品后必须先调用用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）询问是否继续或要修改，**调用后立即结束本次执行**。不得在本轮中连续创建第二个制品。
 
-**Steps**
+**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
-1. **If no change name provided, prompt for selection**
+**步骤**
 
-   Run \`openspec list --json\` to get available changes sorted by most recently modified. Then use the **AskUserQuestion tool** to let the user select which change to work on.
+1. **若未提供变更名，让用户选择**
 
-   Present the top 3-4 most recently modified changes as options, showing:
-   - Change name
-   - Schema (from \`schema\` field if present, otherwise "spec-driven")
-   - Status (e.g., "0/5 tasks", "complete", "no tasks")
-   - How recently it was modified (from \`lastModified\` field)
+   运行 \`phspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择要继续的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出 3～4 个变更选项并写明「请回复后再继续」，不要猜测或自动选变更。
 
-   Mark the most recently modified change as "(Recommended)" since it's likely what the user wants to continue.
+   将最近修改的 3～4 个变更作为选项展示，包含：
+   - 变更名
+   - 工作流模式（有 \`schema\` 字段则用其值，否则为 "spec-driven")
+   - 状态（如 "0/5 tasks"、"complete"、"no tasks"）
+   - 最近修改时间（来自 \`lastModified\` 字段）
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+   将最近修改的变更标为「推荐」，因为用户多半会选它。
 
-2. **Check current status**
+   **重要**：不要猜测或自动选变更，始终让用户选择。
+
+2. **查看当前状态**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to understand current state. The response includes:
-   - \`schemaName\`: The workflow schema being used (e.g., "spec-driven")
-   - \`artifacts\`: Array of artifacts with their status ("done", "ready", "blocked")
-   - \`isComplete\`: Boolean indicating if all artifacts are complete
+   解析 JSON 了解当前状态。响应包含：
+   - \`schemaName\`：所用工作流模式（如 "spec-driven"）
+   - \`artifacts\`：制品数组及状态（"done"、"ready"、"blocked"）
+   - \`isComplete\`：是否全部制品已完成
 
-3. **Act based on status**:
-
-   ---
-
-   **If all artifacts are complete (\`isComplete: true\`)**:
-   - Congratulate the user
-   - Show final status including the schema used
-   - Suggest: "All artifacts created! You can now implement this change or archive it."
-   - STOP
+3. **按状态行动**：
 
    ---
 
-   **If artifacts are ready to create** (status shows artifacts with \`status: "ready"\`):
-   - Pick the FIRST artifact with \`status: "ready"\` from the status output
-   - Get its instructions:
+   **若全部制品已完成（\`isComplete: true\`）**：
+   - 祝贺用户
+   - 展示最终状态（含所用模式）
+   - 建议："全部制品已就绪！可以用 \`/phsx:apply\` 实施或归档。"
+   - 停止
+
+   ---
+
+   **若有制品可创建**（状态中存在 \`status: "ready"\` 的制品）：
+   - 从状态输出中选第一个 \`status: "ready"\` 的制品
+   - 获取其指令：
      \`\`\`bash
-     openspec instructions <artifact-id> --change "<name>" --json
+     phspec instructions <artifact-id> --change "<name>" --json
      \`\`\`
-   - Parse the JSON. The key fields are:
-     - \`context\`: Project background (constraints for you - do NOT include in output)
-     - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-     - \`template\`: The structure to use for your output file
-     - \`instruction\`: Schema-specific guidance
-     - \`outputPath\`: Where to write the artifact
-     - \`dependencies\`: Completed artifacts to read for context
-   - **Create the artifact file**:
-     - Read any completed dependency files for context
-     - Use \`template\` as the structure - fill in its sections
-     - Apply \`context\` and \`rules\` as constraints when writing - but do NOT copy them into the file
-     - Write to the output path specified in instructions
-   - Show what was created and what's now unlocked
-   - STOP after creating ONE artifact
+   - 解析 JSON。关键字段：
+     - \`context\`：项目背景（给你的约束，不要写入产出）
+     - \`rules\`：制品级规则（给你的约束，不要写入产出）
+     - \`template\`：产出文件结构
+     - \`instruction\`：模式相关指引
+     - \`outputPath\`：制品写入路径
+     - \`dependencies\`：需先阅读的已完成制品
+   - **创建制品文件**：
+     - 先读依赖制品以获取上下文
+     - 按 \`template\` 填好各节
+     - 写作时遵守 \`context\` 与 \`rules\`，但不要原样抄进文件
+     - 写入指令中的 outputPath
+   - 说明创建了什么、接下来可做哪些。然后**必须结束本次执行**：
+     - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`**，例如：「已创建 <artifact-id>。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」**调用后立即结束**，不得在本轮中创建下一个制品。
+     - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作后结束。
+     - **若环境无上述工具**：输出上述问题文字并写明「请回复后再继续」，然后结束。
 
    ---
 
-   **If no artifacts are ready (all blocked)**:
-   - This shouldn't happen with a valid schema
-   - Show status and suggest checking for issues
+   **若没有可创建制品（全部 blocked）**：
+   - 在合法模式下不应出现
+   - 展示状态并建议检查问题
 
-4. **After creating an artifact, show progress**
+4. **创建制品后展示进度**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
-**Output**
+**输出**
 
-After each invocation, show:
-- Which artifact was created
-- Schema workflow being used
-- Current progress (N/M complete)
-- What artifacts are now unlocked
-- Prompt: "Want to continue? Just ask me to continue or tell me what to do next."
+每次调用后展示：
+- 创建了哪个制品
+- 所用工作流模式
+- 当前进度（N/M 已完成）
+- 当前可创建的制品
+- 提示："要继续吗？说继续或告诉我下一步即可。"
 
-**Artifact Creation Guidelines**
+**制品创建指引**
 
-The artifact types and their purpose depend on the schema. Use the \`instruction\` field from the instructions output to understand what to create.
+制品类型与用途由模式决定。以指令输出中的 \`instruction\` 为准。
 
-Common artifact patterns:
+常见模式（spec-driven）：proposal → specs → design → tasks
+- **proposal.md**：若不清楚可先问用户，填写 Why、What Changes、Capabilities、Impact。Capabilities 很关键，每项能力对应一个 spec 文件。若环境无 AskUserQuestion 或 ask_followup_question，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
+- **specs/<capability>/spec.md**：按提案 Capabilities 每项建一个规范（用能力名，不是变更名）。
+- **design.md**：记录技术决策、架构与实现思路。
+- **tasks.md**：把实现拆成可勾选任务。
 
-**spec-driven schema** (proposal → specs → design → tasks):
-- **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
-  - The Capabilities section is critical - each capability listed will need a spec file.
-- **specs/<capability>/spec.md**: Create one spec per capability listed in the proposal's Capabilities section (use the capability name, not the change name).
-- **design.md**: Document technical decisions, architecture, and implementation approach.
-- **tasks.md**: Break down implementation into checkboxed tasks.
+其他模式以 CLI 输出的 \`instruction\` 为准。
 
-For other schemas, follow the \`instruction\` field from the CLI output.
-
-**Guardrails**
-- Create ONE artifact per invocation
-- Always read dependency artifacts before creating a new one
-- Never skip artifacts or create out of order
-- If context is unclear, ask the user before creating
-- Verify the artifact file exists after writing before marking progress
-- Use the schema's artifact sequence, don't assume specific artifact names
-- **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
-  - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+**边界**
+- 每次调用**仅**创建一个制品；创建完一个制品后必须停止，等用户说「继续」或再次调用本技能后再创建下一个；不得在本轮中连续创建多个制品。
+- 创建新制品前先读依赖制品
+- 不跳过、不乱序
+- 上下文不清时先问用户
+- 写入后确认文件存在再标记进度
+- 按模式的制品顺序来，不假设具体名称
+- **重要**：\`context\` 与 \`rules\` 是给你的约束，不是文件内容；不要将 \`<context>\`、\`<rules>\`、\`<project_context>\` 抄进制品，它们只指导写作，不得出现在产出中`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-apply-change skill
+ * Template for phspec-apply-change skill
  * For implementing tasks from a completed (or in-progress) change
  */
 export function getApplyChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-apply-change',
-    description: 'Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.',
-    instructions: `Implement tasks from an OpenSpec change.
+    name: "phspec-apply-change",
+    description:
+      "按变更实施任务。适用于用户要开始实现、继续实现或逐项完成任务时。",
+    instructions: `按 PhSpec 变更实施任务。
 
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **Select the change**
+1. **选定变更**
 
-   If a name is provided, use it. Otherwise:
-   - Infer from conversation context if the user mentioned a change
-   - Auto-select if only one active change exists
-   - If ambiguous, run \`openspec list --json\` to get available changes and use the **AskUserQuestion tool** to let the user select
+   若提供了名称则用该名称。否则：
+   - 用户提到过某变更则从上下文推断
+   - 仅有一个进行中变更则自动选中
+   - 有歧义时运行 \`phspec list --json\` 获取列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。若环境无 AskUserQuestion 或 ask_followup_question，直接输出变更选项并写明「请回复后再继续」，不要自行假设。
 
-   Always announce: "Using change: <name>" and how to override (e.g., \`/opsx:apply <other>\`).
+   始终说明：「当前变更：<name>」，以及如何切换（如 \`/phsx:apply <其他>\`）。
 
-2. **Check status to understand the schema**
+2. **查看状态以确认工作流模式**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used (e.g., "spec-driven")
-   - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
+   解析 JSON 了解：
+   - \`schemaName\`：所用工作流（如 "spec-driven"）
+   - 任务所在制品（spec-driven 多为 "tasks"，其他看 status）
 
-3. **Get apply instructions**
+3. **获取 apply 指令**
 
    \`\`\`bash
-   openspec instructions apply --change "<name>" --json
+   phspec instructions apply --change "<name>" --json
    \`\`\`
 
-   This returns:
-   - Context file paths (varies by schema - could be proposal/specs/design/tasks or spec/tests/implementation/docs)
-   - Progress (total, complete, remaining)
-   - Task list with status
-   - Dynamic instruction based on current state
+   返回内容包含：
+   - 上下文文件路径（因模式而异，可能为 proposal/specs/design/tasks 等）
+   - 进度（总数、已完成、剩余）
+   - 任务列表及状态
+   - 根据当前状态的动态指令
 
-   **Handle states:**
-   - If \`state: "blocked"\` (missing artifacts): show message, suggest using openspec-continue-change
-   - If \`state: "all_done"\`: congratulate, suggest archive
-   - Otherwise: proceed to implementation
+   **状态处理：**
+   - \`state: "blocked"\`（缺制品）：提示并建议先用 phspec-continue-change
+   - \`state: "all_done"\`：祝贺并建议归档
+   - 否则：进入实施
 
-4. **Read context files**
+4. **阅读上下文文件**
 
-   Read the files listed in \`contextFiles\` from the apply instructions output.
-   The files depend on the schema being used:
-   - **spec-driven**: proposal, specs, design, tasks
-   - Other schemas: follow the contextFiles from CLI output
+   按 apply 指令输出中的 \`contextFiles\` 读取对应文件。
+   具体文件因模式而异：**spec-driven** 为 proposal、specs、design、tasks；其他模式以 CLI 的 contextFiles 为准。
 
-5. **Show current progress**
+5. **展示当前进度**
 
-   Display:
-   - Schema being used
-   - Progress: "N/M tasks complete"
-   - Remaining tasks overview
-   - Dynamic instruction from CLI
+   展示：所用模式、进度「N/M 任务已完成」、剩余任务概览、CLI 返回的动态指令。
 
-6. **Implement tasks (loop until done or blocked)**
+6. **实施任务（循环至完成或受阻）**
 
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: \`- [ ]\` → \`- [x]\`
-   - Continue to next task
+   对每个未完成任务：
+   - 说明正在做哪项任务
+   - 完成所需代码改动
+   - 改动保持最小、紧扣该任务
+   - 在任务文件中勾选完成：\`- [ ]\` → \`- [x]\`
+   - 继续下一项
 
-   **Pause if:**
-   - Task is unclear → ask for clarification
-   - Implementation reveals a design issue → suggest updating artifacts
-   - Error or blocker encountered → report and wait for guidance
-   - User interrupts
+   **以下情况必须暂停**（不要自行假设或继续下一项任务）：
+   - 任务不清晰 → 先澄清；若环境无 AskUserQuestion 或 ask_followup_question，直接输出问题并写明「请回复后再继续」
+   - 实施暴露出设计问题 → 建议更新制品并等待指示
+   - 报错或受阻 → 说明并等待指示
+   - 用户打断
 
-7. **On completion or pause, show status**
+7. **完成或暂停时展示状态**
 
-   Display:
-   - Tasks completed this session
-   - Overall progress: "N/M tasks complete"
-   - If all done: suggest archive
-   - If paused: explain why and wait for guidance
+   展示：本轮完成的任务、总进度「N/M 任务已完成」；若全部完成则建议归档；若暂停则说明原因并等待指示。
 
-**Output During Implementation**
+**实施过程输出示例**
 
 \`\`\`
-## Implementing: <change-name> (schema: <schema-name>)
+## 正在实施：<change-name>（工作流模式：<schema-name>）
 
-Working on task 3/7: <task description>
-[...implementation happening...]
-✓ Task complete
+正在处理任务 3/7：<任务描述>
+[...实施中...]
+✓ 任务完成
 
-Working on task 4/7: <task description>
-[...implementation happening...]
-✓ Task complete
+正在处理任务 4/7：<任务描述>
+[...实施中...]
+✓ 任务完成
 \`\`\`
 
-**Output On Completion**
+**全部完成时输出**
 
 \`\`\`
-## Implementation Complete
+## 实施完成
 
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 7/7 tasks complete ✓
+**变更：** <change-name>
+**工作流模式：** <schema-name>
+**进度：** 7/7 任务已完成 ✓
 
-### Completed This Session
-- [x] Task 1
-- [x] Task 2
+### 本轮完成
+- [x] 任务 1
+- [x] 任务 2
 ...
 
-All tasks complete! Ready to archive this change.
+全部任务已完成！可以归档该变更。
 \`\`\`
 
-**Output On Pause (Issue Encountered)**
+**暂停时输出（遇到问题）**
 
 \`\`\`
-## Implementation Paused
+## 实施暂停
 
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 4/7 tasks complete
+**变更：** <change-name>
+**工作流模式：** <schema-name>
+**进度：** 4/7 任务已完成
 
-### Issue Encountered
-<description of the issue>
+### 遇到的问题
+<问题描述>
 
-**Options:**
-1. <option 1>
-2. <option 2>
-3. Other approach
+**可选：**
+1. <选项 1>
+2. <选项 2>
+3. 其他做法
 
-What would you like to do?
+你想怎么处理？
 \`\`\`
 
-**Guardrails**
-- Keep going through tasks until done or blocked
-- Always read context files before starting (from the apply instructions output)
-- If task is ambiguous, pause and ask before implementing
-- If implementation reveals issues, pause and suggest artifact updates
-- Keep code changes minimal and scoped to each task
-- Update task checkbox immediately after completing each task
-- Pause on errors, blockers, or unclear requirements - don't guess
-- Use contextFiles from CLI output, don't assume specific file names
+**边界**
+- 按任务顺序做到完成或受阻；遇需暂停的情形必须停止，等用户回复后再继续。
+- 开始前先读 apply 指令中的上下文文件
+- 任务不明确时先暂停询问再实施；若环境无用户确认工具，直接输出问题并写明「请回复后再继续」
+- 实施暴露出问题时暂停并建议更新制品
+- 代码改动保持最小、限定在当前任务
+- 每完成一项立即勾选
+- 遇错误、受阻或需求不清时暂停，不猜测
+- 以 CLI 的 contextFiles 为准，不假设具体文件名
 
-**Fluid Workflow Integration**
+**与工作流的衔接**
 
-This skill supports the "actions on a change" model:
+本技能支持「对变更执行动作」：
 
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+- **可随时调用**：制品未全完成（但有任务）时、部分实施后、与其他动作穿插
+- **允许更新制品**：实施暴露出设计问题时，可建议更新制品，不必锁阶段，灵活推进`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-ff-change skill
+ * Template for phspec-ff-change skill
  * Fast-forward through artifact creation
  */
 export function getFfChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-ff-change',
-    description: 'Fast-forward through OpenSpec artifact creation. Use when the user wants to quickly create all artifacts needed for implementation without stepping through each one individually.',
-    instructions: `Fast-forward through artifact creation - generate everything needed to start implementation in one go.
+    name: "phspec-ff-change",
+    description:
+      "快进式创建 PhSpec 制品。适用于用户想一次性生成实施所需全部制品时。",
+    instructions: `快进式创建制品——一次性生成实施所需全部制品。
 
-**Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
+**输入**：用户请求应包含变更名（kebab-case）或要做的内容描述。
 
-**Steps**
+**步骤**
 
-1. **If no clear input provided, ask what they want to build**
+1. **若未提供明确输入，先问用户要做什么**
 
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
-   > "What change do you want to work on? Describe what you want to build or fix."
+   使用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）（开放问题）询问：
+   > "你想做哪个变更？描述你想做或要修的内容。"
 
-   From their description, derive a kebab-case name (e.g., "add user authentication" → \`add-user-auth\`).
+   若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出该问题并写明「请回复后再继续」，不要自行假设名称后继续。
 
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
+   从其描述推导 kebab-case 名称（如 "add user authentication" → \`add-user-auth\`）。
 
-2. **Create the change directory**
+   **重要**：未弄清用户要做什么前不要继续。
+
+2. **创建变更目录**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
-   This creates a scaffolded change at \`openspec/changes/<name>/\`.
+   会在 \`phspec/changes/<name>/\` 下创建脚手架。
 
-3. **Get the artifact build order**
+3. **获取制品构建顺序**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to get:
-   - \`applyRequires\`: array of artifact IDs needed before implementation (e.g., \`["tasks"]\`)
-   - \`artifacts\`: list of all artifacts with their status and dependencies
+   解析 JSON 得到：
+   - \`applyRequires\`：实施前需要的制品 ID 列表（如 \`["tasks"]\`）
+   - \`artifacts\`：所有制品及其状态与依赖
 
-4. **Create artifacts in sequence until apply-ready**
+4. **按顺序创建制品直至可实施**
 
-   Use the **TodoWrite tool** to track progress through the artifacts.
+   用 **TodoWrite 工具** 跟踪进度。
 
-   Loop through artifacts in dependency order (artifacts with no pending dependencies first):
+   按依赖顺序遍历（无未满足依赖的制品先做）：
 
-   a. **For each artifact that is \`ready\` (dependencies satisfied)**:
-      - Get instructions:
+   a. **对每个 \`ready\`（依赖已满足）的制品**：
+      - 获取指令：
         \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
+        phspec instructions <artifact-id> --change "<name>" --json
         \`\`\`
-      - The instructions JSON includes:
-        - \`context\`: Project background (constraints for you - do NOT include in output)
-        - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-        - \`template\`: The structure to use for your output file
-        - \`instruction\`: Schema-specific guidance for this artifact type
-        - \`outputPath\`: Where to write the artifact
-        - \`dependencies\`: Completed artifacts to read for context
-      - Read any completed dependency files for context
-      - Create the artifact file using \`template\` as the structure
-      - Apply \`context\` and \`rules\` as constraints - but do NOT copy them into the file
-      - Show brief progress: "✓ Created <artifact-id>"
+      - 指令 JSON 含：\`context\`（项目背景，勿写入产出）、\`rules\`（制品规则，勿写入产出）、\`template\`（产出结构）、\`instruction\`（该类型指引）、\`outputPath\`、\`dependencies\`（需先读的制品）
+      - 先读依赖制品，再按 \`template\` 创建文件，遵守 \`context\` 与 \`rules\` 但不抄入文件
+      - 简要提示："✓ 已创建 <artifact-id>"
 
-   b. **Continue until all \`applyRequires\` artifacts are complete**
-      - After creating each artifact, re-run \`openspec status --change "<name>" --json\`
-      - Check if every artifact ID in \`applyRequires\` has \`status: "done"\` in the artifacts array
-      - Stop when all \`applyRequires\` artifacts are done
+   b. **直到 \`applyRequires\` 中制品全部完成**
+      - 每创建一个制品后重跑 \`phspec status --change "<name>" --json\`
+      - 当 \`applyRequires\` 中每个 ID 在 artifacts 中均为 \`status: "done"\` 时停止
 
-   c. **If an artifact requires user input** (unclear context):
-      - Use **AskUserQuestion tool** to clarify
-      - Then continue with creation
+   c. **若某制品需要用户输入**（上下文不清）：用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 澄清后继续；若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
 
-5. **Show final status**
+5. **展示最终状态**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
-**Output**
+**输出**：总结变更名与路径、已创建制品列表、"全部制品已就绪，可以开始实施。"、提示 "运行 \`/phsx:apply\` 或让我实施即可开始任务。"
 
-After completing all artifacts, summarize:
-- Change name and location
-- List of artifacts created with brief descriptions
-- What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run \`/opsx:apply\` or ask me to implement to start working on the tasks."
+**制品创建**：按 \`phspec instructions\` 的 \`instruction\` 与模式定义；先读依赖再创建；\`context\` 与 \`rules\` 仅作约束不写入文件。
 
-**Artifact Creation Guidelines**
-
-- Follow the \`instruction\` field from \`openspec instructions\` for each artifact type
-- The schema defines what each artifact should contain - follow it
-- Read dependency artifacts for context before creating new ones
-- Use \`template\` as the structure for your output file - fill in its sections
-- **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
-  - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output
-
-**Guardrails**
-- Create ALL artifacts needed for implementation (as defined by schema's \`apply.requires\`)
-- Always read dependency artifacts before creating a new one
-- If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
-- If a change with that name already exists, suggest continuing that change instead
-- Verify each artifact file exists after writing before proceeding to next`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+**边界**：创建模式 \`apply.requires\` 所需的全部制品；先读依赖再创建；名称已存在时建议继续该变更；写入后确认文件存在再继续。`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-sync-specs skill
+ * Template for phspec-sync-specs skill
  * For syncing delta specs from a change to main specs (agent-driven)
  */
 export function getSyncSpecsSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-sync-specs',
-    description: 'Sync delta specs from a change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change.',
-    instructions: `Sync delta specs from a change to main specs.
+    name: "phspec-sync-specs",
+    description:
+      "将变更中的增量规范同步到主规范。适用于用户想更新主规范但暂不归档变更时。",
+    instructions: `将变更中的增量规范同步到主规范。
 
-This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
+此为**由 agent 执行**的操作：你读取增量规范并直接编辑主规范以应用变更，从而可智能合并（例如只加场景而不整条复制需求）。
 
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；含糊或有歧义时必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **If no change name provided, prompt for selection**
+1. **若未提供变更名，让用户选择**
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。
 
-   Show changes that have delta specs (under \`specs/\` directory).
+   **重要**：不要猜测或自动选择，始终让用户选择。
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+2. **定位增量规范**
 
-2. **Find delta specs**
+   在 \`phspec/changes/<name>/specs/*/spec.md\` 查找增量规范文件。
 
-   Look for delta spec files in \`openspec/changes/<name>/specs/*/spec.md\`.
+   每个增量规范文件包含如：\`## ADDED Requirements\`（新增需求）、\`## MODIFIED Requirements\`（修改现有需求）、\`## REMOVED Requirements\`（删除需求）、\`## RENAMED Requirements\`（重命名，FROM:/TO: 格式）。
 
-   Each delta spec file contains sections like:
-   - \`## ADDED Requirements\` - New requirements to add
-   - \`## MODIFIED Requirements\` - Changes to existing requirements
-   - \`## REMOVED Requirements\` - Requirements to remove
-   - \`## RENAMED Requirements\` - Requirements to rename (FROM:/TO: format)
+   若未找到增量规范，告知用户并停止。
 
-   If no delta specs found, inform user and stop.
+3. **对每个增量规范，将变更应用到主规范**
 
-3. **For each delta spec, apply changes to main specs**
+   对 \`phspec/changes/<name>/specs/<capability>/spec.md\` 存在的每个能力：
 
-   For each capability with a delta spec at \`openspec/changes/<name>/specs/<capability>/spec.md\`:
+   a. **读增量规范**，理解要做的变更  
+   b. **读主规范** \`phspec/specs/<capability>/spec.md\`（可能尚不存在）  
+   c. **按意图合并**：ADDED 若主规范无则添加、有则按 MODIFIED 更新；MODIFIED 在主规范中找到对应需求后增/改场景或描述，保留增量未提及的内容；REMOVED 从主规范删除整条需求；RENAMED 将 FROM 改为 TO  
+   d. **若能力尚无主规范**：创建 \`phspec/specs/<capability>/spec.md\`，含 Purpose（可简写为 TBD）与 ADDED 需求
 
-   a. **Read the delta spec** to understand the intended changes
+4. **展示摘要**：说明更新了哪些能力、做了哪些增/改/删/重命名。
 
-   b. **Read the main spec** at \`openspec/specs/<capability>/spec.md\` (may not exist yet)
-
-   c. **Apply changes intelligently**:
-
-      **ADDED Requirements:**
-      - If requirement doesn't exist in main spec → add it
-      - If requirement already exists → update it to match (treat as implicit MODIFIED)
-
-      **MODIFIED Requirements:**
-      - Find the requirement in main spec
-      - Apply the changes - this can be:
-        - Adding new scenarios (don't need to copy existing ones)
-        - Modifying existing scenarios
-        - Changing the requirement description
-      - Preserve scenarios/content not mentioned in the delta
-
-      **REMOVED Requirements:**
-      - Remove the entire requirement block from main spec
-
-      **RENAMED Requirements:**
-      - Find the FROM requirement, rename to TO
-
-   d. **Create new main spec** if capability doesn't exist yet:
-      - Create \`openspec/specs/<capability>/spec.md\`
-      - Add Purpose section (can be brief, mark as TBD)
-      - Add Requirements section with the ADDED requirements
-
-4. **Show summary**
-
-   After applying all changes, summarize:
-   - Which capabilities were updated
-   - What changes were made (requirements added/modified/removed/renamed)
-
-**Delta Spec Format Reference**
+**增量规范格式参考**
 
 \`\`\`markdown
 ## ADDED Requirements
@@ -875,55 +814,30 @@ The system SHALL do something new.
 - TO: \`### Requirement: New Name\`
 \`\`\`
 
-**Key Principle: Intelligent Merging**
+**原则：智能合并**——可做部分更新（例如在 MODIFIED 下只加场景、不复制整条）；增量表示*意图*而非整份替换；合理判断合并。
 
-Unlike programmatic merging, you can apply **partial updates**:
-- To add a scenario, just include that scenario under MODIFIED - don't copy existing scenarios
-- The delta represents *intent*, not a wholesale replacement
-- Use your judgment to merge changes sensibly
+**成功时输出**：摘要「## Specs 已同步：<change-name>」、更新了哪些能力与需求（Added/Modified/Removed/Renamed）、说明主规范已更新、变更仍进行中，实施完成后再归档。
 
-**Output On Success**
-
-\`\`\`
-## Specs Synced: <change-name>
-
-Updated main specs:
-
-**<capability-1>**:
-- Added requirement: "New Feature"
-- Modified requirement: "Existing Feature" (added 1 scenario)
-
-**<capability-2>**:
-- Created new spec file
-- Added requirement: "Another Feature"
-
-Main specs are now updated. The change remains active - archive when implementation is complete.
-\`\`\`
-
-**Guardrails**
-- Read both delta and main specs before making changes
-- Preserve existing content not mentioned in delta
-- If something is unclear, ask for clarification
-- Show what you're changing as you go
-- The operation should be idempotent - running twice should give same result`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+**边界**：先读增量与主规范再改；保留增量未提及的既有内容；不清处先澄清；边改边说明；操作应幂等（执行两次结果一致）。`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-onboard skill
- * Guided onboarding through the complete OpenSpec workflow
+ * Template for phspec-onboard skill
+ * Guided onboarding through the complete PhSpec workflow
  */
 export function getOnboardSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-onboard',
-    description: 'Guided onboarding for OpenSpec - walk through a complete workflow cycle with narration and real codebase work.',
+    name: "phspec-onboard",
+    description:
+      "PhSpec 引导入门：带讲解走完一整轮工作流，并基于真实代码库操作。",
     instructions: getOnboardInstructions(),
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
@@ -931,66 +845,66 @@ export function getOnboardSkillTemplate(): SkillTemplate {
  * Shared onboarding instructions used by both skill and command templates.
  */
 function getOnboardInstructions(): string {
-  return `Guide the user through their first complete OpenSpec workflow cycle. This is a teaching experience—you'll do real work in their codebase while explaining each step.
+  return `引导用户完成第一次完整的 PhSpec 工作流循环。这是一次教学式体验——你会在其代码库中做真实操作，并逐步讲解。
 
 ---
 
-## Preflight
+## 前置检查
 
-Before starting, check if the OpenSpec CLI is installed:
+开始前确认 PhSpec CLI 是否已安装：
 
 \`\`\`bash
 # Unix/macOS
-openspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
+phspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
 # Windows (PowerShell)
-# if (Get-Command openspec -ErrorAction SilentlyContinue) { openspec --version } else { echo "CLI_NOT_INSTALLED" }
+# if (Get-Command phspec -ErrorAction SilentlyContinue) { phspec --version } else { echo "CLI_NOT_INSTALLED" }
 \`\`\`
 
-**If CLI not installed:**
-> OpenSpec CLI is not installed. Install it first, then come back to \`/opsx:onboard\`.
+**若未安装 CLI：**
+> PhSpec CLI 未安装。请先安装，再回来执行 \`/phsx:onboard\`。
 
-Stop here if not installed.
+未安装则在此停止。
 
 ---
 
-## Phase 1: Welcome
+## 阶段 1：欢迎
 
-Display:
+展示：
 
 \`\`\`
-## Welcome to OpenSpec!
+## 欢迎使用 PhSpec！
 
-I'll walk you through a complete change cycle—from idea to implementation—using a real task in your codebase. Along the way, you'll learn the workflow by doing it.
+我会用你代码库里的一个真实任务，带你走完从想法到实现的一整轮变更。一边做一边熟悉工作流。
 
-**What we'll do:**
-1. Pick a small, real task in your codebase
-2. Explore the problem briefly
-3. Create a change (the container for our work)
-4. Build the artifacts: proposal → specs → design → tasks
-5. Implement the tasks
-6. Archive the completed change
+**我们将要做的事：**
+1. 在代码库中选一个小而实的任务
+2. 简短探索问题
+3. 创建一个变更（作为工作的容器）
+4. 搭建制品：提案 → 规范 → 设计 → 任务
+5. 实施任务
+6. 归档已完成的变更
 
-**Time:** ~15-20 minutes
+**预计时间：** 约 15–20 分钟
 
-Let's start by finding something to work on.
+先从找一件事开始吧。
 \`\`\`
 
 ---
 
-## Phase 2: Task Selection
+## 阶段 2：选择任务
 
-### Codebase Analysis
+### 代码库分析
 
-Scan the codebase for small improvement opportunities. Look for:
+扫描代码库，寻找可做的小改进。关注：
 
-1. **TODO/FIXME comments** - Search for \`TODO\`, \`FIXME\`, \`HACK\`, \`XXX\` in code files
-2. **Missing error handling** - \`catch\` blocks that swallow errors, risky operations without try-catch
-3. **Functions without tests** - Cross-reference \`src/\` with test directories
-4. **Type issues** - \`any\` types in TypeScript files (\`: any\`, \`as any\`)
-5. **Debug artifacts** - \`console.log\`, \`console.debug\`, \`debugger\` statements in non-debug code
-6. **Missing validation** - User input handlers without validation
+1. **TODO/FIXME 注释** - 在代码中搜索 \`TODO\`、\`FIXME\`、\`HACK\`、\`XXX\`
+2. **缺失错误处理** - 吞掉错误的 \`catch\`、无 try-catch 的风险操作
+3. **无测试的函数** - 对照 \`src/\` 与测试目录
+4. **类型问题** - TypeScript 中的 \`any\`（\`: any\`、\`as any\`）
+5. **调试残留** - 非调试代码中的 \`console.log\`、\`console.debug\`、\`debugger\`
+6. **缺失校验** - 用户输入处无校验
 
-Also check recent git activity:
+并查看近期 git 记录：
 \`\`\`bash
 # Unix/macOS
 git log --oneline -10 2>/dev/null || echo "No git history"
@@ -998,208 +912,208 @@ git log --oneline -10 2>/dev/null || echo "No git history"
 # git log --oneline -10 2>$null; if ($LASTEXITCODE -ne 0) { echo "No git history" }
 \`\`\`
 
-### Present Suggestions
+### 呈现建议
 
-From your analysis, present 3-4 specific suggestions:
-
-\`\`\`
-## Task Suggestions
-
-Based on scanning your codebase, here are some good starter tasks:
-
-**1. [Most promising task]**
-   Location: \`src/path/to/file.ts:42\`
-   Scope: ~1-2 files, ~20-30 lines
-   Why it's good: [brief reason]
-
-**2. [Second task]**
-   Location: \`src/another/file.ts\`
-   Scope: ~1 file, ~15 lines
-   Why it's good: [brief reason]
-
-**3. [Third task]**
-   Location: [location]
-   Scope: [estimate]
-   Why it's good: [brief reason]
-
-**4. Something else?**
-   Tell me what you'd like to work on.
-
-Which task interests you? (Pick a number or describe your own)
-\`\`\`
-
-**If nothing found:** Fall back to asking what the user wants to build:
-> I didn't find obvious quick wins in your codebase. What's something small you've been meaning to add or fix?
-
-### Scope Guardrail
-
-If the user picks or describes something too large (major feature, multi-day work):
+根据分析给出 3–4 条具体建议：
 
 \`\`\`
-That's a valuable task, but it's probably larger than ideal for your first OpenSpec run-through.
+## 任务建议
 
-For learning the workflow, smaller is better—it lets you see the full cycle without getting stuck in implementation details.
+根据对代码库的扫描，以下是不错的入门任务：
 
-**Options:**
-1. **Slice it smaller** - What's the smallest useful piece of [their task]? Maybe just [specific slice]?
-2. **Pick something else** - One of the other suggestions, or a different small task?
-3. **Do it anyway** - If you really want to tackle this, we can. Just know it'll take longer.
+**1. [最推荐的一条]**
+   位置：\`src/path/to/file.ts:42\`
+   范围：约 1–2 个文件，约 20–30 行
+   推荐理由：[简短说明]
 
-What would you prefer?
+**2. [第二条]**
+   位置：\`src/another/file.ts\`
+   范围：约 1 个文件，约 15 行
+   推荐理由：[简短说明]
+
+**3. [第三条]**
+   位置：[位置]
+   范围：[估计]
+   推荐理由：[简短说明]
+
+**4. 其他？**
+   说说你想做哪类事情。
+
+你对哪条感兴趣？（选编号或描述自己的任务）
 \`\`\`
 
-Let the user override if they insist—this is a soft guardrail.
+**若未找到合适任务**：改为询问用户想做什么：
+> 在代码库中没发现明显可快速改进的点。有没有你一直想加或想修的小功能？
+
+### 范围边界
+
+若用户选或描述的任务过大（大功能、多日工作量）：
+
+\`\`\`
+这个任务很有价值，但对第一次跑通 PhSpec 来说可能偏大。
+
+学工作流时越小越好，能完整走完一轮而不卡在实现细节里。
+
+**可选：**
+1. **再切小一点** - [他们的任务] 里最小可用的那块是什么？比如只做 [具体一块]？
+2. **换一条** - 选上面其他建议，或换一个小任务？
+3. **仍做这条** - 若你坚持，我们可以做，只是会花更久。
+
+你更倾向哪种？
+\`\`\`
+
+用户坚持时可尊重其选择——这是软性边界。
 
 ---
 
-## Phase 3: Explore Demo
+## 阶段 3：探索演示
 
-Once a task is selected, briefly demonstrate explore mode:
-
-\`\`\`
-Before we create a change, let me quickly show you **explore mode**—it's how you think through problems before committing to a direction.
-\`\`\`
-
-Spend 1-2 minutes investigating the relevant code:
-- Read the file(s) involved
-- Draw a quick ASCII diagram if it helps
-- Note any considerations
+任务选定后，简短演示探索模式：
 
 \`\`\`
-## Quick Exploration
+在创建变更之前，先快速展示一下**探索模式**——在确定方向前用来把问题想清楚。
+\`\`\`
 
-[Your brief analysis—what you found, any considerations]
+花 1–2 分钟查看相关代码：
+- 阅读涉及的文件
+- 必要时画简单位 ASCII 图
+- 记下注意点
+
+\`\`\`
+## 快速探索
+
+[你的简短分析：发现了什么、有何注意点]
 
 ┌─────────────────────────────────────────┐
-│   [Optional: ASCII diagram if helpful]  │
+│   [可选：有帮助的 ASCII 图]              │
 └─────────────────────────────────────────┘
 
-Explore mode (\`/opsx:explore\`) is for this kind of thinking—investigating before implementing. You can use it anytime you need to think through a problem.
+探索模式（\`/phsx:explore\`）就是用来做这种「先想再做」的。需要理清问题时随时可用。
 
-Now let's create a change to hold our work.
+接下来我们创建一个变更来承载这次工作。
 \`\`\`
 
-**PAUSE** - Wait for user acknowledgment before proceeding.
+**暂停** - 等用户表示认可后再继续。
 
 ---
 
-## Phase 4: Create the Change
+## 阶段 4：创建变更
 
-**EXPLAIN:**
+**说明：**
 \`\`\`
-## Creating a Change
+## 创建变更
 
-A "change" in OpenSpec is a container for all the thinking and planning around a piece of work. It lives in \`openspec/changes/<name>/\` and holds your artifacts—proposal, specs, design, tasks.
+PhSpec 里的「变更」是一次工作相关的思考与计划的容器，位于 \`phspec/changes/<name>/\`，里面放提案、规范、设计、任务等制品。
 
-Let me create one for our task.
+我为这次任务创建一个。
 \`\`\`
 
-**DO:** Create the change with a derived kebab-case name:
+**执行：** 用推导出的 kebab-case 名称创建变更：
 \`\`\`bash
-openspec new change "<derived-name>"
+phspec new change "<derived-name>"
 \`\`\`
 
-**SHOW:**
+**展示：**
 \`\`\`
-Created: \`openspec/changes/<name>/\`
+已创建：\`phspec/changes/<name>/\`
 
-The folder structure:
+目录结构：
 \`\`\`
-openspec/changes/<name>/
-├── proposal.md    ← Why we're doing this (empty, we'll fill it)
-├── design.md      ← How we'll build it (empty)
-├── specs/         ← Detailed requirements (empty)
-└── tasks.md       ← Implementation checklist (empty)
+phspec/changes/<name>/
+├── proposal.md    ← 为什么做（空，待填写）
+├── design.md      ← 怎么做（空）
+├── specs/         ← 详细需求（空）
+└── tasks.md       ← 实施清单（空）
 \`\`\`
 
-Now let's fill in the first artifact—the proposal.
+接下来填写第一个制品——提案。
 \`\`\`
 
 ---
 
-## Phase 5: Proposal
+## 阶段 5：提案
 
-**EXPLAIN:**
+**说明：**
 \`\`\`
-## The Proposal
+## 提案
 
-The proposal captures **why** we're making this change and **what** it involves at a high level. It's the "elevator pitch" for the work.
+提案记录**为什么**做这次变更、**做什么**（高层概括），相当于这次工作的「电梯演讲」。
 
-I'll draft one based on our task.
+我按当前任务起草一份。
 \`\`\`
 
-**DO:** Draft the proposal content (don't save yet):
+**执行：** 起草提案内容（先不保存）：
 
 \`\`\`
-Here's a draft proposal:
+这是草案：
 
 ---
 
-## Why
+## 动机
 
-[1-2 sentences explaining the problem/opportunity]
+[1–2 句说明问题/机会]
 
-## What Changes
+## 变更内容
 
-[Bullet points of what will be different]
+[要改变什么的要点]
 
-## Capabilities
+## 能力
 
-### New Capabilities
-- \`<capability-name>\`: [brief description]
+### 新增能力
+- \`<capability-name>\`: [简短描述]
 
-### Modified Capabilities
-<!-- If modifying existing behavior -->
+### 修改能力
+<!-- 若为修改现有行为 -->
 
-## Impact
+## 影响
 
-- \`src/path/to/file.ts\`: [what changes]
-- [other files if applicable]
+- \`src/path/to/file.ts\`: [会改什么]
+- [其他涉及文件]
 
 ---
 
-Does this capture the intent? I can adjust before we save it.
+是否表达清楚了？保存前可以再改。
 \`\`\`
 
-**PAUSE** - Wait for user approval/feedback.
+**暂停** - 等用户同意或反馈。
 
-After approval, save the proposal:
+同意后保存提案：
 \`\`\`bash
-openspec instructions proposal --change "<name>" --json
+phspec instructions proposal --change "<name>" --json
 \`\`\`
-Then write the content to \`openspec/changes/<name>/proposal.md\`.
+再将内容写入 \`phspec/changes/<name>/proposal.md\`。
 
 \`\`\`
-Proposal saved. This is your "why" document—you can always come back and refine it as understanding evolves.
+提案已保存。这是你的「为什么」文档，理解深化后随时可回来改。
 
-Next up: specs.
+下一步：规范。
 \`\`\`
 
 ---
 
-## Phase 6: Specs
+## 阶段 6：规范
 
-**EXPLAIN:**
+**说明：**
 \`\`\`
-## Specs
+## 规范
 
-Specs define **what** we're building in precise, testable terms. They use a requirement/scenario format that makes expected behavior crystal clear.
+规范用可测试的精确语言定义**做什么**，采用需求/场景格式，让预期行为一目了然。
 
-For a small task like this, we might only need one spec file.
+像这样的小任务，可能只需要一个规范文件。
 \`\`\`
 
-**DO:** Create the spec file:
+**执行：** 创建规范目录与文件：
 \`\`\`bash
 # Unix/macOS
-mkdir -p openspec/changes/<name>/specs/<capability-name>
+mkdir -p phspec/changes/<name>/specs/<capability-name>
 # Windows (PowerShell)
-# New-Item -ItemType Directory -Force -Path "openspec/changes/<name>/specs/<capability-name>"
+# New-Item -ItemType Directory -Force -Path "phspec/changes/<name>/specs/<capability-name>"
 \`\`\`
 
-Draft the spec content:
+起草规范内容：
 
 \`\`\`
-Here's the spec:
+规范草案：
 
 ---
 
@@ -1207,257 +1121,257 @@ Here's the spec:
 
 ### Requirement: <Name>
 
-<Description of what the system should do>
+<系统应做什么的描述>
 
 #### Scenario: <Scenario name>
 
-- **WHEN** <trigger condition>
-- **THEN** <expected outcome>
-- **AND** <additional outcome if needed>
+- **WHEN** <触发条件>
+- **THEN** <预期结果>
+- **AND** <若有附加结果>
 
 ---
 
-This format—WHEN/THEN/AND—makes requirements testable. You can literally read them as test cases.
+WHEN/THEN/AND 格式让需求可测试，可直接当测试用例读。
 \`\`\`
 
-Save to \`openspec/changes/<name>/specs/<capability>/spec.md\`.
+保存到 \`phspec/changes/<name>/specs/<capability>/spec.md\`。
 
 ---
 
-## Phase 7: Design
+## 阶段 7：设计
 
-**EXPLAIN:**
+**说明：**
 \`\`\`
-## Design
+## 设计
 
-The design captures **how** we'll build it—technical decisions, tradeoffs, approach.
+设计记录**怎么做**——技术决策、取舍、实现思路。
 
-For small changes, this might be brief. That's fine—not every change needs deep design discussion.
+小变更可以写得很短，不必每个变更都做长篇设计讨论。
 \`\`\`
 
-**DO:** Draft design.md:
+**执行：** 起草 design.md：
 
 \`\`\`
-Here's the design:
+设计草案：
 
 ---
 
 ## Context
 
-[Brief context about the current state]
+[当前状态的简短上下文]
 
 ## Goals / Non-Goals
 
-**Goals:**
-- [What we're trying to achieve]
+**目标：**
+- [要达成的结果]
 
-**Non-Goals:**
-- [What's explicitly out of scope]
+**非目标：**
+- [明确不做的范围]
 
 ## Decisions
 
-### Decision 1: [Key decision]
+### Decision 1: [关键决策]
 
-[Explanation of approach and rationale]
-
----
-
-For a small task, this captures the key decisions without over-engineering.
-\`\`\`
-
-Save to \`openspec/changes/<name>/design.md\`.
+[做法与理由]
 
 ---
 
-## Phase 8: Tasks
-
-**EXPLAIN:**
-\`\`\`
-## Tasks
-
-Finally, we break the work into implementation tasks—checkboxes that drive the apply phase.
-
-These should be small, clear, and in logical order.
+小任务这样就能抓住关键决策，不必过度设计。
 \`\`\`
 
-**DO:** Generate tasks based on specs and design:
-
-\`\`\`
-Here are the implementation tasks:
+保存到 \`phspec/changes/<name>/design.md\`。
 
 ---
 
-## 1. [Category or file]
+## 阶段 8：任务
 
-- [ ] 1.1 [Specific task]
-- [ ] 1.2 [Specific task]
+**说明：**
+\`\`\`
+## 任务
+
+最后把工作拆成实施任务——勾选清单，驱动 apply 阶段。
+
+任务应小而清晰，顺序合理。
+\`\`\`
+
+**执行：** 根据规范与设计生成任务：
+
+\`\`\`
+实施任务草案：
+
+---
+
+## 1. [类别或文件]
+
+- [ ] 1.1 [具体任务]
+- [ ] 1.2 [具体任务]
 
 ## 2. Verify
 
-- [ ] 2.1 [Verification step]
+- [ ] 2.1 [验证步骤]
 
 ---
 
-Each checkbox becomes a unit of work in the apply phase. Ready to implement?
+每个勾选对应 apply 阶段的一个工作单元。准备好实施了吗？
 \`\`\`
 
-**PAUSE** - Wait for user to confirm they're ready to implement.
+**暂停** - 等用户确认可以开始实施。
 
-Save to \`openspec/changes/<name>/tasks.md\`.
+保存到 \`phspec/changes/<name>/tasks.md\`。
 
 ---
 
-## Phase 9: Apply (Implementation)
+## 阶段 9：实施（Apply）
 
-**EXPLAIN:**
+**说明：**
 \`\`\`
-## Implementation
+## 实施
 
-Now we implement each task, checking them off as we go. I'll announce each one and occasionally note how the specs/design informed the approach.
+现在逐项实施任务，边做边勾选。我会说明当前在做哪条，偶尔点出规范/设计如何影响做法。
 \`\`\`
 
-**DO:** For each task:
+**执行：** 对每条任务：
 
-1. Announce: "Working on task N: [description]"
-2. Implement the change in the codebase
-3. Reference specs/design naturally: "The spec says X, so I'm doing Y"
-4. Mark complete in tasks.md: \`- [ ]\` → \`- [x]\`
-5. Brief status: "✓ Task N complete"
+1. 说明：「正在做任务 N：[描述]」
+2. 在代码库中完成修改
+3. 自然引用规范/设计：「规范里要求 X，所以这里做 Y」
+4. 在 tasks.md 中勾选：\`- [ ]\` → \`- [x]\`
+5. 简短状态：「✓ 任务 N 完成」
 
-Keep narration light—don't over-explain every line of code.
+叙述保持简洁，不必逐行解释代码。
 
-After all tasks:
+全部完成后：
 
 \`\`\`
-## Implementation Complete
+## 实施完成
 
-All tasks done:
+任务已全部完成：
 - [x] Task 1
 - [x] Task 2
 - [x] ...
 
-The change is implemented! One more step—let's archive it.
+变更已落地！最后一步——归档。
 \`\`\`
 
 ---
 
-## Phase 10: Archive
+## 阶段 10：归档
 
-**EXPLAIN:**
+**说明：**
 \`\`\`
-## Archiving
+## 归档
 
-When a change is complete, we archive it. This moves it from \`openspec/changes/\` to \`openspec/changes/archive/YYYY-MM-DD-<name>/\`.
+变更完成后进行归档，会从 \`phspec/changes/\` 移动到 \`phspec/changes/archive/YYYY-MM-DD-<name>/\`。
 
-Archived changes become your project's decision history—you can always find them later to understand why something was built a certain way.
+归档后的变更成为项目的决策历史，日后可随时查看当时为何这样实现。
 \`\`\`
 
-**DO:**
+**执行：**
 \`\`\`bash
-openspec archive "<name>"
+phspec archive "<name>"
 \`\`\`
 
-**SHOW:**
+**展示：**
 \`\`\`
-Archived to: \`openspec/changes/archive/YYYY-MM-DD-<name>/\`
+已归档至：\`phspec/changes/archive/YYYY-MM-DD-<name>/\`
 
-The change is now part of your project's history. The code is in your codebase, the decision record is preserved.
+变更已进入项目历史，代码在代码库中，决策记录已保留。
 \`\`\`
 
 ---
 
-## Phase 11: Recap & Next Steps
+## 阶段 11：回顾与下一步
 
 \`\`\`
-## Congratulations!
+## 完成
 
-You just completed a full OpenSpec cycle:
+你已经跑完一整轮 PhSpec：
 
-1. **Explore** - Thought through the problem
-2. **New** - Created a change container
-3. **Proposal** - Captured WHY
-4. **Specs** - Defined WHAT in detail
-5. **Design** - Decided HOW
-6. **Tasks** - Broke it into steps
-7. **Apply** - Implemented the work
-8. **Archive** - Preserved the record
+1. **探索** - 把问题想清楚
+2. **新建** - 创建变更容器
+3. **提案** - 记录为什么
+4. **规范** - 明确做什么
+5. **设计** - 决定怎么做
+6. **任务** - 拆成步骤
+7. **实施** - 完成实现
+8. **归档** - 保留记录
 
-This same rhythm works for any size change—a small fix or a major feature.
+同样的节奏适用于任何规模的变更——小修小补或大功能都适用。
 
 ---
 
-## Command Reference
+## 命令速查
 
-| Command | What it does |
+| 命令 | 用途 |
 |---------|--------------|
-| \`/opsx:explore\` | Think through problems before/during work |
-| \`/opsx:new\` | Start a new change, step through artifacts |
-| \`/opsx:ff\` | Fast-forward: create all artifacts at once |
-| \`/opsx:continue\` | Continue working on an existing change |
-| \`/opsx:apply\` | Implement tasks from a change |
-| \`/opsx:verify\` | Verify implementation matches artifacts |
-| \`/opsx:archive\` | Archive a completed change |
+| \`/phsx:explore\` | 工作前后理清问题 |
+| \`/phsx:new\` | 新建变更，按步骤建制品 |
+| \`/phsx:ff\` | 快进：一次性建齐制品 |
+| \`/phsx:continue\` | 继续已有变更 |
+| \`/phsx:apply\` | 按变更实施任务 |
+| \`/phsx:verify\` | 校验实现与制品是否一致 |
+| \`/phsx:archive\` | 归档已完成的变更 |
 
 ---
 
-## What's Next?
+## 下一步
 
-Try \`/opsx:new\` or \`/opsx:ff\` on something you actually want to build. You've got the rhythm now!
+用 \`/phsx:new\` 或 \`/phsx:ff\` 在你真正想做的功能上试一次，节奏你已经有了。
 \`\`\`
 
 ---
 
-## Graceful Exit Handling
+## 从容退出
 
-### User wants to stop mid-way
+### 用户中途想停
 
-If the user says they need to stop, want to pause, or seem disengaged:
-
-\`\`\`
-No problem! Your change is saved at \`openspec/changes/<name>/\`.
-
-To pick up where we left off later:
-- \`/opsx:continue <name>\` - Resume artifact creation
-- \`/opsx:apply <name>\` - Jump to implementation (if tasks exist)
-
-The work won't be lost. Come back whenever you're ready.
-\`\`\`
-
-Exit gracefully without pressure.
-
-### User just wants command reference
-
-If the user says they just want to see the commands or skip the tutorial:
+若用户表示要停、要暂停或显得不投入：
 
 \`\`\`
-## OpenSpec Quick Reference
+没问题！当前变更已保存在 \`phspec/changes/<name>/\`。
 
-| Command | What it does |
+之后想接着做可以：
+- \`/phsx:continue <name>\` - 继续创建制品
+- \`/phsx:apply <name>\` - 直接进入实施（若已有任务）
+
+工作不会丢，随时回来即可。
+\`\`\`
+
+从容结束，不施压。
+
+### 用户只要命令速查
+
+若用户说只想看命令或跳过教程：
+
+\`\`\`
+## PhSpec 速查
+
+| 命令 | 用途 |
 |---------|--------------|
-| \`/opsx:explore\` | Think through problems (no code changes) |
-| \`/opsx:new <name>\` | Start a new change, step by step |
-| \`/opsx:ff <name>\` | Fast-forward: all artifacts at once |
-| \`/opsx:continue <name>\` | Continue an existing change |
-| \`/opsx:apply <name>\` | Implement tasks |
-| \`/opsx:verify <name>\` | Verify implementation |
-| \`/opsx:archive <name>\` | Archive when done |
+| \`/phsx:explore\` | 理清问题（不写代码） |
+| \`/phsx:new <name>\` | 新建变更，逐步建制品 |
+| \`/phsx:ff <name>\` | 快进：一次性建齐制品 |
+| \`/phsx:continue <name>\` | 继续已有变更 |
+| \`/phsx:apply <name>\` | 实施任务 |
+| \`/phsx:verify <name>\` | 校验实现 |
+| \`/phsx:archive <name>\` | 完成后归档 |
 
-Try \`/opsx:new\` to start your first change, or \`/opsx:ff\` if you want to move fast.
+用 \`/phsx:new\` 开始你的第一个变更，或 \`/phsx:ff\` 快速推进。
 \`\`\`
 
-Exit gracefully.
+从容结束。
 
 ---
 
-## Guardrails
+## 边界
 
-- **Follow the EXPLAIN → DO → SHOW → PAUSE pattern** at key transitions (after explore, after proposal draft, after tasks, after archive)
-- **Keep narration light** during implementation—teach without lecturing
-- **Don't skip phases** even if the change is small—the goal is teaching the workflow
-- **Pause for acknowledgment** at marked points, but don't over-pause
-- **Handle exits gracefully**—never pressure the user to continue
-- **Use real codebase tasks**—don't simulate or use fake examples
-- **Adjust scope gently**—guide toward smaller tasks but respect user choice`;
+- **在关键节点遵循「说明 → 执行 → 展示 → 暂停」**（探索后、提案草案后、任务后、归档后）；在标记的「暂停」处必须停止，等用户回复后再继续。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，直接输出说明或选项并写明「请回复后再继续」，不要自行继续下一阶段。
+- **实施时叙述简洁**——教流程不教逐行
+- **不跳过阶段**——即便变更很小，目标是学会工作流
+- **在标记处暂停等确认**，但不要过度暂停
+- **从容处理退出**——不催促用户继续
+- **用真实代码库任务**——不模拟、不用假例子
+- **温和引导范围**——倾向小任务，但尊重用户选择`;
 }
 
 // -----------------------------------------------------------------------------
@@ -1473,64 +1387,64 @@ export interface CommandTemplate {
 }
 
 /**
- * Template for /opsx:explore slash command
+ * Template for /phsx:explore slash command
  * Explore mode - adaptive thinking partner
  */
 export function getOpsxExploreCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Explore',
-    description: 'Enter explore mode - think through ideas, investigate problems, clarify requirements',
-    category: 'Workflow',
-    tags: ['workflow', 'explore', 'experimental', 'thinking'],
-    content: `Enter explore mode. Think deeply. Visualize freely. Follow the conversation wherever it goes.
+    name: "PHSX: Explore",
+    description: "进入探索模式：梳理想法、排查问题、澄清需求",
+    category: "Workflow",
+    tags: ["workflow", "explore", "experimental", "thinking"],
+    content: `进入探索模式。深入思考，自由可视化，对话可任意延伸。
 
-**IMPORTANT: Explore mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must NEVER write code or implement features. If the user asks you to implement something, remind them to exit explore mode first (e.g., start a change with \`/opsx:new\` or \`/opsx:ff\`). You MAY create OpenSpec artifacts (proposals, designs, specs) if the user asks—that's capturing thinking, not implementing.
+**重要：探索模式用于思考，不用于实施。** 你可以读文件、搜代码、查代码库，但绝不要写代码或实现功能。若用户要求实现某功能，提醒其先退出探索模式（例如用 \`/phsx:new\` 或 \`/phsx:ff\` 新建变更）。若用户要求，你可以创建 PhSpec 制品（提案、设计、规范）——那是记录思考，不是实施。
 
-**This is a stance, not a workflow.** There are no fixed steps, no required sequence, no mandatory outputs. You're a thinking partner helping the user explore.
+**这是立场，不是工作流。** 没有固定步骤、必选顺序或强制产出。你是帮助用户探索的思考伙伴。
 
-**Input**: The argument after \`/opsx:explore\` is whatever the user wants to think about. Could be:
-- A vague idea: "real-time collaboration"
-- A specific problem: "the auth system is getting unwieldy"
-- A change name: "add-dark-mode" (to explore in context of that change)
-- A comparison: "postgres vs sqlite for this"
-- Nothing (just enter explore mode)
-
----
-
-## The Stance
-
-- **Curious, not prescriptive** - Ask questions that emerge naturally, don't follow a script
-- **Open threads, not interrogations** - Surface multiple interesting directions and let the user follow what resonates. Don't funnel them through a single path of questions.
-- **Visual** - Use ASCII diagrams liberally when they'd help clarify thinking
-- **Adaptive** - Follow interesting threads, pivot when new information emerges
-- **Patient** - Don't rush to conclusions, let the shape of the problem emerge
-- **Grounded** - Explore the actual codebase when relevant, don't just theorize
+**输入**：\`/phsx:explore\` 后的参数是用户想思考的内容，可以是：
+- 模糊想法："real-time collaboration"
+- 具体问题："the auth system is getting unwieldy"
+- 变更名："add-dark-mode"（在该变更上下文中探索）
+- 比较："postgres vs sqlite for this"
+- 无（仅进入探索模式）
 
 ---
 
-## What You Might Do
+## 立场
 
-Depending on what the user brings, you might:
+- **好奇而不说教** - 自然提出涌现出的问题，不按脚本走
+- **开放话题而非审问** - 呈现多个有趣方向，让用户选有共鸣的。不要用单一问题线牵着走
+- **可视化** - 有助厘清思路时多用 ASCII 图
+- **顺势而为** - 跟随有趣线索，信息变化时随时转向
+- **耐心** - 不急于下结论，让问题轮廓自然浮现
+- **接地** - 相关时探查真实代码库，不只空谈
 
-**Explore the problem space**
-- Ask clarifying questions that emerge from what they said
-- Challenge assumptions
-- Reframe the problem
-- Find analogies
+---
 
-**Investigate the codebase**
-- Map existing architecture relevant to the discussion
-- Find integration points
-- Identify patterns already in use
-- Surface hidden complexity
+## 你可以做的事
 
-**Compare options**
-- Brainstorm multiple approaches
-- Build comparison tables
-- Sketch tradeoffs
-- Recommend a path (if asked)
+视用户带来的内容，你可以：
 
-**Visualize**
+**探索问题空间**
+- 根据其表述提出澄清问题
+- 挑战假设
+- 重述问题
+- 找类比
+
+**探查代码库**
+- 画出与讨论相关的现有架构
+- 找集成点
+- 识别已有模式
+- 暴露隐藏复杂度
+
+**比较方案**
+- 头脑风暴多种做法
+- 做对比表
+- 勾画取舍
+- 被问时给出推荐
+
+**可视化**
 \`\`\`
 ┌─────────────────────────────────────────┐
 │     Use ASCII diagrams liberally        │
@@ -1548,1825 +1462,671 @@ Depending on what the user brings, you might:
 └─────────────────────────────────────────┘
 \`\`\`
 
-**Surface risks and unknowns**
-- Identify what could go wrong
-- Find gaps in understanding
-- Suggest spikes or investigations
+**暴露风险与未知**
+- 指出可能出问题的地方
+- 发现理解缺口
+- 建议探针或调研
 
 ---
 
-## OpenSpec Awareness
+## 对 PhSpec 的认知
 
-You have full context of the OpenSpec system. Use it naturally, don't force it.
+你具备 PhSpec 的完整上下文。自然使用即可，不必生搬。
 
-### Check for context
+### 查看上下文
 
-At the start, quickly check what exists:
+开始时快速查看现状：
 \`\`\`bash
-openspec list --json
+phspec list --json
 \`\`\`
 
-This tells you:
-- If there are active changes
-- Their names, schemas, and status
-- What the user might be working on
+可知：是否有进行中的变更、其名称与工作流模式及状态、用户可能在做什么。若用户提到具体变更名，可读其制品获取上下文。
 
-If the user mentioned a specific change name, read its artifacts for context.
+### 当没有变更时
 
-### When no change exists
+自由思考。当思路成型时，可以提议："思路已经比较清晰，要新建一个变更吗？" → 可转入 \`/phsx:new\` 或 \`/phsx:ff\`；或继续探索，不必非要形式化。
 
-Think freely. When insights crystallize, you might offer:
+### 当已有变更时
 
-- "This feels solid enough to start a change. Want me to create one?"
-  → Can transition to \`/opsx:new\` or \`/opsx:ff\`
-- Or keep exploring - no pressure to formalize
+若用户提到某变更或你发现与某变更相关：阅读已有制品、在对话中自然引用、在做决策时提议记录（见下表）、由用户决定——提议后继续，不施压，不自动写入。
 
-### When a change exists
-
-If the user mentions a change or you detect one is relevant:
-
-1. **Read existing artifacts for context**
-   - \`openspec/changes/<name>/proposal.md\`
-   - \`openspec/changes/<name>/design.md\`
-   - \`openspec/changes/<name>/tasks.md\`
-   - etc.
-
-2. **Reference them naturally in conversation**
-   - "Your design mentions using Redis, but we just realized SQLite fits better..."
-   - "The proposal scopes this to premium users, but we're now thinking everyone..."
-
-3. **Offer to capture when decisions are made**
-
-   | Insight Type | Where to Capture |
-   |--------------|------------------|
-   | New requirement discovered | \`specs/<capability>/spec.md\` |
-   | Requirement changed | \`specs/<capability>/spec.md\` |
-   | Design decision made | \`design.md\` |
-   | Scope changed | \`proposal.md\` |
-   | New work identified | \`tasks.md\` |
-   | Assumption invalidated | Relevant artifact |
-
-   Example offers:
-   - "That's a design decision. Capture it in design.md?"
-   - "This is a new requirement. Add it to specs?"
-   - "This changes scope. Update the proposal?"
-
-4. **The user decides** - Offer and move on. Don't pressure. Don't auto-capture.
+| 洞察类型 | 记录位置 |
+|--------------|------------------|
+| 新发现的需求 | \`specs/<capability>/spec.md\` |
+| 需求变更 | \`specs/<capability>/spec.md\` |
+| 设计决策 | \`design.md\` |
+| 范围变更 | \`proposal.md\` |
+| 新识别的任务 | \`tasks.md\` |
+| 假设被推翻 | 相关制品 |
 
 ---
 
-## What You Don't Have To Do
+## 你不必做的事
 
-- Follow a script
-- Ask the same questions every time
-- Produce a specific artifact
-- Reach a conclusion
-- Stay on topic if a tangent is valuable
-- Be brief (this is thinking time)
-
----
-
-## Ending Discovery
-
-There's no required ending. Discovery might:
-
-- **Flow into action**: "Ready to start? \`/opsx:new\` or \`/opsx:ff\`"
-- **Result in artifact updates**: "Updated design.md with these decisions"
-- **Just provide clarity**: User has what they need, moves on
-- **Continue later**: "We can pick this up anytime"
-
-When things crystallize, you might offer a summary - but it's optional. Sometimes the thinking IS the value.
+- 按脚本走
+- 每次都问同样问题
+- 产出指定制品
+- 必须得出结论
+- tangent 有价值时也要死守主题
+- 非要简短（这是思考时间）
 
 ---
 
-## Guardrails
+## 结束探索
 
-- **Don't implement** - Never write code or implement features. Creating OpenSpec artifacts is fine, writing application code is not.
-- **Don't fake understanding** - If something is unclear, dig deeper
-- **Don't rush** - Discovery is thinking time, not task time
-- **Don't force structure** - Let patterns emerge naturally
-- **Don't auto-capture** - Offer to save insights, don't just do it
-- **Do visualize** - A good diagram is worth many paragraphs
-- **Do explore the codebase** - Ground discussions in reality
-- **Do question assumptions** - Including the user's and your own`
+没有固定收尾。可转入行动、沉淀到制品、只提供清晰度或改天再续。当思路成型时可做小结，但可选；有时思考过程本身就是价值。
+
+---
+
+## 边界
+
+- **不实施** - 绝不写代码或实现功能。创建 PhSpec 制品可以，写业务代码不行。
+- **不装懂** - 不清楚就继续挖
+- **不赶** - 探索是思考时间，不是任务时间
+- **不强行结构** - 让模式自然浮现
+- **不自动记录** - 提议保存洞察，不要擅自写入；若环境无 AskUserQuestion 或 ask_followup_question 等用户确认工具，需要用户选择或确认时直接输出选项并写明「请回复后再继续」，不要擅自写入或继续。
+- **要可视化** - 一张好图顶很多段文字
+- **要查代码库** - 讨论要落在实际上
+- **要质疑假设** - 包括用户和你自己的`,
   };
 }
 
 /**
- * Template for /opsx:new slash command
+ * Template for /phsx:new slash command
  */
 export function getOpsxNewCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: New',
-    description: 'Start a new change using the experimental artifact workflow (OPSX)',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Start a new change using the experimental artifact-driven approach.
+    name: "PHSX: New",
+    description: "新建变更（PHSX 制品工作流）",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
+    content: `使用实验性制品驱动工作流新建变更。
 
-**Input**: The argument after \`/opsx:new\` is the change name (kebab-case), OR a description of what the user wants to build.
+**执行约定（DevAgent / Cline 等 workflow）**：本 workflow 在步骤 6 **必须结束**。步骤 6 中你必须**先调用**用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）向用户提问，**调用后立即结束本次执行**，不得在本轮中创建 proposal.md、design.md、specs、tasks.md 等任何制品。用户回复后再由其主动运行 \`/phsx:continue\` 或说「继续」来创建制品。
 
-**Steps**
+**输入**：\`/phsx:new\` 后的参数为变更名（kebab-case），或用户想做什么的描述。
 
-1. **If no input provided, ask what they want to build**
+**步骤**
 
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
-   > "What change do you want to work on? Describe what you want to build or fix."
+1. **若未提供输入，先问用户要做什么**
 
-   From their description, derive a kebab-case name (e.g., "add user authentication" → \`add-user-auth\`).
+   使用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）（开放问题，无预设选项）询问：
+   > "你想做哪个变更？描述你想做或要修的内容。"
 
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
+   从其描述推导出 kebab-case 名称（如 "add user authentication" → \`add-user-auth\`）。
 
-2. **Determine the workflow schema**
+   **重要**：未弄清用户要做什么前不要继续。
 
-   Use the default schema (omit \`--schema\`) unless the user explicitly requests a different workflow.
+2. **确定工作流模式**
 
-   **Use a different schema only if the user mentions:**
-   - A specific schema name → use \`--schema <name>\`
-   - "show workflows" or "what workflows" → run \`openspec schemas --json\` and let them choose
+   除非用户明确要求其他工作流，否则使用默认模式（不传 \`--schema\`）。
 
-   **Otherwise**: Omit \`--schema\` to use the default.
+   **仅在用户提到以下情况时使用其他模式：**
+   - 指定了某模式名 → 使用 \`--schema <name>\`
+   - "show workflows" 或 "what workflows" → 运行 \`phspec schemas --json\` 让其选择
 
-3. **Create the change directory**
+   **否则**：不传 \`--schema\`，使用默认。
+
+3. **创建变更目录**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
-   Add \`--schema <name>\` only if the user requested a specific workflow.
-   This creates a scaffolded change at \`openspec/changes/<name>/\` with the selected schema.
+   仅当用户指定了工作流时才加 \`--schema <name>\`。
+   会在 \`phspec/changes/<name>/\` 下按所选模式创建脚手架。
 
-4. **Show the artifact status**
+4. **查看制品状态**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
-   This shows which artifacts need to be created and which are ready (dependencies satisfied).
+   可看到哪些制品待创建、哪些已就绪（依赖已满足）。
 
-5. **Get instructions for the first artifact**
-   The first artifact depends on the schema. Check the status output to find the first artifact with status "ready".
+5. **获取第一个制品的指令**
+   第一个制品由模式决定（如 spec-driven 下为 \`proposal\`）。
+   在状态输出中找到第一个状态为 "ready" 的制品。
    \`\`\`bash
-   openspec instructions <first-artifact-id> --change "<name>"
+   phspec instructions <first-artifact-id> --change "<name>"
    \`\`\`
-   This outputs the template and context for creating the first artifact.
+   会输出创建该制品所需的模板与上下文。
 
-6. **STOP and wait for user direction**
+6. **在此暂停，等待用户指示（必须结束）**
 
-**Output**
+   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`** 工具，向用户提问，例如：「变更 <name> 已创建，第一个待建制品是 proposal。要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或回复继续让我创建。」**调用后立即结束本次 workflow 执行**，不得再执行任何写文件操作。
+   - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作，调用后结束本次执行。
+   - **若环境无上述工具**：直接输出上述问题文字并写明「请回复后再继续」，然后结束，不要创建任何制品文件。
+   - **禁止**：在本轮中创建或写入 proposal.md、design.md、specs/*、tasks.md；禁止在未调用用户确认工具（或输出问题并结束）的情况下继续执行后续步骤。
 
-After completing the steps, summarize:
-- Change name and location
-- Schema/workflow being used and its artifact sequence
-- Current status (0/N artifacts complete)
-- The template for the first artifact
-- Prompt: "Ready to create the first artifact? Run \`/opsx:continue\` or just describe what this change is about and I'll draft it."
+**输出**
 
-**Guardrails**
-- Do NOT create any artifacts yet - just show the instructions
-- Do NOT advance beyond showing the first artifact template
-- If the name is invalid (not kebab-case), ask for a valid name
-- If a change with that name already exists, suggest using \`/opsx:continue\` instead
-- Pass --schema if using a non-default workflow`
+完成上述步骤后总结：
+- 变更名与路径
+- 所用工作流模式及其制品顺序
+- 当前状态（0/N 个制品已完成）
+- 第一个制品的模板
+- 通过用户确认工具或文字提示询问："要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或让我继续。"
+
+**边界**
+- 本命令职责仅到「展示第一个制品模板并询问用户」；**不得**在本命令中创建任何制品（proposal、specs、design、tasks 等）；步骤 6 必须通过工具或文字询问后**结束**，由用户下次运行 \`/phsx:continue\` 再创建制品。
+- 先不要创建任何制品，只展示指令；不要越过「展示第一个制品模板」这一步。
+- 若名称无效（非 kebab-case），请用户给出合法名称
+- 若该名称的变更已存在，建议改为继续该变更
+- 使用非默认工作流时传入 --schema`,
   };
 }
 
 /**
- * Template for /opsx:continue slash command
+ * Template for /phsx:continue slash command
  */
 export function getOpsxContinueCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Continue',
-    description: 'Continue working on a change - create the next artifact (Experimental)',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Continue working on a change by creating the next artifact.
+    name: "PHSX: Continue",
+    description: "继续变更：创建下一个制品",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
+    content: `继续当前变更：创建下一个制品。
 
-**Input**: Optionally specify a change name after \`/opsx:continue\` (e.g., \`/opsx:continue add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**执行约定（DevAgent / Cline 等 workflow）**：本 workflow 每次调用**只创建一个制品**。创建完该制品后必须先调用用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）询问是否继续或要修改，**调用后立即结束本次执行**。不得在本轮中连续创建第二个制品。
 
-**Steps**
+**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
-1. **If no change name provided, prompt for selection**
+**步骤**
 
-   Run \`openspec list --json\` to get available changes sorted by most recently modified. Then use the **AskUserQuestion tool** to let the user select which change to work on.
+1. **若未提供变更名，让用户选择**
 
-   Present the top 3-4 most recently modified changes as options, showing:
-   - Change name
-   - Schema (from \`schema\` field if present, otherwise "spec-driven")
-   - Status (e.g., "0/5 tasks", "complete", "no tasks")
-   - How recently it was modified (from \`lastModified\` field)
+   运行 \`phspec list --json\` 获取按最近修改排序的变更列表，再用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择要继续的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出 3～4 个变更选项并写明「请回复后再继续」，不要猜测或自动选变更。
 
-   Mark the most recently modified change as "(Recommended)" since it's likely what the user wants to continue.
+   将最近修改的 3～4 个变更作为选项展示，包含：变更名、工作流模式（有 \`schema\` 字段则用其值，否则为 "spec-driven"）、状态（如 "0/5 tasks"、"complete"、"no tasks"）、最近修改时间（来自 \`lastModified\` 字段）。将最近修改的变更标为「推荐」。
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+   **重要**：不要猜测或自动选变更，始终让用户选择。
 
-2. **Check current status**
+2. **查看当前状态**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to understand current state. The response includes:
-   - \`schemaName\`: The workflow schema being used (e.g., "spec-driven")
-   - \`artifacts\`: Array of artifacts with their status ("done", "ready", "blocked")
-   - \`isComplete\`: Boolean indicating if all artifacts are complete
+   解析 JSON 了解当前状态。响应包含：\`schemaName\`、\`artifacts\`（"done"/"ready"/"blocked"）、\`isComplete\`。
 
-3. **Act based on status**:
+3. **按状态行动**：
 
-   ---
+   **若全部制品已完成（\`isComplete: true\`）**：祝贺用户，展示最终状态，建议「全部制品已就绪！可以用 \`/phsx:apply\` 实施或归档。」并停止。
 
-   **If all artifacts are complete (\`isComplete: true\`)**:
-   - Congratulate the user
-   - Show final status including the schema used
-   - Suggest: "All artifacts created! You can now implement this change with \`/opsx:apply\` or archive it with \`/opsx:archive\`."
-   - STOP
+   **若有制品可创建**（存在 \`status: "ready"\`）：选第一个 ready 制品，运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 \`context\`、\`rules\`、\`template\`、\`instruction\`、\`outputPath\`、\`dependencies\`；先读依赖制品，按 template 填写，遵守 context/rules 但不抄入文件，写入 outputPath；说明创建了什么、接下来可做哪些。然后**必须结束本次执行**：
+   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`**，例如：「已创建 <artifact-id>。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」**调用后立即结束**，不得在本轮中创建下一个制品。
+   - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作后结束。
+   - **若环境无上述工具**：输出上述问题文字并写明「请回复后再继续」，然后结束。
 
-   ---
+   **若没有可创建制品（全部 blocked）**：展示状态并建议检查问题。
 
-   **If artifacts are ready to create** (status shows artifacts with \`status: "ready"\`):
-   - Pick the FIRST artifact with \`status: "ready"\` from the status output
-   - Get its instructions:
-     \`\`\`bash
-     openspec instructions <artifact-id> --change "<name>" --json
-     \`\`\`
-   - Parse the JSON. The key fields are:
-     - \`context\`: Project background (constraints for you - do NOT include in output)
-     - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-     - \`template\`: The structure to use for your output file
-     - \`instruction\`: Schema-specific guidance
-     - \`outputPath\`: Where to write the artifact
-     - \`dependencies\`: Completed artifacts to read for context
-   - **Create the artifact file**:
-     - Read any completed dependency files for context
-     - Use \`template\` as the structure - fill in its sections
-     - Apply \`context\` and \`rules\` as constraints when writing - but do NOT copy them into the file
-     - Write to the output path specified in instructions
-   - Show what was created and what's now unlocked
-   - STOP after creating ONE artifact
-
-   ---
-
-   **If no artifacts are ready (all blocked)**:
-   - This shouldn't happen with a valid schema
-   - Show status and suggest checking for issues
-
-4. **After creating an artifact, show progress**
+4. **创建制品后展示进度**（若已按上一步结束，本步在用户下次运行本 workflow 时适用）
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
-**Output**
+**输出**：每次调用后展示创建了哪个制品、所用工作流、当前进度（N/M 已完成）、当前可创建的制品，并通过用户确认工具或文字提示「要继续吗？要修改刚创建的内容吗？说继续或告诉我下一步即可。」
 
-After each invocation, show:
-- Which artifact was created
-- Schema workflow being used
-- Current progress (N/M complete)
-- What artifacts are now unlocked
-- Prompt: "Run \`/opsx:continue\` to create the next artifact"
+**边界**：本命令每次调用**仅**创建一个制品；创建完一个制品后必须先调用 ask_followup_question/AskUserQuestion（或输出问题并结束），然后停止，等用户回复后再次调用本命令再创建下一个。不得在本轮中连续创建多个制品。
 
-**Artifact Creation Guidelines**
-
-The artifact types and their purpose depend on the schema. Use the \`instruction\` field from the instructions output to understand what to create.
-
-Common artifact patterns:
-
-**spec-driven schema** (proposal → specs → design → tasks):
-- **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
-  - The Capabilities section is critical - each capability listed will need a spec file.
-- **specs/<capability>/spec.md**: Create one spec per capability listed in the proposal's Capabilities section (use the capability name, not the change name).
-- **design.md**: Document technical decisions, architecture, and implementation approach.
-- **tasks.md**: Break down implementation into checkboxed tasks.
-
-For other schemas, follow the \`instruction\` field from the CLI output.
-
-**Guardrails**
-- Create ONE artifact per invocation
-- Always read dependency artifacts before creating a new one
-- Never skip artifacts or create out of order
-- If context is unclear, ask the user before creating
-- Verify the artifact file exists after writing before marking progress
-- Use the schema's artifact sequence, don't assume specific artifact names
-- **IMPORTANT**: \`context\` and \`rules\` are constraints for YOU, not content for the file
-  - Do NOT copy \`<context>\`, \`<rules>\`, \`<project_context>\` blocks into the artifact
-  - These guide what you write, but should never appear in the output`
+**制品创建指引**：制品类型与用途由模式决定，以指令输出中的 \`instruction\` 为准。常见模式（spec-driven）：proposal → specs → design → tasks；proposal.md / specs/<capability>/spec.md / design.md / tasks.md 的用途见 schema。**重要**：\`context\` 与 \`rules\` 是给你的约束，不要将 \`<context>\`、\`<rules>\`、\`<project_context>\` 抄进制品。`,
   };
 }
 
 /**
- * Template for /opsx:apply slash command
+ * Template for /phsx:apply slash command
  */
 export function getOpsxApplyCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Apply',
-    description: 'Implement tasks from an OpenSpec change (Experimental)',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Implement tasks from an OpenSpec change.
+    name: "PHSX: Apply",
+    description: "按 PhSpec 变更实施任务",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
+    content: `按 PhSpec 变更实施任务。
 
-**Input**: Optionally specify a change name (e.g., \`/opsx:apply add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **Select the change**
+1. **选定变更**
 
-   If a name is provided, use it. Otherwise:
-   - Infer from conversation context if the user mentioned a change
-   - Auto-select if only one active change exists
-   - If ambiguous, run \`openspec list --json\` to get available changes and use the **AskUserQuestion tool** to let the user select
+   若提供了名称则用该名称。否则：从上下文推断、仅有一个进行中变更则自动选中、有歧义时用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。若环境无该工具，直接输出变更选项并写明「请回复后再继续」，不要自行假设。
 
-   Always announce: "Using change: <name>" and how to override (e.g., \`/opsx:apply <other>\`).
+   始终说明：「当前变更：<name>」，以及如何切换（如 \`/phsx:apply <其他>\`）。
 
-2. **Check status to understand the schema**
+2. **查看状态以确认工作流模式**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used (e.g., "spec-driven")
-   - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
+   解析 JSON 了解 \`schemaName\`、任务所在制品（spec-driven 多为 "tasks"）。
 
-3. **Get apply instructions**
-
+3. **获取 apply 指令**
    \`\`\`bash
-   openspec instructions apply --change "<name>" --json
+   phspec instructions apply --change "<name>" --json
    \`\`\`
+   返回：上下文文件路径、进度、任务列表及状态、根据当前状态的动态指令。
 
-   This returns:
-   - Context file paths (varies by schema)
-   - Progress (total, complete, remaining)
-   - Task list with status
-   - Dynamic instruction based on current state
+   **状态处理**：\`state: "blocked"\` 时建议先用 \`/phsx:continue\`；\`state: "all_done"\` 时祝贺并建议归档；否则进入实施。
 
-   **Handle states:**
-   - If \`state: "blocked"\` (missing artifacts): show message, suggest using \`/opsx:continue\`
-   - If \`state: "all_done"\`: congratulate, suggest archive
-   - Otherwise: proceed to implementation
+4. **阅读上下文文件**
 
-4. **Read context files**
+   按 apply 指令输出中的 \`contextFiles\` 读取对应文件。
+   具体文件因模式而异：**spec-driven** 为 proposal、specs、design、tasks
+   - 其他模式以 CLI 的 contextFiles 为准
 
-   Read the files listed in \`contextFiles\` from the apply instructions output.
-   The files depend on the schema being used:
-   - **spec-driven**: proposal, specs, design, tasks
-   - Other schemas: follow the contextFiles from CLI output
+5. **展示当前进度**
 
-5. **Show current progress**
+   展示：所用模式、进度「N/M 任务已完成」、剩余任务概览、CLI 返回的动态指令。
 
-   Display:
-   - Schema being used
-   - Progress: "N/M tasks complete"
-   - Remaining tasks overview
-   - Dynamic instruction from CLI
+6. **实施任务（循环至完成或受阻）**
 
-6. **Implement tasks (loop until done or blocked)**
+   对每个未完成任务：说明正在做哪项任务、完成所需代码改动、改动保持最小紧扣该任务、在任务文件中勾选完成 \`- [ ]\` → \`- [x]\`、继续下一项。
 
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: \`- [ ]\` → \`- [x]\`
-   - Continue to next task
+   **以下情况必须暂停**（不要自行假设或继续下一项任务）：任务不清晰 → 先澄清（若环境无 AskUserQuestion 或 ask_followup_question，直接输出问题并写明「请回复后再继续」）；实施暴露出设计问题 → 建议更新制品并等待指示；报错或受阻 → 说明并等待指示；用户打断。
 
-   **Pause if:**
-   - Task is unclear → ask for clarification
-   - Implementation reveals a design issue → suggest updating artifacts
-   - Error or blocker encountered → report and wait for guidance
-   - User interrupts
+7. **完成或暂停时展示状态**
 
-7. **On completion or pause, show status**
+   展示：本轮完成的任务、总进度「N/M 任务已完成」；若全部完成则建议归档；若暂停则说明原因并等待指示。
 
-   Display:
-   - Tasks completed this session
-   - Overall progress: "N/M tasks complete"
-   - If all done: suggest archive
-   - If paused: explain why and wait for guidance
+**实施过程输出示例**：见技能指令中的「实施过程输出示例」「全部完成时输出」「暂停时输出」。
 
-**Output During Implementation**
-
-\`\`\`
-## Implementing: <change-name> (schema: <schema-name>)
-
-Working on task 3/7: <task description>
-[...implementation happening...]
-✓ Task complete
-
-Working on task 4/7: <task description>
-[...implementation happening...]
-✓ Task complete
-\`\`\`
-
-**Output On Completion**
-
-\`\`\`
-## Implementation Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 7/7 tasks complete ✓
-
-### Completed This Session
-- [x] Task 1
-- [x] Task 2
-...
-
-All tasks complete! You can archive this change with \`/opsx:archive\`.
-\`\`\`
-
-**Output On Pause (Issue Encountered)**
-
-\`\`\`
-## Implementation Paused
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Progress:** 4/7 tasks complete
-
-### Issue Encountered
-<description of the issue>
-
-**Options:**
-1. <option 1>
-2. <option 2>
-3. Other approach
-
-What would you like to do?
-\`\`\`
-
-**Guardrails**
-- Keep going through tasks until done or blocked
-- Always read context files before starting (from the apply instructions output)
-- If task is ambiguous, pause and ask before implementing
-- If implementation reveals issues, pause and suggest artifact updates
-- Keep code changes minimal and scoped to each task
-- Update task checkbox immediately after completing each task
-- Pause on errors, blockers, or unclear requirements - don't guess
-- Use contextFiles from CLI output, don't assume specific file names
-
-**Fluid Workflow Integration**
-
-This skill supports the "actions on a change" model:
-
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly`
+**边界**：始终先读上下文文件；任务不明确时暂停并询问（若环境无用户确认工具，直接输出问题并写明「请回复后再继续」）；改动最小化并紧扣任务；完成每项后立即勾选；遇错或受阻时暂停不猜测；以 CLI 的 contextFiles 为准。本技能可随时调用（制品未全完成时若已有任务、部分实施后、与其他操作交替），实施中若发现设计问题可建议更新制品。`,
   };
 }
 
-
 /**
- * Template for /opsx:ff slash command
+ * Template for /phsx:ff slash command
  */
 export function getOpsxFfCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Fast Forward',
-    description: 'Create a change and generate all artifacts needed for implementation in one go',
-    category: 'Workflow',
-    tags: ['workflow', 'artifacts', 'experimental'],
-    content: `Fast-forward through artifact creation - generate everything needed to start implementation.
+    name: "PHSX: Fast Forward",
+    description: "创建变更并一次性生成实施所需全部制品",
+    category: "Workflow",
+    tags: ["workflow", "artifacts", "experimental"],
+    content: `快进式创建制品——一次性生成实施所需全部制品。
 
-**Input**: The argument after \`/opsx:ff\` is the change name (kebab-case), OR a description of what the user wants to build.
+**输入**：\`/phsx:ff\` 后为变更名（kebab-case）或用户想做什么的描述。
 
-**Steps**
+**步骤**
 
-1. **If no input provided, ask what they want to build**
+1. **若未提供明确输入，先问用户要做什么**
 
-   Use the **AskUserQuestion tool** (open-ended, no preset options) to ask:
-   > "What change do you want to work on? Describe what you want to build or fix."
+   用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 询问并推导 kebab-case 名称。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出问题并写明「请回复后再继续」，不要自行假设后继续。**重要**：未弄清用户要做什么前不要继续。
 
-   From their description, derive a kebab-case name (e.g., "add user authentication" → \`add-user-auth\`).
-
-   **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
-
-2. **Create the change directory**
+2. **创建变更目录**
    \`\`\`bash
-   openspec new change "<name>"
+   phspec new change "<name>"
    \`\`\`
-   This creates a scaffolded change at \`openspec/changes/<name>/\`.
+   会在 \`phspec/changes/<name>/\` 下创建脚手架。
 
-3. **Get the artifact build order**
+3. **获取制品构建顺序**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to get:
-   - \`applyRequires\`: array of artifact IDs needed before implementation (e.g., \`["tasks"]\`)
-   - \`artifacts\`: list of all artifacts with their status and dependencies
+   解析 \`applyRequires\`（实施前需要的制品 ID）、\`artifacts\`（所有制品及状态与依赖）。
 
-4. **Create artifacts in sequence until apply-ready**
+4. **按顺序创建制品直至可实施**
 
-   Use the **TodoWrite tool** to track progress through the artifacts.
+   用 **TodoWrite 工具** 跟踪进度。按依赖顺序遍历：对每个 \`ready\` 制品运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 context/rules/template/instruction/outputPath/dependencies；先读依赖制品，按 template 创建文件，遵守 context 与 rules 但不抄入文件；简要提示「✓ 已创建 <artifact-id>」。每创建一个制品后重跑 status，当 \`applyRequires\` 中制品均为 \`done\` 时停止。若某制品需用户输入则用 AskUserQuestion 或 ask_followup_question 澄清后继续；若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
 
-   Loop through artifacts in dependency order (artifacts with no pending dependencies first):
-
-   a. **For each artifact that is \`ready\` (dependencies satisfied)**:
-      - Get instructions:
-        \`\`\`bash
-        openspec instructions <artifact-id> --change "<name>" --json
-        \`\`\`
-      - The instructions JSON includes:
-        - \`context\`: Project background (constraints for you - do NOT include in output)
-        - \`rules\`: Artifact-specific rules (constraints for you - do NOT include in output)
-        - \`template\`: The structure to use for your output file
-        - \`instruction\`: Schema-specific guidance for this artifact type
-        - \`outputPath\`: Where to write the artifact
-        - \`dependencies\`: Completed artifacts to read for context
-      - Read any completed dependency files for context
-      - Create the artifact file using \`template\` as the structure
-      - Apply \`context\` and \`rules\` as constraints - but do NOT copy them into the file
-      - Show brief progress: "✓ Created <artifact-id>"
-
-   b. **Continue until all \`applyRequires\` artifacts are complete**
-      - After creating each artifact, re-run \`openspec status --change "<name>" --json\`
-      - Check if every artifact ID in \`applyRequires\` has \`status: "done"\` in the artifacts array
-      - Stop when all \`applyRequires\` artifacts are done
-
-   c. **If an artifact requires user input** (unclear context):
-      - Use **AskUserQuestion tool** to clarify
-      - Then continue with creation
-
-5. **Show final status**
+5. **展示最终状态**
    \`\`\`bash
-   openspec status --change "<name>"
+   phspec status --change "<name>"
    \`\`\`
 
-**Output**
+**输出**：总结变更名与路径、已创建制品列表、「全部制品已就绪，可以开始实施。」、提示「运行 \`/phsx:apply\` 或让我实施即可开始任务。」
 
-After completing all artifacts, summarize:
-- Change name and location
-- List of artifacts created with brief descriptions
-- What's ready: "All artifacts created! Ready for implementation."
-- Prompt: "Run \`/opsx:apply\` to start implementing."
-
-**Artifact Creation Guidelines**
-
-- Follow the \`instruction\` field from \`openspec instructions\` for each artifact type
-- The schema defines what each artifact should contain - follow it
-- Read dependency artifacts for context before creating new ones
-- Use the \`template\` as a starting point, filling in based on context
-
-**Guardrails**
-- Create ALL artifacts needed for implementation (as defined by schema's \`apply.requires\`)
-- Always read dependency artifacts before creating a new one
-- If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
-- If a change with that name already exists, ask if user wants to continue it or create a new one
-- Verify each artifact file exists after writing before proceeding to next`
+**制品创建**：按 \`phspec instructions\` 的 \`instruction\` 与模式定义。**边界**：创建模式 \`apply.requires\` 所需的全部制品；先读依赖再创建；名称已存在时建议继续该变更；写入后确认文件存在再继续。`,
   };
 }
 
 /**
- * Template for openspec-archive-change skill
+ * Template for phspec-archive-change skill
  * For archiving completed changes in the experimental workflow
  */
 export function getArchiveChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-archive-change',
-    description: 'Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.',
-    instructions: `Archive a completed change in the experimental workflow.
+    name: "phspec-archive-change",
+    description: "归档已完成的变更。适用于实施完成后要收尾并归档变更时。",
+    instructions: `在实验性工作流中归档已完成的变更。
 
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；含糊或有歧义时必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **If no change name provided, prompt for selection**
+1. **若未提供变更名，让用户选择**
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示进行中的变更（未归档的），若有则展示每个变更所用工作流模式。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。
 
-   Show only active changes (not already archived).
-   Include the schema used for each change if available.
+   **重要**：不要猜测或自动选择，始终让用户选择。
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+2. **检查制品完成状态**
 
-2. **Check artifact completion status**
+   运行 \`phspec status --change "<name>" --json\` 查看制品完成情况。解析 JSON：\`schemaName\`、\`artifacts\` 及各状态（\`done\` 或其他）。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 确认是否继续，用户确认后继续。若环境无该工具，直接输出警告与「是否继续？」并写明「请回复后再继续」，不要自行假设。
 
-   Run \`openspec status --change "<name>" --json\` to check artifact completion.
+3. **检查任务完成状态**
 
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used
-   - \`artifacts\`: List of artifacts with their status (\`done\` or other)
+   阅读任务文件（通常为 \`tasks.md\`），统计 \`- [ ]\`（未完成）与 \`- [x]\`（已完成）。若有未完成任务：展示未完成数量并警告，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 确认是否继续，用户确认后继续。若环境无该工具，直接输出问题并写明「请回复后再继续」。若无任务文件：不提示任务相关警告，继续。
 
-   **If any artifacts are not \`done\`:**
-   - Display warning listing incomplete artifacts
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
+4. **评估增量规范同步状态**
 
-3. **Check task completion status**
+   检查 \`phspec/changes/<name>/specs/\` 是否有增量规范。若无则不必提示同步。若有：将各增量规范与主规范 \`phspec/specs/<capability>/spec.md\` 对比，说明会应用哪些变更（增/改/删/重命名），在提示前展示合并摘要。选项：若需同步则「立即同步（推荐）」「不同步直接归档」；若已同步则「立即归档」「仍同步一次」「取消」。若用户选同步，用 Task 工具（subagent_type: "general-purpose", prompt: "用 Skill 工具调用 phspec-sync-specs 处理变更 '<name>'。增量分析：<上述摘要>"）。若环境无 AskUserQuestion 或 ask_followup_question，直接输出选项并写明「请回复后再继续」，不要自行选择并执行。无论是否同步，最终执行归档。
 
-   Read the tasks file (typically \`tasks.md\`) to check for incomplete tasks.
+5. **执行归档**
 
-   Count tasks marked with \`- [ ]\` (incomplete) vs \`- [x]\` (complete).
+   若不存在则创建 \`phspec/changes/archive\`。目标名用当前日期：\`YYYY-MM-DD-<change-name>\`。若目标已存在：报错并建议重命名已有归档或换日期。否则执行 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`。
 
-   **If incomplete tasks found:**
-   - Display warning showing count of incomplete tasks
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
+6. **展示摘要**
 
-   **If no tasks file exists:** Proceed without task-related warning.
+   包含：变更名、所用工作流模式、归档路径、是否已同步规范（若适用）、任何警告（未完成制品/任务）。
 
-4. **Assess delta spec sync state**
-
-   Check for delta specs at \`openspec/changes/<name>/specs/\`. If none exist, proceed without sync prompt.
-
-   **If delta specs exist:**
-   - Compare each delta spec with its corresponding main spec at \`openspec/specs/<capability>/spec.md\`
-   - Determine what changes would be applied (adds, modifications, removals, renames)
-   - Show a combined summary before prompting
-
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
-
-5. **Perform the archive**
-
-   Create the archive directory if it doesn't exist:
-   \`\`\`bash
-   mkdir -p openspec/changes/archive
-   \`\`\`
-
-   Generate target name using current date: \`YYYY-MM-DD-<change-name>\`
-
-   **Check if target already exists:**
-   - If yes: Fail with error, suggest renaming existing archive or using different date
-   - If no: Move the change directory to archive
-
-   \`\`\`bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-   \`\`\`
-
-6. **Display summary**
-
-   Show archive completion summary including:
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Whether specs were synced (if applicable)
-   - Note about any warnings (incomplete artifacts/tasks)
-
-**Output On Success**
+**成功时输出**
 
 \`\`\`
-## Archive Complete
+## 归档完成
 
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** ✓ Synced to main specs (or "No delta specs" or "Sync skipped")
+**变更：** <change-name>
+**工作流模式：** <schema-name>
+**归档至：** phspec/changes/archive/YYYY-MM-DD-<name>/
+**规范：** ✓ 已同步到主规范（或「无增量规范」或「已跳过同步」）
 
-All artifacts complete. All tasks complete.
+全部制品已完成。全部任务已完成。
 \`\`\`
 
-**Guardrails**
-- Always prompt for change selection if not provided
-- Use artifact graph (openspec status --json) for completion checking
-- Don't block archive on warnings - just inform and confirm
-- Preserve .openspec.yaml when moving to archive (it moves with the directory)
-- Show clear summary of what happened
-- If sync is requested, use openspec-sync-specs approach (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+**边界**
+- 未提供变更时始终让用户选择
+- 用 phspec status --json 检查完成度
+- 有警告时仅提示并确认，不阻止归档
+- 移动目录时保留 .phspec.yaml
+- 若需同步则用 phspec-sync-specs（agent 驱动）
+- 有增量规范时先做同步评估并展示合并摘要再提示`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for openspec-bulk-archive-change skill
+ * Template for phspec-bulk-archive-change skill
  * For archiving multiple completed changes at once
  */
 export function getBulkArchiveChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-bulk-archive-change',
-    description: 'Archive multiple completed changes at once. Use when archiving several parallel changes.',
-    instructions: `Archive multiple completed changes in a single operation.
+    name: "phspec-bulk-archive-change",
+    description: "一次性归档多个已完成的变更。适用于并行多个变更一起收尾时。",
+    instructions: `一次性归档多个已完成的变更。
 
-This skill allows you to batch-archive changes, handling spec conflicts intelligently by checking the codebase to determine what's actually implemented.
+本技能支持批量归档，通过检查代码库判断实际实现情况，智能处理规范冲突。
 
-**Input**: None required (prompts for selection)
+**输入**：无必填（会提示选择变更）
 
-**Steps**
+**步骤**
 
-1. **Get active changes**
+1. **获取进行中的变更**
 
-   Run \`openspec list --json\` to get all active changes.
+   运行 \`phspec list --json\` 获取所有进行中的变更。若无，告知用户并结束。
 
-   If no active changes exist, inform user and stop.
+2. **让用户选择要归档的变更**
 
-2. **Prompt for change selection**
+   用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 多选：展示每个变更及其工作流模式，提供「全部变更」选项，允许选任意数量（1+ 即可，通常 2+）。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出选项并写明「请回复后再继续」，不要自动选择。
 
-   Use **AskUserQuestion tool** with multi-select to let user choose changes:
-   - Show each change with its schema
-   - Include an option for "All changes"
-   - Allow any number of selections (1+ works, 2+ is the typical use case)
+   **重要**：不要自动选择，始终让用户选择。
 
-   **IMPORTANT**: Do NOT auto-select. Always let the user choose.
+3. **批量校验 - 收集所选变更的状态**
 
-3. **Batch validation - gather status for all selected changes**
+   对每个所选变更收集：a) **制品状态**：\`phspec status --change "<name>" --json\`，解析 \`schemaName\` 与 \`artifacts\`，记录 \`done\` 与非 done；b) **任务完成**：读 \`phspec/changes/<name>/tasks.md\`，统计 \`- [ ]\` / \`- [x]\`，无任务文件则记为「无任务」；c) **增量规范**：检查 \`phspec/changes/<name>/specs/\`，列出能力及 \`### Requirement: <name>\` 需求名。
 
-   For each selected change, collect:
+4. **检测规范冲突**
 
-   a. **Artifact status** - Run \`openspec status --change "<name>" --json\`
-      - Parse \`schemaName\` and \`artifacts\` list
-      - Note which artifacts are \`done\` vs other states
+   构建 \`capability -> [涉及该能力的变更]\` 映射。当 2+ 所选变更对同一能力有增量规范时即存在冲突。
 
-   b. **Task completion** - Read \`openspec/changes/<name>/tasks.md\`
-      - Count \`- [ ]\` (incomplete) vs \`- [x]\` (complete)
-      - If no tasks file exists, note as "No tasks"
+5. **由 agent 解决冲突**
 
-   c. **Delta specs** - Check \`openspec/changes/<name>/specs/\` directory
-      - List which capability specs exist
-      - For each, extract requirement names (lines matching \`### Requirement: <name>\`)
+   对每个冲突：a) 读各冲突变更的增量规范，理解各自声称的增/改；b) 在代码库中搜索实现证据（实现需求的代码、相关文件/函数/测试）；c) 决定方案：仅一个变更有实现则只同步该变更的规范；两个都有实现则按时间顺序应用（先旧后新）；都无实现则跳过规范同步并警告用户；d) 记录每个冲突的解决：应用哪（几）个变更的规范、顺序及依据。
 
-4. **Detect spec conflicts**
+6. **展示汇总状态表**
 
-   Build a map of \`capability -> [changes that touch it]\`:
+   用表格汇总所有变更（Change / Artifacts / Tasks / Specs / Conflicts / Status）。对冲突展示解决说明；对未完成变更展示警告。
 
-   \`\`\`
-   auth -> [change-a, change-b]  <- CONFLICT (2+ changes)
-   api  -> [change-c]            <- OK (only 1 change)
-   \`\`\`
+7. **确认批量操作**
 
-   A conflict exists when 2+ selected changes have delta specs for the same capability.
+   用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 一次确认：「归档 N 个变更？」选项可包括「全部归档」「仅归档 N 个就绪的（跳过未完成）」「取消」。若有未完成变更，明确说明将带警告归档。若环境无该工具，直接输出选项并写明「请回复后再继续」，不要自行执行归档。
 
-5. **Resolve conflicts agentically**
+8. **对每个确认的变更执行归档**
 
-   **For each conflict**, investigate the codebase:
+   按既定顺序（含冲突解决顺序）：a) 若有增量规范则先同步（phspec-sync-specs，agent 驱动智能合并；冲突按解决顺序应用）；b) 执行 \`mkdir -p phspec/changes/archive\` 与 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`；c) 记录每项结果：成功 / 失败（记录错误）/ 跳过。
 
-   a. **Read the delta specs** from each conflicting change to understand what each claims to add/modify
+9. **展示摘要**
 
-   b. **Search the codebase** for implementation evidence:
-      - Look for code implementing requirements from each delta spec
-      - Check for related files, functions, or tests
+   成功时：## 批量归档完成；列出已归档变更及路径；规范同步摘要（N 个增量已同步，无冲突或 M 个冲突已解决）。部分成功时：已归档 / 已跳过 / 失败列表。若有失败：Failed K changes: <name>: 原因。无进行中变更时：## 无变更可归档；提示用 \`/phsx:new\` 新建。
 
-   c. **Determine resolution**:
-      - If only one change is actually implemented -> sync that one's specs
-      - If both implemented -> apply in chronological order (older first, newer overwrites)
-      - If neither implemented -> skip spec sync, warn user
+**冲突解决示例**（仅一个已实现：只同步已实现变更的规范；两个都已实现：按时间顺序先应用旧变更再新变更）。
 
-   d. **Record resolution** for each conflict:
-      - Which change's specs to apply
-      - In what order (if both)
-      - Rationale (what was found in codebase)
-
-6. **Show consolidated status table**
-
-   Display a table summarizing all changes:
-
-   \`\`\`
-   | Change               | Artifacts | Tasks | Specs   | Conflicts | Status |
-   |---------------------|-----------|-------|---------|-----------|--------|
-   | schema-management   | Done      | 5/5   | 2 delta | None      | Ready  |
-   | project-config      | Done      | 3/3   | 1 delta | None      | Ready  |
-   | add-oauth           | Done      | 4/4   | 1 delta | auth (!)  | Ready* |
-   | add-verify-skill    | 1 left    | 2/5   | None    | None      | Warn   |
-   \`\`\`
-
-   For conflicts, show the resolution:
-   \`\`\`
-   * Conflict resolution:
-     - auth spec: Will apply add-oauth then add-jwt (both implemented, chronological order)
-   \`\`\`
-
-   For incomplete changes, show warnings:
-   \`\`\`
-   Warnings:
-   - add-verify-skill: 1 incomplete artifact, 3 incomplete tasks
-   \`\`\`
-
-7. **Confirm batch operation**
-
-   Use **AskUserQuestion tool** with a single confirmation:
-
-   - "Archive N changes?" with options based on status
-   - Options might include:
-     - "Archive all N changes"
-     - "Archive only N ready changes (skip incomplete)"
-     - "Cancel"
-
-   If there are incomplete changes, make clear they'll be archived with warnings.
-
-8. **Execute archive for each confirmed change**
-
-   Process changes in the determined order (respecting conflict resolution):
-
-   a. **Sync specs** if delta specs exist:
-      - Use the openspec-sync-specs approach (agent-driven intelligent merge)
-      - For conflicts, apply in resolved order
-      - Track if sync was done
-
-   b. **Perform the archive**:
-      \`\`\`bash
-      mkdir -p openspec/changes/archive
-      mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-      \`\`\`
-
-   c. **Track outcome** for each change:
-      - Success: archived successfully
-      - Failed: error during archive (record error)
-      - Skipped: user chose not to archive (if applicable)
-
-9. **Display summary**
-
-   Show final results:
-
-   \`\`\`
-   ## Bulk Archive Complete
-
-   Archived 3 changes:
-   - schema-management-cli -> archive/2026-01-19-schema-management-cli/
-   - project-config -> archive/2026-01-19-project-config/
-   - add-oauth -> archive/2026-01-19-add-oauth/
-
-   Skipped 1 change:
-   - add-verify-skill (user chose not to archive incomplete)
-
-   Spec sync summary:
-   - 4 delta specs synced to main specs
-   - 1 conflict resolved (auth: applied both in chronological order)
-   \`\`\`
-
-   If any failures:
-   \`\`\`
-   Failed 1 change:
-   - some-change: Archive directory already exists
-   \`\`\`
-
-**Conflict Resolution Examples**
-
-Example 1: Only one implemented
-\`\`\`
-Conflict: specs/auth/spec.md touched by [add-oauth, add-jwt]
-
-Checking add-oauth:
-- Delta adds "OAuth Provider Integration" requirement
-- Searching codebase... found src/auth/oauth.ts implementing OAuth flow
-
-Checking add-jwt:
-- Delta adds "JWT Token Handling" requirement
-- Searching codebase... no JWT implementation found
-
-Resolution: Only add-oauth is implemented. Will sync add-oauth specs only.
-\`\`\`
-
-Example 2: Both implemented
-\`\`\`
-Conflict: specs/api/spec.md touched by [add-rest-api, add-graphql]
-
-Checking add-rest-api (created 2026-01-10):
-- Delta adds "REST Endpoints" requirement
-- Searching codebase... found src/api/rest.ts
-
-Checking add-graphql (created 2026-01-15):
-- Delta adds "GraphQL Schema" requirement
-- Searching codebase... found src/api/graphql.ts
-
-Resolution: Both implemented. Will apply add-rest-api specs first,
-then add-graphql specs (chronological order, newer takes precedence).
-\`\`\`
-
-**Output On Success**
-
-\`\`\`
-## Bulk Archive Complete
-
-Archived N changes:
-- <change-1> -> archive/YYYY-MM-DD-<change-1>/
-- <change-2> -> archive/YYYY-MM-DD-<change-2>/
-
-Spec sync summary:
-- N delta specs synced to main specs
-- No conflicts (or: M conflicts resolved)
-\`\`\`
-
-**Output On Partial Success**
-
-\`\`\`
-## Bulk Archive Complete (partial)
-
-Archived N changes:
-- <change-1> -> archive/YYYY-MM-DD-<change-1>/
-
-Skipped M changes:
-- <change-2> (user chose not to archive incomplete)
-
-Failed K changes:
-- <change-3>: Archive directory already exists
-\`\`\`
-
-**Output When No Changes**
-
-\`\`\`
-## No Changes to Archive
-
-No active changes found. Use \`/opsx:new\` to create a new change.
-\`\`\`
-
-**Guardrails**
-- Allow any number of changes (1+ is fine, 2+ is the typical use case)
-- Always prompt for selection, never auto-select
-- Detect spec conflicts early and resolve by checking codebase
-- When both changes are implemented, apply specs in chronological order
-- Skip spec sync only when implementation is missing (warn user)
-- Show clear per-change status before confirming
-- Use single confirmation for entire batch
-- Track and report all outcomes (success/skip/fail)
-- Preserve .openspec.yaml when moving to archive
-- Archive directory target uses current date: YYYY-MM-DD-<name>
-- If archive target exists, fail that change but continue with others`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+**边界**
+- 允许 1+ 变更（2+ 为常见用法）
+- 始终提示选择，不自动选
+- 尽早检测规范冲突并通过查代码库解决
+- 两变更都已实现时按时间顺序应用规范
+- 仅当实现缺失时跳过规范同步（并警告用户）
+- 确认前展示清晰的每变更状态
+- 整批一次确认
+- 记录并汇报所有结果（成功/跳过/失败）
+- 移动时保留 .phspec.yaml，归档目录名为当前日期 YYYY-MM-DD-<name>
+- 若归档目标已存在，该变更报错但继续处理其余变更`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for /opsx:sync slash command
+ * Template for /phsx:sync slash command
  */
 export function getOpsxSyncCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Sync',
-    description: 'Sync delta specs from a change to main specs',
-    category: 'Workflow',
-    tags: ['workflow', 'specs', 'experimental'],
-    content: `Sync delta specs from a change to main specs.
+    name: "PHSX: Sync",
+    description: "将变更的增量规范同步到主规范",
+    category: "Workflow",
+    tags: ["workflow", "specs", "experimental"],
+    content: `将变更中的增量规范同步到主规范。
 
-This is an **agent-driven** operation - you will read delta specs and directly edit main specs to apply the changes. This allows intelligent merging (e.g., adding a scenario without copying the entire requirement).
+此为**由 agent 执行**的操作：你读取增量规范并直接编辑主规范以应用变更，从而可智能合并（例如只加场景而不整条复制需求）。
 
-**Input**: Optionally specify a change name after \`/opsx:sync\` (e.g., \`/opsx:sync add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；含糊或有歧义时必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **If no change name provided, prompt for selection**
+1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示在 \`specs/\` 下有增量规范的变更。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择。
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+2. **定位增量规范**：在 \`phspec/changes/<name>/specs/*/spec.md\` 查找增量规范文件。若未找到则告知用户并停止。
 
-   Show changes that have delta specs (under \`specs/\` directory).
+3. **对每个增量规范，将变更应用到主规范**：对 \`phspec/changes/<name>/specs/<capability>/spec.md\` 存在的每个能力：a) 读增量规范理解要做的变更；b) 读主规范 \`phspec/specs/<capability>/spec.md\`（可能尚不存在）；c) 按意图合并：ADDED 若主规范无则添加、有则按 MODIFIED 更新；MODIFIED 在主规范中找到对应需求后增/改场景或描述，保留增量未提及的内容；REMOVED 从主规范删除整条需求；RENAMED 将 FROM 改为 TO；d) 若能力尚无主规范则创建 \`phspec/specs/<capability>/spec.md\`，含目的（可 TBD）与 ADDED 需求。
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+4. **展示摘要**：说明更新了哪些能力、做了哪些增/改/删/重命名。
 
-2. **Find delta specs**
-
-   Look for delta spec files in \`openspec/changes/<name>/specs/*/spec.md\`.
-
-   Each delta spec file contains sections like:
-   - \`## ADDED Requirements\` - New requirements to add
-   - \`## MODIFIED Requirements\` - Changes to existing requirements
-   - \`## REMOVED Requirements\` - Requirements to remove
-   - \`## RENAMED Requirements\` - Requirements to rename (FROM:/TO: format)
-
-   If no delta specs found, inform user and stop.
-
-3. **For each delta spec, apply changes to main specs**
-
-   For each capability with a delta spec at \`openspec/changes/<name>/specs/<capability>/spec.md\`:
-
-   a. **Read the delta spec** to understand the intended changes
-
-   b. **Read the main spec** at \`openspec/specs/<capability>/spec.md\` (may not exist yet)
-
-   c. **Apply changes intelligently**:
-
-      **ADDED Requirements:**
-      - If requirement doesn't exist in main spec → add it
-      - If requirement already exists → update it to match (treat as implicit MODIFIED)
-
-      **MODIFIED Requirements:**
-      - Find the requirement in main spec
-      - Apply the changes - this can be:
-        - Adding new scenarios (don't need to copy existing ones)
-        - Modifying existing scenarios
-        - Changing the requirement description
-      - Preserve scenarios/content not mentioned in the delta
-
-      **REMOVED Requirements:**
-      - Remove the entire requirement block from main spec
-
-      **RENAMED Requirements:**
-      - Find the FROM requirement, rename to TO
-
-   d. **Create new main spec** if capability doesn't exist yet:
-      - Create \`openspec/specs/<capability>/spec.md\`
-      - Add Purpose section (can be brief, mark as TBD)
-      - Add Requirements section with the ADDED requirements
-
-4. **Show summary**
-
-   After applying all changes, summarize:
-   - Which capabilities were updated
-   - What changes were made (requirements added/modified/removed/renamed)
-
-**Delta Spec Format Reference**
-
-\`\`\`markdown
-## ADDED Requirements
-
-### Requirement: New Feature
-The system SHALL do something new.
-
-#### Scenario: Basic case
-- **WHEN** user does X
-- **THEN** system does Y
-
-## MODIFIED Requirements
-
-### Requirement: Existing Feature
-#### Scenario: New scenario to add
-- **WHEN** user does A
-- **THEN** system does B
-
-## REMOVED Requirements
-
-### Requirement: Deprecated Feature
-
-## RENAMED Requirements
-
-- FROM: \`### Requirement: Old Name\`
-- TO: \`### Requirement: New Name\`
-\`\`\`
-
-**Key Principle: Intelligent Merging**
-
-Unlike programmatic merging, you can apply **partial updates**:
-- To add a scenario, just include that scenario under MODIFIED - don't copy existing scenarios
-- The delta represents *intent*, not a wholesale replacement
-- Use your judgment to merge changes sensibly
-
-**Output On Success**
-
-\`\`\`
-## Specs Synced: <change-name>
-
-Updated main specs:
-
-**<capability-1>**:
-- Added requirement: "New Feature"
-- Modified requirement: "Existing Feature" (added 1 scenario)
-
-**<capability-2>**:
-- Created new spec file
-- Added requirement: "Another Feature"
-
-Main specs are now updated. The change remains active - archive when implementation is complete.
-\`\`\`
-
-**Guardrails**
-- Read both delta and main specs before making changes
-- Preserve existing content not mentioned in delta
-- If something is unclear, ask for clarification
-- Show what you're changing as you go
-- The operation should be idempotent - running twice should give same result`
+**原则：智能合并**——可做部分更新（例如在 MODIFIED 下只加场景、不复制整条）；增量表示*意图*而非整份替换。**成功时输出**：摘要「## Specs 已同步：<change-name>」、更新了哪些能力与需求、说明主规范已更新、变更仍进行中，实施完成后再归档。**边界**：先读增量与主规范再改；保留增量未提及的既有内容；操作应幂等。`,
   };
 }
 
 /**
- * Template for openspec-verify-change skill
+ * Template for phspec-verify-change skill
  * For verifying implementation matches change artifacts before archiving
  */
 export function getVerifyChangeSkillTemplate(): SkillTemplate {
   return {
-    name: 'openspec-verify-change',
-    description: 'Verify implementation matches change artifacts. Use when the user wants to validate that implementation is complete, correct, and coherent before archiving.',
-    instructions: `Verify that an implementation matches the change artifacts (specs, tasks, design).
+    name: "phspec-verify-change",
+    description:
+      "校验实现与变更制品是否一致。适用于归档前确认实现完整、正确且一致时。",
+    instructions: `校验实现是否与变更制品（规范、任务、设计）一致。
 
-**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；含糊或有歧义时必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **If no change name provided, prompt for selection**
+1. **若未提供变更名，让用户选择**
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   运行 \`phspec list --json\` 获取变更列表，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，请直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择，始终让用户选择。
 
-   Show changes that have implementation tasks (tasks artifact exists).
-   Include the schema used for each change if available.
-   Mark changes with incomplete tasks as "(In Progress)".
-
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
-
-2. **Check status to understand the schema**
+2. **查看状态以了解工作流**
    \`\`\`bash
-   openspec status --change "<name>" --json
+   phspec status --change "<name>" --json
    \`\`\`
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used (e.g., "spec-driven")
-   - Which artifacts exist for this change
+   解析 \`schemaName\`（所用工作流）及该变更有哪些制品。
 
-3. **Get the change directory and load artifacts**
+3. **获取变更目录并加载制品**
 
    \`\`\`bash
-   openspec instructions apply --change "<name>" --json
+   phspec instructions apply --change "<name>" --json
    \`\`\`
+   从返回的 \`contextFiles\` 中读取所有可用制品。
 
-   This returns the change directory and context files. Read all available artifacts from \`contextFiles\`.
+4. **初始化校验报告结构**
 
-4. **Initialize verification report structure**
+   按三个维度建报告：**完整性**（任务与规范覆盖）、**正确性**（需求实现与场景覆盖）、**一致性**（设计遵循与模式一致）。每个维度可有 CRITICAL、WARNING、SUGGESTION 级别问题。
 
-   Create a report structure with three dimensions:
-   - **Completeness**: Track tasks and spec coverage
-   - **Correctness**: Track requirement implementation and scenario coverage
-   - **Coherence**: Track design adherence and pattern consistency
+5. **校验完整性**
 
-   Each dimension can have CRITICAL, WARNING, or SUGGESTION issues.
+   **任务**：若有 tasks.md，解析 \`- [ ]\` / \`- [x]\`，统计完成数/总数。未完成任务记 CRITICAL，建议「完成任务：<描述>」或「若已实现请勾选」。**规范覆盖**：若有 \`phspec/changes/<name>/specs/\` 增量规范，提取 \`### Requirement:\` 需求，逐条在代码库中搜索关键词评估是否已实现；若明显未实现则记 CRITICAL「未发现需求：<需求名>」，建议「实现需求 X：<描述>」。
 
-5. **Verify Completeness**
+6. **校验正确性**
 
-   **Task Completion**:
-   - If tasks.md exists in contextFiles, read it
-   - Parse checkboxes: \`- [ ]\` (incomplete) vs \`- [x]\` (complete)
-   - Count complete vs total tasks
-   - If incomplete tasks exist:
-     - Add CRITICAL issue for each incomplete task
-     - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
+   **需求实现**：对增量规范中每条需求搜索实现证据，记录文件与行号，评估是否与需求意图一致；若偏离则记 WARNING「实现可能与规范偏离：<详情>」，建议「对照需求 X 审查 <file>:<lines>」。**场景覆盖**：对 \`#### Scenario:\` 场景检查代码是否处理条件、是否有测试；若明显未覆盖则记 WARNING「未覆盖场景：<场景名>」，建议「为场景补充测试或实现」。
 
-   **Spec Coverage**:
-   - If delta specs exist in \`openspec/changes/<name>/specs/\`:
-     - Extract all requirements (marked with "### Requirement:")
-     - For each requirement:
-       - Search codebase for keywords related to the requirement
-       - Assess if implementation likely exists
-     - If requirements appear unimplemented:
-       - Add CRITICAL issue: "Requirement not found: <requirement name>"
-       - Recommendation: "Implement requirement X: <description>"
+7. **校验一致性**
 
-6. **Verify Correctness**
+   **设计遵循**：若有 design.md，提取关键决策（Decision/Approach/Architecture 等），核对实现是否遵循；若矛盾则记 WARNING「未遵循设计决策：<决策>」，建议「更新实现或修订 design.md」。无 design.md 则跳过并注明。**代码模式**：检查新代码与项目模式是否一致（命名、目录、风格）；明显偏离记 SUGGESTION「代码模式偏离：<详情>」，建议「考虑遵循项目模式：<示例>」。
 
-   **Requirement Implementation Mapping**:
-   - For each requirement from delta specs:
-     - Search codebase for implementation evidence
-     - If found, note file paths and line ranges
-     - Assess if implementation matches requirement intent
-     - If divergence detected:
-       - Add WARNING: "Implementation may diverge from spec: <details>"
-       - Recommendation: "Review <file>:<lines> against requirement X"
+8. **生成校验报告**
 
-   **Scenario Coverage**:
-   - For each scenario in delta specs (marked with "#### Scenario:"):
-     - Check if conditions are handled in code
-     - Check if tests exist covering the scenario
-     - If scenario appears uncovered:
-       - Add WARNING: "Scenario not covered: <scenario name>"
-       - Recommendation: "Add test or implementation for scenario: <description>"
+   **摘要表**：## 校验报告：<change-name>；Summary 表（Dimension: Completeness/Correctness/Coherence，Status）。**按优先级列问题**：CRITICAL（归档前必须修）、WARNING（建议修）、SUGGESTION（可选）；每条带可执行建议及文件/行引用。**结论**：有 CRITICAL 则「发现 X 个严重问题，归档前请修复」；仅 WARNING 则「无严重问题，Y 条警告可考虑，可归档（并改进）」；全部通过则「全部通过，可归档」。
 
-7. **Verify Coherence**
+**校验启发**
+- 完整性：关注客观清单（勾选、需求列表）
+- 正确性：关键词搜索、路径分析、合理推断，不要求绝对确定
+- 一致性：关注明显不一致，不抠风格
+- 不确定时优先 SUGGESTION 再 WARNING 再 CRITICAL
+- 每条问题须有具体建议，尽量带 \`file.ts:123\` 引用
 
-   **Design Adherence**:
-   - If design.md exists in contextFiles:
-     - Extract key decisions (look for sections like "Decision:", "Approach:", "Architecture:")
-     - Verify implementation follows those decisions
-     - If contradiction detected:
-       - Add WARNING: "Design decision not followed: <decision>"
-       - Recommendation: "Update implementation or revise design.md to match reality"
-   - If no design.md: Skip design adherence check, note "No design.md to verify against"
-
-   **Code Pattern Consistency**:
-   - Review new code for consistency with project patterns
-   - Check file naming, directory structure, coding style
-   - If significant deviations found:
-     - Add SUGGESTION: "Code pattern deviation: <details>"
-     - Recommendation: "Consider following project pattern: <example>"
-
-8. **Generate Verification Report**
-
-   **Summary Scorecard**:
-   \`\`\`
-   ## Verification Report: <change-name>
-
-   ### Summary
-   | Dimension    | Status           |
-   |--------------|------------------|
-   | Completeness | X/Y tasks, N reqs|
-   | Correctness  | M/N reqs covered |
-   | Coherence    | Followed/Issues  |
-   \`\`\`
-
-   **Issues by Priority**:
-
-   1. **CRITICAL** (Must fix before archive):
-      - Incomplete tasks
-      - Missing requirement implementations
-      - Each with specific, actionable recommendation
-
-   2. **WARNING** (Should fix):
-      - Spec/design divergences
-      - Missing scenario coverage
-      - Each with specific recommendation
-
-   3. **SUGGESTION** (Nice to fix):
-      - Pattern inconsistencies
-      - Minor improvements
-      - Each with specific recommendation
-
-   **Final Assessment**:
-   - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
-   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-   - If all clear: "All checks passed. Ready for archive."
-
-**Verification Heuristics**
-
-- **Completeness**: Focus on objective checklist items (checkboxes, requirements list)
-- **Correctness**: Use keyword search, file path analysis, reasonable inference - don't require perfect certainty
-- **Coherence**: Look for glaring inconsistencies, don't nitpick style
-- **False Positives**: When uncertain, prefer SUGGESTION over WARNING, WARNING over CRITICAL
-- **Actionability**: Every issue must have a specific recommendation with file/line references where applicable
-
-**Graceful Degradation**
-
-- If only tasks.md exists: verify task completion only, skip spec/design checks
-- If tasks + specs exist: verify completeness and correctness, skip design
-- If full artifacts: verify all three dimensions
-- Always note which checks were skipped and why
-
-**Output Format**
-
-Use clear markdown with:
-- Table for summary scorecard
-- Grouped lists for issues (CRITICAL/WARNING/SUGGESTION)
-- Code references in format: \`file.ts:123\`
-- Specific, actionable recommendations
-- No vague suggestions like "consider reviewing"`,
-    license: 'MIT',
-    compatibility: 'Requires openspec CLI.',
-    metadata: { author: 'openspec', version: '1.0' },
+**降级**：仅 tasks.md 时只校验任务；有 tasks+specs 时校验完整性与正确性；全量制品时校验三维。始终注明跳过了哪些检查及原因。**输出格式**：清晰 Markdown、摘要表、按 CRITICAL/WARNING/SUGGESTION 分组、代码引用 \`file.ts:123\`、具体可执行建议，避免「考虑审查」等空泛表述。`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI.",
+    metadata: { author: "phspec", version: "1.0" },
   };
 }
 
 /**
- * Template for /opsx:archive slash command
+ * Template for /phsx:archive slash command
  */
 export function getOpsxArchiveCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Archive',
-    description: 'Archive a completed change in the experimental workflow',
-    category: 'Workflow',
-    tags: ['workflow', 'archive', 'experimental'],
-    content: `Archive a completed change in the experimental workflow.
+    name: "PHSX: Archive",
+    description: "归档已完成的变更",
+    category: "Workflow",
+    tags: ["workflow", "archive", "experimental"],
+    content: `在实验性工作流中归档已完成的变更。
 
-**Input**: Optionally specify a change name after \`/opsx:archive\` (e.g., \`/opsx:archive add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；含糊或有歧义时必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **If no change name provided, prompt for selection**
+1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。只展示进行中的变更，若有则展示每个变更所用工作流模式。若环境无该工具，直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择。
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+2. **检查制品完成状态**：运行 \`phspec status --change "<name>" --json\`，解析 \`schemaName\`、\`artifacts\` 及各状态。若有制品未 \`done\`：列出未完成制品并警告，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 确认是否继续，用户确认后继续。若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设。
 
-   Show only active changes (not already archived).
-   Include the schema used for each change if available.
+3. **检查任务完成状态**：阅读任务文件（通常为 \`tasks.md\`），统计 \`- [ ]\` 与 \`- [x]\`。若有未完成任务：展示未完成数量并警告并确认后继续。若无任务文件：不提示任务相关警告，继续。
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+4. **评估增量规范同步状态**：检查 \`phspec/changes/<name>/specs/\` 是否有增量规范。若无则不必提示同步。若有：将各增量规范与主规范对比，说明会应用哪些变更，在提示前展示合并摘要。选项：若需同步则「立即同步（推荐）」「不同步直接归档」；若已同步则「立即归档」「仍同步一次」「取消」。若用户选同步，用 Task 工具调用 phspec-sync-specs 处理变更。无论是否同步，最终执行归档。
 
-2. **Check artifact completion status**
+5. **执行归档**
 
-   Run \`openspec status --change "<name>" --json\` to check artifact completion.
+   若不存在则创建 \`phspec/changes/archive\`。目标名用当前日期 \`YYYY-MM-DD-<change-name>\`。若目标已存在则报错并建议重命名或换日期；否则执行 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`。
 
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used
-   - \`artifacts\`: List of artifacts with their status (\`done\` or other)
-
-   **If any artifacts are not \`done\`:**
-   - Display warning listing incomplete artifacts
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
-
-3. **Check task completion status**
-
-   Read the tasks file (typically \`tasks.md\`) to check for incomplete tasks.
-
-   Count tasks marked with \`- [ ]\` (incomplete) vs \`- [x]\` (complete).
-
-   **If incomplete tasks found:**
-   - Display warning showing count of incomplete tasks
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
-
-   **If no tasks file exists:** Proceed without task-related warning.
-
-4. **Assess delta spec sync state**
-
-   Check for delta specs at \`openspec/changes/<name>/specs/\`. If none exist, proceed without sync prompt.
-
-   **If delta specs exist:**
-   - Compare each delta spec with its corresponding main spec at \`openspec/specs/<capability>/spec.md\`
-   - Determine what changes would be applied (adds, modifications, removals, renames)
-   - Show a combined summary before prompting
-
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
-
-5. **Perform the archive**
-
-   Create the archive directory if it doesn't exist:
-   \`\`\`bash
-   mkdir -p openspec/changes/archive
-   \`\`\`
-
-   Generate target name using current date: \`YYYY-MM-DD-<change-name>\`
-
-   **Check if target already exists:**
-   - If yes: Fail with error, suggest renaming existing archive or using different date
-   - If no: Move the change directory to archive
-
-   \`\`\`bash
-   mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-   \`\`\`
-
-6. **Display summary**
-
-   Show archive completion summary including:
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Spec sync status (synced / sync skipped / no delta specs)
-   - Note about any warnings (incomplete artifacts/tasks)
-
-**Output On Success**
-
-\`\`\`
-## Archive Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** ✓ Synced to main specs
-
-All artifacts complete. All tasks complete.
-\`\`\`
-
-**Output On Success (No Delta Specs)**
-
-\`\`\`
-## Archive Complete
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** No delta specs
-
-All artifacts complete. All tasks complete.
-\`\`\`
-
-**Output On Success With Warnings**
-
-\`\`\`
-## Archive Complete (with warnings)
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** Sync skipped (user chose to skip)
-
-**Warnings:**
-- Archived with 2 incomplete artifacts
-- Archived with 3 incomplete tasks
-- Delta spec sync was skipped (user chose to skip)
-
-Review the archive if this was not intentional.
-\`\`\`
-
-**Output On Error (Archive Exists)**
-
-\`\`\`
-## Archive Failed
-
-**Change:** <change-name>
-**Target:** openspec/changes/archive/YYYY-MM-DD-<name>/
-
-Target archive directory already exists.
-
-**Options:**
-1. Rename the existing archive
-2. Delete the existing archive if it's a duplicate
-3. Wait until a different date to archive
-\`\`\`
-
-**Guardrails**
-- Always prompt for change selection if not provided
-- Use artifact graph (openspec status --json) for completion checking
-- Don't block archive on warnings - just inform and confirm
-- Preserve .openspec.yaml when moving to archive (it moves with the directory)
-- Show clear summary of what happened
-- If sync is requested, use the Skill tool to invoke \`openspec-sync-specs\` (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting`
+6. **展示摘要**：包含变更名、所用工作流模式、归档路径、规范是否已同步（若适用）、任何警告。成功时输出「## 归档完成」及规范状态；目标已存在时输出「## 归档失败」并说明选项。**边界**：未提供变更时始终让用户选择；有警告时仅提示并确认不阻止归档；移动目录时保留 .phspec.yaml；若需同步则用 phspec-sync-specs；有增量规范时先做同步评估并展示合并摘要再提示；需用户选择或确认时若环境无 AskUserQuestion 或 ask_followup_question，直接输出选项并写明「请回复后再继续」，不要自行执行。`,
   };
 }
 
 /**
- * Template for /opsx:onboard slash command
- * Guided onboarding through the complete OpenSpec workflow
+ * Template for /phsx:onboard slash command
+ * Guided onboarding through the complete PhSpec workflow
  */
 export function getOpsxOnboardCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Onboard',
-    description: 'Guided onboarding - walk through a complete OpenSpec workflow cycle with narration',
-    category: 'Workflow',
-    tags: ['workflow', 'onboarding', 'tutorial', 'learning'],
+    name: "PHSX: Onboard",
+    description: "引导入门：带讲解走完完整 PhSpec 工作流",
+    category: "Workflow",
+    tags: ["workflow", "onboarding", "tutorial", "learning"],
     content: getOnboardInstructions(),
   };
 }
 
 /**
- * Template for /opsx:bulk-archive slash command
+ * Template for /phsx:bulk-archive slash command
  */
 export function getOpsxBulkArchiveCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Bulk Archive',
-    description: 'Archive multiple completed changes at once',
-    category: 'Workflow',
-    tags: ['workflow', 'archive', 'experimental', 'bulk'],
-    content: `Archive multiple completed changes in a single operation.
+    name: "PHSX: Bulk Archive",
+    description: "一次性归档多个已完成的变更",
+    category: "Workflow",
+    tags: ["workflow", "archive", "experimental", "bulk"],
+    content: `一次性归档多个已完成的变更。
 
-This skill allows you to batch-archive changes, handling spec conflicts intelligently by checking the codebase to determine what's actually implemented.
+本技能支持批量归档，通过检查代码库判断实际实现情况，智能处理规范冲突。
 
-**Input**: None required (prompts for selection)
+**输入**：无必填（会提示选择变更）
 
-**Steps**
+**步骤**
 
-1. **Get active changes**
+1. **获取进行中的变更**：运行 \`phspec list --json\` 获取所有进行中的变更。若无则告知用户并结束。
 
-   Run \`openspec list --json\` to get all active changes.
+2. **让用户选择要归档的变更**：用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 多选，展示每个变更及其工作流模式，提供「全部变更」选项，允许选任意数量（1+ 即可，通常 2+）。若环境无该工具，直接输出选项并写明「请回复后再继续」，不要自动选择。**重要**：不要自动选择，始终让用户选择。
 
-   If no active changes exist, inform user and stop.
+3. **批量校验 - 收集所选变更的状态**
 
-2. **Prompt for change selection**
+   对每个所选变更收集：a) **制品状态**：\`phspec status --change "<name>" --json\`，解析 \`schemaName\` 与 \`artifacts\`，记录 \`done\` 与非 done；b) **任务完成**：读 \`phspec/changes/<name>/tasks.md\`，统计 \`- [ ]\` / \`- [x]\`，无任务文件则记为「无任务」；c) **增量规范**：检查 \`phspec/changes/<name>/specs/\`，列出能力及 \`### Requirement: <name>\` 需求名。
 
-   Use **AskUserQuestion tool** with multi-select to let user choose changes:
-   - Show each change with its schema
-   - Include an option for "All changes"
-   - Allow any number of selections (1+ works, 2+ is the typical use case)
+4. **检测规范冲突**：构建 \`capability -> [涉及该能力的变更]\` 映射。当 2+ 所选变更对同一能力有增量规范时即存在冲突。
 
-   **IMPORTANT**: Do NOT auto-select. Always let the user choose.
+5. **由 agent 解决冲突**：对每个冲突：读各冲突变更的增量规范；在代码库中搜索实现证据；决定方案（仅一个变更有实现则只同步该变更的规范；两个都有实现则按时间顺序应用；都无实现则跳过规范同步并警告）；记录每个冲突的解决（应用哪几个变更的规范、顺序及依据）。
 
-3. **Batch validation - gather status for all selected changes**
+6. **展示汇总状态表**：表格汇总各变更（制品、任务、增量规范、冲突、状态）；有冲突时展示解决结果；有不完整变更时展示警告。
 
-   For each selected change, collect:
+7. **确认批量操作**：用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 单次确认（如「归档 N 个变更？」），选项可含「归档全部」「仅归档就绪的」「取消」。有不完整变更时说明将带警告归档。若环境无该工具，直接输出选项并写明「请回复后再继续」，不要自行执行归档。
 
-   a. **Artifact status** - Run \`openspec status --change "<name>" --json\`
-      - Parse \`schemaName\` and \`artifacts\` list
-      - Note which artifacts are \`done\` vs other states
+8. **按确认执行归档**：按既定顺序（含冲突解决顺序）：若有增量规范则先同步（phspec-sync-specs，冲突按解决顺序应用）；执行 \`mkdir -p phspec/changes/archive\` 与 \`mv phspec/changes/<name> phspec/changes/archive/YYYY-MM-DD-<name>\`；记录每项结果（成功/失败/跳过）。
 
-   b. **Task completion** - Read \`openspec/changes/<name>/tasks.md\`
-      - Count \`- [ ]\` (incomplete) vs \`- [x]\` (complete)
-      - If no tasks file exists, note as "No tasks"
+9. **展示摘要**：最终结果（已归档列表、跳过列表、规范同步摘要、若有失败则列出）。无进行中变更时输出「无变更可归档，使用 \`/phsx:new\` 创建新变更」。
 
-   c. **Delta specs** - Check \`openspec/changes/<name>/specs/\` directory
-      - List which capability specs exist
-      - For each, extract requirement names (lines matching \`### Requirement: <name>\`)
-
-4. **Detect spec conflicts**
-
-   Build a map of \`capability -> [changes that touch it]\`:
-
-   \`\`\`
-   auth -> [change-a, change-b]  <- CONFLICT (2+ changes)
-   api  -> [change-c]            <- OK (only 1 change)
-   \`\`\`
-
-   A conflict exists when 2+ selected changes have delta specs for the same capability.
-
-5. **Resolve conflicts agentically**
-
-   **For each conflict**, investigate the codebase:
-
-   a. **Read the delta specs** from each conflicting change to understand what each claims to add/modify
-
-   b. **Search the codebase** for implementation evidence:
-      - Look for code implementing requirements from each delta spec
-      - Check for related files, functions, or tests
-
-   c. **Determine resolution**:
-      - If only one change is actually implemented -> sync that one's specs
-      - If both implemented -> apply in chronological order (older first, newer overwrites)
-      - If neither implemented -> skip spec sync, warn user
-
-   d. **Record resolution** for each conflict:
-      - Which change's specs to apply
-      - In what order (if both)
-      - Rationale (what was found in codebase)
-
-6. **Show consolidated status table**
-
-   Display a table summarizing all changes:
-
-   \`\`\`
-   | Change               | Artifacts | Tasks | Specs   | Conflicts | Status |
-   |---------------------|-----------|-------|---------|-----------|--------|
-   | schema-management   | Done      | 5/5   | 2 delta | None      | Ready  |
-   | project-config      | Done      | 3/3   | 1 delta | None      | Ready  |
-   | add-oauth           | Done      | 4/4   | 1 delta | auth (!)  | Ready* |
-   | add-verify-skill    | 1 left    | 2/5   | None    | None      | Warn   |
-   \`\`\`
-
-   For conflicts, show the resolution:
-   \`\`\`
-   * Conflict resolution:
-     - auth spec: Will apply add-oauth then add-jwt (both implemented, chronological order)
-   \`\`\`
-
-   For incomplete changes, show warnings:
-   \`\`\`
-   Warnings:
-   - add-verify-skill: 1 incomplete artifact, 3 incomplete tasks
-   \`\`\`
-
-7. **Confirm batch operation**
-
-   Use **AskUserQuestion tool** with a single confirmation:
-
-   - "Archive N changes?" with options based on status
-   - Options might include:
-     - "Archive all N changes"
-     - "Archive only N ready changes (skip incomplete)"
-     - "Cancel"
-
-   If there are incomplete changes, make clear they'll be archived with warnings.
-
-8. **Execute archive for each confirmed change**
-
-   Process changes in the determined order (respecting conflict resolution):
-
-   a. **Sync specs** if delta specs exist:
-      - Use the openspec-sync-specs approach (agent-driven intelligent merge)
-      - For conflicts, apply in resolved order
-      - Track if sync was done
-
-   b. **Perform the archive**:
-      \`\`\`bash
-      mkdir -p openspec/changes/archive
-      mv openspec/changes/<name> openspec/changes/archive/YYYY-MM-DD-<name>
-      \`\`\`
-
-   c. **Track outcome** for each change:
-      - Success: archived successfully
-      - Failed: error during archive (record error)
-      - Skipped: user chose not to archive (if applicable)
-
-9. **Display summary**
-
-   Show final results:
-
-   \`\`\`
-   ## Bulk Archive Complete
-
-   Archived 3 changes:
-   - schema-management-cli -> archive/2026-01-19-schema-management-cli/
-   - project-config -> archive/2026-01-19-project-config/
-   - add-oauth -> archive/2026-01-19-add-oauth/
-
-   Skipped 1 change:
-   - add-verify-skill (user chose not to archive incomplete)
-
-   Spec sync summary:
-   - 4 delta specs synced to main specs
-   - 1 conflict resolved (auth: applied both in chronological order)
-   \`\`\`
-
-   If any failures:
-   \`\`\`
-   Failed 1 change:
-   - some-change: Archive directory already exists
-   \`\`\`
-
-**Conflict Resolution Examples**
-
-Example 1: Only one implemented
-\`\`\`
-Conflict: specs/auth/spec.md touched by [add-oauth, add-jwt]
-
-Checking add-oauth:
-- Delta adds "OAuth Provider Integration" requirement
-- Searching codebase... found src/auth/oauth.ts implementing OAuth flow
-
-Checking add-jwt:
-- Delta adds "JWT Token Handling" requirement
-- Searching codebase... no JWT implementation found
-
-Resolution: Only add-oauth is implemented. Will sync add-oauth specs only.
-\`\`\`
-
-Example 2: Both implemented
-\`\`\`
-Conflict: specs/api/spec.md touched by [add-rest-api, add-graphql]
-
-Checking add-rest-api (created 2026-01-10):
-- Delta adds "REST Endpoints" requirement
-- Searching codebase... found src/api/rest.ts
-
-Checking add-graphql (created 2026-01-15):
-- Delta adds "GraphQL Schema" requirement
-- Searching codebase... found src/api/graphql.ts
-
-Resolution: Both implemented. Will apply add-rest-api specs first,
-then add-graphql specs (chronological order, newer takes precedence).
-\`\`\`
-
-**Output On Success**
-
-\`\`\`
-## Bulk Archive Complete
-
-Archived N changes:
-- <change-1> -> archive/YYYY-MM-DD-<change-1>/
-- <change-2> -> archive/YYYY-MM-DD-<change-2>/
-
-Spec sync summary:
-- N delta specs synced to main specs
-- No conflicts (or: M conflicts resolved)
-\`\`\`
-
-**Output On Partial Success**
-
-\`\`\`
-## Bulk Archive Complete (partial)
-
-Archived N changes:
-- <change-1> -> archive/YYYY-MM-DD-<change-1>/
-
-Skipped M changes:
-- <change-2> (user chose not to archive incomplete)
-
-Failed K changes:
-- <change-3>: Archive directory already exists
-\`\`\`
-
-**Output When No Changes**
-
-\`\`\`
-## No Changes to Archive
-
-No active changes found. Use \`/opsx:new\` to create a new change.
-\`\`\`
-
-**Guardrails**
-- Allow any number of changes (1+ is fine, 2+ is the typical use case)
-- Always prompt for selection, never auto-select
-- Detect spec conflicts early and resolve by checking codebase
-- When both changes are implemented, apply specs in chronological order
-- Skip spec sync only when implementation is missing (warn user)
-- Show clear per-change status before confirming
-- Use single confirmation for entire batch
-- Track and report all outcomes (success/skip/fail)
-- Preserve .openspec.yaml when moving to archive
-- Archive directory target uses current date: YYYY-MM-DD-<name>
-- If archive target exists, fail that change but continue with others`
+**边界**：始终让用户选择不自动选；尽早检测规范冲突并通过代码库解决；两变更都实现时按时间顺序应用规范；仅当实现缺失时跳过规范同步并警告；单次确认整批；保留 .phspec.yaml；目标已存在时该变更失败但继续其他。`,
   };
 }
 
 /**
- * Template for /opsx:verify slash command
+ * Template for /phsx:verify slash command
  */
 export function getOpsxVerifyCommandTemplate(): CommandTemplate {
   return {
-    name: 'OPSX: Verify',
-    description: 'Verify implementation matches change artifacts before archiving',
-    category: 'Workflow',
-    tags: ['workflow', 'verify', 'experimental'],
-    content: `Verify that an implementation matches the change artifacts (specs, tasks, design).
+    name: "PHSX: Verify",
+    description: "归档前校验实现是否与变更制品一致",
+    category: "Workflow",
+    tags: ["workflow", "verify", "experimental"],
+    content: `校验实现是否与变更制品（规范、任务、设计）一致。
 
-**Input**: Optionally specify a change name after \`/opsx:verify\` (e.g., \`/opsx:verify add-auth\`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
+**输入**：可指定变更名。未指定时从对话推断；含糊或有歧义时必须让用户从可用变更中选择。
 
-**Steps**
+**步骤**
 
-1. **If no change name provided, prompt for selection**
+1. **若未提供变更名，让用户选择**：运行 \`phspec list --json\`，用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent） 让用户选择。展示有实施任务（存在 tasks 制品）的变更、各变更所用工作流模式，未完成任务标为「进行中」。若环境无该工具，直接输出变更选项并写明「请回复后再继续」，不要猜测或自动选择。**重要**：不要猜测或自动选择。
 
-   Run \`openspec list --json\` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+2. **查看状态以了解工作流**：\`phspec status --change "<name>" --json\`，解析 \`schemaName\` 及该变更有哪些制品。
 
-   Show changes that have implementation tasks (tasks artifact exists).
-   Include the schema used for each change if available.
-   Mark changes with incomplete tasks as "(In Progress)".
+3. **获取变更目录并加载制品**：\`phspec instructions apply --change "<name>" --json\`，从返回的 \`contextFiles\` 中读取所有可用制品。
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+4. **初始化校验报告结构**：按三个维度建报告——**完整性**（任务与规范覆盖）、**正确性**（需求实现与场景覆盖）、**一致性**（设计遵循与模式一致）。每个维度可有 CRITICAL、WARNING、SUGGESTION 级别问题。
 
-2. **Check status to understand the schema**
-   \`\`\`bash
-   openspec status --change "<name>" --json
-   \`\`\`
-   Parse the JSON to understand:
-   - \`schemaName\`: The workflow being used (e.g., "spec-driven")
-   - Which artifacts exist for this change
+5. **校验完整性**：若有 tasks.md，解析 \`- [ ]\` / \`- [x]\`，未完成任务记 CRITICAL。若有 \`phspec/changes/<name>/specs/\` 增量规范，提取 \`### Requirement:\` 需求，逐条在代码库中搜索评估是否已实现；明显未实现则记 CRITICAL。
 
-3. **Get the change directory and load artifacts**
+6. **校验正确性**：对每条需求搜索实现证据，评估是否与需求意图一致；对 \`#### Scenario:\` 场景检查代码与测试覆盖。偏离或未覆盖记 WARNING。
 
-   \`\`\`bash
-   openspec instructions apply --change "<name>" --json
-   \`\`\`
+7. **校验一致性**：若有 design.md，提取关键决策并核对实现是否遵循；检查新代码与项目模式是否一致。矛盾记 WARNING，明显偏离记 SUGGESTION。
 
-   This returns the change directory and context files. Read all available artifacts from \`contextFiles\`.
+8. **生成校验报告**：摘要表（## 校验报告：<change-name>；Completeness/Correctness/Coherence 状态）；按 CRITICAL/WARNING/SUGGESTION 列问题，每条带可执行建议及文件/行引用；结论（有 CRITICAL 则「归档前请修复」；仅 WARNING 则「可归档并改进」；全部通过则「可归档」）。
 
-4. **Initialize verification report structure**
-
-   Create a report structure with three dimensions:
-   - **Completeness**: Track tasks and spec coverage
-   - **Correctness**: Track requirement implementation and scenario coverage
-   - **Coherence**: Track design adherence and pattern consistency
-
-   Each dimension can have CRITICAL, WARNING, or SUGGESTION issues.
-
-5. **Verify Completeness**
-
-   **Task Completion**:
-   - If tasks.md exists in contextFiles, read it
-   - Parse checkboxes: \`- [ ]\` (incomplete) vs \`- [x]\` (complete)
-   - Count complete vs total tasks
-   - If incomplete tasks exist:
-     - Add CRITICAL issue for each incomplete task
-     - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
-
-   **Spec Coverage**:
-   - If delta specs exist in \`openspec/changes/<name>/specs/\`:
-     - Extract all requirements (marked with "### Requirement:")
-     - For each requirement:
-       - Search codebase for keywords related to the requirement
-       - Assess if implementation likely exists
-     - If requirements appear unimplemented:
-       - Add CRITICAL issue: "Requirement not found: <requirement name>"
-       - Recommendation: "Implement requirement X: <description>"
-
-6. **Verify Correctness**
-
-   **Requirement Implementation Mapping**:
-   - For each requirement from delta specs:
-     - Search codebase for implementation evidence
-     - If found, note file paths and line ranges
-     - Assess if implementation matches requirement intent
-     - If divergence detected:
-       - Add WARNING: "Implementation may diverge from spec: <details>"
-       - Recommendation: "Review <file>:<lines> against requirement X"
-
-   **Scenario Coverage**:
-   - For each scenario in delta specs (marked with "#### Scenario:"):
-     - Check if conditions are handled in code
-     - Check if tests exist covering the scenario
-     - If scenario appears uncovered:
-       - Add WARNING: "Scenario not covered: <scenario name>"
-       - Recommendation: "Add test or implementation for scenario: <description>"
-
-7. **Verify Coherence**
-
-   **Design Adherence**:
-   - If design.md exists in contextFiles:
-     - Extract key decisions (look for sections like "Decision:", "Approach:", "Architecture:")
-     - Verify implementation follows those decisions
-     - If contradiction detected:
-       - Add WARNING: "Design decision not followed: <decision>"
-       - Recommendation: "Update implementation or revise design.md to match reality"
-   - If no design.md: Skip design adherence check, note "No design.md to verify against"
-
-   **Code Pattern Consistency**:
-   - Review new code for consistency with project patterns
-   - Check file naming, directory structure, coding style
-   - If significant deviations found:
-     - Add SUGGESTION: "Code pattern deviation: <details>"
-     - Recommendation: "Consider following project pattern: <example>"
-
-8. **Generate Verification Report**
-
-   **Summary Scorecard**:
-   \`\`\`
-   ## Verification Report: <change-name>
-
-   ### Summary
-   | Dimension    | Status           |
-   |--------------|------------------|
-   | Completeness | X/Y tasks, N reqs|
-   | Correctness  | M/N reqs covered |
-   | Coherence    | Followed/Issues  |
-   \`\`\`
-
-   **Issues by Priority**:
-
-   1. **CRITICAL** (Must fix before archive):
-      - Incomplete tasks
-      - Missing requirement implementations
-      - Each with specific, actionable recommendation
-
-   2. **WARNING** (Should fix):
-      - Spec/design divergences
-      - Missing scenario coverage
-      - Each with specific recommendation
-
-   3. **SUGGESTION** (Nice to fix):
-      - Pattern inconsistencies
-      - Minor improvements
-      - Each with specific recommendation
-
-   **Final Assessment**:
-   - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
-   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-   - If all clear: "All checks passed. Ready for archive."
-
-**Verification Heuristics**
-
-- **Completeness**: Focus on objective checklist items (checkboxes, requirements list)
-- **Correctness**: Use keyword search, file path analysis, reasonable inference - don't require perfect certainty
-- **Coherence**: Look for glaring inconsistencies, don't nitpick style
-- **False Positives**: When uncertain, prefer SUGGESTION over WARNING, WARNING over CRITICAL
-- **Actionability**: Every issue must have a specific recommendation with file/line references where applicable
-
-**Graceful Degradation**
-
-- If only tasks.md exists: verify task completion only, skip spec/design checks
-- If tasks + specs exist: verify completeness and correctness, skip design
-- If full artifacts: verify all three dimensions
-- Always note which checks were skipped and why
-
-**Output Format**
-
-Use clear markdown with:
-- Table for summary scorecard
-- Grouped lists for issues (CRITICAL/WARNING/SUGGESTION)
-- Code references in format: \`file.ts:123\`
-- Specific, actionable recommendations
-- No vague suggestions like "consider reviewing"`
+**校验启发**：完整性关注客观清单；正确性用关键词与合理推断；一致性关注明显不一致。不确定时优先 SUGGESTION 再 WARNING 再 CRITICAL。**降级**：仅 tasks.md 时只校验任务；有 tasks+specs 时校验完整性与正确性；全量制品时校验三维。**输出格式**：清晰 Markdown、摘要表、按优先级分组、\`file.ts:123\` 引用、具体建议。`,
   };
 }
 /**
@@ -3375,105 +2135,54 @@ Use clear markdown with:
  */
 export function getFeedbackSkillTemplate(): SkillTemplate {
   return {
-    name: 'feedback',
-    description: 'Collect and submit user feedback about OpenSpec with context enrichment and anonymization.',
-    instructions: `Help the user submit feedback about OpenSpec.
+    name: "feedback",
+    description: "收集并提交 PhSpec 相关用户反馈（含上下文补充与匿名处理）。",
+    instructions: `帮助用户提交关于 PhSpec 的反馈。
 
-**Goal**: Guide the user through collecting, enriching, and submitting feedback while ensuring privacy through anonymization.
+**目标**：引导用户完成收集、补充与提交反馈，并通过匿名化保护隐私。
 
-**Process**
+**流程**
 
-1. **Gather context from the conversation**
-   - Review recent conversation history for context
-   - Identify what task was being performed
-   - Note what worked well or poorly
-   - Capture specific friction points or praise
+1. **从对话中收集上下文**
+   - 回顾近期对话以获取上下文
+   - 识别用户当时在执行的任务
+   - 记录哪些做得好、哪些不好
+   - 捕捉具体摩擦点或好评
 
-2. **Draft enriched feedback**
-   - Create a clear, descriptive title (single sentence, no "Feedback:" prefix needed)
-   - Write a body that includes:
-     - What the user was trying to do
-     - What happened (good or bad)
-     - Relevant context from the conversation
-     - Any specific suggestions or requests
+2. **起草充实后的反馈**
+   - 写一条清晰、有信息量的标题（单句，无需「反馈：」前缀）
+   - 正文包含：用户当时想做什么、实际发生了什么（好或坏）、来自对话的相关上下文、任何具体建议或诉求
 
-3. **Anonymize sensitive information**
-   - Replace file paths with \`<path>\` or generic descriptions
-   - Replace API keys, tokens, secrets with \`<redacted>\`
-   - Replace company/organization names with \`<company>\`
-   - Replace personal names with \`<user>\`
-   - Replace specific URLs with \`<url>\` unless public/relevant
-   - Keep technical details that help understand the issue
+3. **匿名化敏感信息**
+   - 文件路径替换为 \`<path>\` 或通用描述
+   - API 密钥、令牌、密钥替换为 \`<redacted>\`
+   - 公司/组织名替换为 \`<company>\`
+   - 个人姓名替换为 \`<user>\`
+   - 具体 URL 替换为 \`<url>\`（公开或与问题相关的可保留）
+   - 保留有助于理解问题的技术细节
 
-4. **Present draft for approval**
-   - Show the complete draft to the user
-   - Display both title and body clearly
-   - Ask for explicit approval before submitting
-   - Allow the user to request modifications
+4. **展示草稿并征得同意**
+   - 向用户展示完整草稿
+   - 清晰展示标题与正文
+   - 提交前明确征得同意
+   - 允许用户要求修改
 
-5. **Submit on confirmation**
-   - Use the \`openspec feedback\` command to submit
-   - Format: \`openspec feedback "title" --body "body content"\`
-   - The command will automatically add metadata (version, platform, timestamp)
+5. **确认后提交**
+   - 使用 \`phspec feedback\` 命令提交
+   - 格式：\`phspec feedback "title" --body "body content"\`
+   - 命令会自动附加元数据（版本、平台、时间戳）
 
-**Example Draft**
+**示例草稿**（标题 + 正文：在做什么、遇到什么问题、建议、上下文；使用 spec-driven 与 <path> 等占位）。
 
-\`\`\`
-Title: Error handling in artifact workflow needs improvement
+**匿名化示例**：Before 中具体路径、API key、公司名 → After 中 <path>、<redacted>、<company>。
 
-Body:
-I was working on creating a new change and encountered an issue with
-the artifact workflow. When I tried to continue after creating the
-proposal, the system didn't clearly indicate that I needed to complete
-the specs first.
+**边界**
+- 提交前必须展示完整草稿并征得明确同意
+- 必须对敏感信息做匿名化
+- 允许用户修改草稿后再提交
+- 未经用户确认不得提交
+- 保留相关技术上下文与对话中的洞察
 
-Suggestion: Add clearer error messages that explain dependency chains
-in the artifact workflow. Something like "Cannot create design.md
-because specs are not complete (0/2 done)."
-
-Context: Using the spec-driven schema with <path>/my-project
-\`\`\`
-
-**Anonymization Examples**
-
-Before:
-\`\`\`
-Working on /Users/john/mycompany/auth-service/src/oauth.ts
-Failed with API key: sk_live_abc123xyz
-Working at Acme Corp
-\`\`\`
-
-After:
-\`\`\`
-Working on <path>/oauth.ts
-Failed with API key: <redacted>
-Working at <company>
-\`\`\`
-
-**Guardrails**
-
-- MUST show complete draft before submitting
-- MUST ask for explicit approval
-- MUST anonymize sensitive information
-- ALLOW user to modify draft before submitting
-- DO NOT submit without user confirmation
-- DO include relevant technical context
-- DO keep conversation-specific insights
-
-**User Confirmation Required**
-
-Always ask:
-\`\`\`
-Here's the feedback I've drafted:
-
-Title: [title]
-
-Body:
-[body]
-
-Does this look good? I can modify it if you'd like, or submit it as-is.
-\`\`\`
-
-Only proceed with submission after user confirms.`
+**用户确认话术**：展示标题与正文后询问「这样可以吗？需要改哪里可以说，或按原样提交。」仅在用户确认后再执行提交。若所在环境没有 AskUserQuestion 或 ask_followup_question 等用户确认工具，直接输出该询问并写明「请回复后再继续」，不要未经确认即提交。`,
   };
 }

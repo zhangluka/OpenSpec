@@ -14,7 +14,7 @@ import { AI_TOOLS } from '../config.js';
 export const SKILL_NAMES = [
   'openspec-explore',
   'openspec-new-change',
-  'openspec-continue-change',
+  'phspec-continue-change',
   'openspec-apply-change',
   'openspec-ff-change',
   'openspec-sync-specs',

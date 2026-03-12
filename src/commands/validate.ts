@@ -1,11 +1,11 @@
-import ora from 'ora';
-import path from 'path';
-import { Validator } from '../core/validation/validator.js';
-import { isInteractive, resolveNoInteractive } from '../utils/interactive.js';
-import { getActiveChangeIds, getSpecIds } from '../utils/item-discovery.js';
-import { nearestMatches } from '../utils/match.js';
+import ora from "ora";
+import path from "path";
+import { Validator } from "../core/validation/validator.js";
+import { isInteractive, resolveNoInteractive } from "../utils/interactive.js";
+import { getActiveChangeIds, getSpecIds } from "../utils/item-discovery.js";
+import { nearestMatches } from "../utils/match.js";
 
-type ItemType = 'change' | 'spec';
+type ItemType = "change" | "spec";
 
 interface ExecuteOptions {
   all?: boolean;
@@ -23,27 +23,46 @@ interface BulkItemResult {
   id: string;
   type: ItemType;
   valid: boolean;
-  issues: { level: 'ERROR' | 'WARNING' | 'INFO'; path: string; message: string }[];
+  issues: {
+    level: "ERROR" | "WARNING" | "INFO";
+    path: string;
+    message: string;
+  }[];
   durationMs: number;
 }
 
 export class ValidateCommand {
-  async execute(itemName: string | undefined, options: ExecuteOptions = {}): Promise<void> {
+  async execute(
+    itemName: string | undefined,
+    options: ExecuteOptions = {},
+  ): Promise<void> {
     const interactive = isInteractive(options);
 
     // Handle bulk flags first
     if (options.all || options.changes || options.specs) {
-      await this.runBulkValidation({
-        changes: !!options.all || !!options.changes,
-        specs: !!options.all || !!options.specs,
-      }, { strict: !!options.strict, json: !!options.json, concurrency: options.concurrency, noInteractive: resolveNoInteractive(options) });
+      await this.runBulkValidation(
+        {
+          changes: !!options.all || !!options.changes,
+          specs: !!options.all || !!options.specs,
+        },
+        {
+          strict: !!options.strict,
+          json: !!options.json,
+          concurrency: options.concurrency,
+          noInteractive: resolveNoInteractive(options),
+        },
+      );
       return;
     }
 
     // No item and no flags
     if (!itemName) {
       if (interactive) {
-        await this.runInteractiveSelector({ strict: !!options.strict, json: !!options.json, concurrency: options.concurrency });
+        await this.runInteractiveSelector({
+          strict: !!options.strict,
+          json: !!options.json,
+          concurrency: options.concurrency,
+        });
         return;
       }
       this.printNonInteractiveHint();
@@ -53,73 +72,110 @@ export class ValidateCommand {
 
     // Direct item validation with type detection or override
     const typeOverride = this.normalizeType(options.type);
-    await this.validateDirectItem(itemName, { typeOverride, strict: !!options.strict, json: !!options.json });
+    await this.validateDirectItem(itemName, {
+      typeOverride,
+      strict: !!options.strict,
+      json: !!options.json,
+    });
   }
 
   private normalizeType(value?: string): ItemType | undefined {
     if (!value) return undefined;
     const v = value.toLowerCase();
-    if (v === 'change' || v === 'spec') return v;
+    if (v === "change" || v === "spec") return v;
     return undefined;
   }
 
-  private async runInteractiveSelector(opts: { strict: boolean; json: boolean; concurrency?: string }): Promise<void> {
-    const { select } = await import('@inquirer/prompts');
+  private async runInteractiveSelector(opts: {
+    strict: boolean;
+    json: boolean;
+    concurrency?: string;
+  }): Promise<void> {
+    const { select } = await import("@inquirer/prompts");
     const choice = await select({
-      message: 'What would you like to validate?',
+      message: "要校验哪些内容？",
       choices: [
-        { name: 'All (changes + specs)', value: 'all' },
-        { name: 'All changes', value: 'changes' },
-        { name: 'All specs', value: 'specs' },
-        { name: 'Pick a specific change or spec', value: 'one' },
+        { name: "全部（变更 + 规范）", value: "all" },
+        { name: "全部变更", value: "changes" },
+        { name: "全部规范", value: "specs" },
+        { name: "选择单个变更或规范", value: "one" },
       ],
     });
 
-    if (choice === 'all') return this.runBulkValidation({ changes: true, specs: true }, opts);
-    if (choice === 'changes') return this.runBulkValidation({ changes: true, specs: false }, opts);
-    if (choice === 'specs') return this.runBulkValidation({ changes: false, specs: true }, opts);
+    if (choice === "all")
+      return this.runBulkValidation({ changes: true, specs: true }, opts);
+    if (choice === "changes")
+      return this.runBulkValidation({ changes: true, specs: false }, opts);
+    if (choice === "specs")
+      return this.runBulkValidation({ changes: false, specs: true }, opts);
 
     // one
-    const [changes, specs] = await Promise.all([getActiveChangeIds(), getSpecIds()]);
+    const [changes, specs] = await Promise.all([
+      getActiveChangeIds(),
+      getSpecIds(),
+    ]);
     const items: { name: string; value: { type: ItemType; id: string } }[] = [];
-    items.push(...changes.map(id => ({ name: `change/${id}`, value: { type: 'change' as const, id } })));
-    items.push(...specs.map(id => ({ name: `spec/${id}`, value: { type: 'spec' as const, id } })));
+    items.push(
+      ...changes.map((id) => ({
+        name: `change/${id}`,
+        value: { type: "change" as const, id },
+      })),
+    );
+    items.push(
+      ...specs.map((id) => ({
+        name: `spec/${id}`,
+        value: { type: "spec" as const, id },
+      })),
+    );
     if (items.length === 0) {
-      console.error('No items found to validate.');
+      console.error("未找到可校验的项。");
       process.exitCode = 1;
       return;
     }
-    const picked = await select<{ type: ItemType; id: string }>({ message: 'Pick an item', choices: items });
+    const picked = await select<{ type: ItemType; id: string }>({
+      message: "选择一项",
+      choices: items,
+    });
     await this.validateByType(picked.type, picked.id, opts);
   }
 
   private printNonInteractiveHint(): void {
-    console.error('Nothing to validate. Try one of:');
-    console.error('  openspec validate --all');
-    console.error('  openspec validate --changes');
-    console.error('  openspec validate --specs');
-    console.error('  openspec validate <item-name>');
-    console.error('Or run in an interactive terminal.');
+    console.error("未指定校验对象。可尝试：");
+    console.error("  phspec validate --all");
+    console.error("  phspec validate --changes");
+    console.error("  phspec validate --specs");
+    console.error("  phspec validate <item-name>");
+    console.error("或在交互式终端中运行。");
   }
 
-  private async validateDirectItem(itemName: string, opts: { typeOverride?: ItemType; strict: boolean; json: boolean }): Promise<void> {
-    const [changes, specs] = await Promise.all([getActiveChangeIds(), getSpecIds()]);
+  private async validateDirectItem(
+    itemName: string,
+    opts: { typeOverride?: ItemType; strict: boolean; json: boolean },
+  ): Promise<void> {
+    const [changes, specs] = await Promise.all([
+      getActiveChangeIds(),
+      getSpecIds(),
+    ]);
     const isChange = changes.includes(itemName);
     const isSpec = specs.includes(itemName);
 
-    const type = opts.typeOverride ?? (isChange ? 'change' : isSpec ? 'spec' : undefined);
+    const type =
+      opts.typeOverride ?? (isChange ? "change" : isSpec ? "spec" : undefined);
 
     if (!type) {
-      console.error(`Unknown item '${itemName}'`);
+      console.error(`未知项 '${itemName}'`);
       const suggestions = nearestMatches(itemName, [...changes, ...specs]);
-      if (suggestions.length) console.error(`Did you mean: ${suggestions.join(', ')}?`);
+      if (suggestions.length)
+        console.error(`是否指：${suggestions.join(", ")}？`);
       process.exitCode = 1;
       return;
     }
 
     if (!opts.typeOverride && isChange && isSpec) {
-      console.error(`Ambiguous item '${itemName}' matches both a change and a spec.`);
-      console.error('Pass --type change|spec, or use: openspec change validate / openspec spec validate');
+      console.error(`项 '${itemName}' 同时匹配变更与规范，存在歧义。`);
+      console.error(
+        "请传入 --type change|spec，或使用：phspec change validate / phspec spec validate",
+      );
       process.exitCode = 1;
       return;
     }
@@ -127,39 +183,69 @@ export class ValidateCommand {
     await this.validateByType(type, itemName, opts);
   }
 
-  private async validateByType(type: ItemType, id: string, opts: { strict: boolean; json: boolean }): Promise<void> {
+  private async validateByType(
+    type: ItemType,
+    id: string,
+    opts: { strict: boolean; json: boolean },
+  ): Promise<void> {
     const validator = new Validator(opts.strict);
-    if (type === 'change') {
-      const changeDir = path.join(process.cwd(), 'openspec', 'changes', id);
+    if (type === "change") {
+      const changeDir = path.join(process.cwd(), "phspec", "changes", id);
       const start = Date.now();
       const report = await validator.validateChangeDeltaSpecs(changeDir);
       const durationMs = Date.now() - start;
-      this.printReport('change', id, report, durationMs, opts.json);
+      this.printReport("change", id, report, durationMs, opts.json);
       // Non-zero exit if invalid (keeps enriched output test semantics)
       process.exitCode = report.valid ? 0 : 1;
       return;
     }
-    const file = path.join(process.cwd(), 'openspec', 'specs', id, 'spec.md');
+    const file = path.join(process.cwd(), "phspec", "specs", id, "spec.md");
     const start = Date.now();
     const report = await validator.validateSpec(file);
     const durationMs = Date.now() - start;
-    this.printReport('spec', id, report, durationMs, opts.json);
+    this.printReport("spec", id, report, durationMs, opts.json);
     process.exitCode = report.valid ? 0 : 1;
   }
 
-  private printReport(type: ItemType, id: string, report: { valid: boolean; issues: any[] }, durationMs: number, json: boolean): void {
+  private printReport(
+    type: ItemType,
+    id: string,
+    report: { valid: boolean; issues: any[] },
+    durationMs: number,
+    json: boolean,
+  ): void {
     if (json) {
-      const out = { items: [{ id, type, valid: report.valid, issues: report.issues, durationMs }], summary: { totals: { items: 1, passed: report.valid ? 1 : 0, failed: report.valid ? 0 : 1 }, byType: { [type]: { items: 1, passed: report.valid ? 1 : 0, failed: report.valid ? 0 : 1 } } }, version: '1.0' };
+      const out = {
+        items: [
+          { id, type, valid: report.valid, issues: report.issues, durationMs },
+        ],
+        summary: {
+          totals: {
+            items: 1,
+            passed: report.valid ? 1 : 0,
+            failed: report.valid ? 0 : 1,
+          },
+          byType: {
+            [type]: {
+              items: 1,
+              passed: report.valid ? 1 : 0,
+              failed: report.valid ? 0 : 1,
+            },
+          },
+        },
+        version: "1.0",
+      };
       console.log(JSON.stringify(out, null, 2));
       return;
     }
     if (report.valid) {
-      console.log(`${type === 'change' ? 'Change' : 'Specification'} '${id}' is valid`);
+      console.log(`${type === "change" ? "变更" : "规范"} '${id}' 校验通过`);
     } else {
-      console.error(`${type === 'change' ? 'Change' : 'Specification'} '${id}' has issues`);
+      console.error(`${type === "change" ? "变更" : "规范"} '${id}' 存在问题`);
       for (const issue of report.issues) {
-        const label = issue.level === 'ERROR' ? 'ERROR' : issue.level;
-        const prefix = issue.level === 'ERROR' ? '✗' : issue.level === 'WARNING' ? '⚠' : 'ℹ';
+        const label = issue.level === "ERROR" ? "ERROR" : issue.level;
+        const prefix =
+          issue.level === "ERROR" ? "✗" : issue.level === "WARNING" ? "⚠" : "ℹ";
         console.error(`${prefix} [${label}] ${issue.path}: ${issue.message}`);
       }
       this.printNextSteps(type);
@@ -168,21 +254,36 @@ export class ValidateCommand {
 
   private printNextSteps(type: ItemType): void {
     const bullets: string[] = [];
-    if (type === 'change') {
-      bullets.push('- Ensure change has deltas in specs/: use headers ## ADDED/MODIFIED/REMOVED/RENAMED Requirements');
-      bullets.push('- Each requirement MUST include at least one #### Scenario: block');
-      bullets.push('- Debug parsed deltas: openspec change show <id> --json --deltas-only');
+    if (type === "change") {
+      bullets.push(
+        "- 确保变更在 specs/ 中有增量：使用标题 ## ADDED/MODIFIED/REMOVED/RENAMED Requirements",
+      );
+      bullets.push("- 每条需求必须包含至少一个 #### Scenario: 块");
+      bullets.push(
+        "- 调试已解析增量：phspec change show <id> --json --deltas-only",
+      );
     } else {
-      bullets.push('- Ensure spec includes ## Purpose and ## Requirements sections');
-      bullets.push('- Each requirement MUST include at least one #### Scenario: block');
-      bullets.push('- Re-run with --json to see structured report');
+      bullets.push("- 确保规范包含 ## Purpose 与 ## Requirements 节");
+      bullets.push("- 每条需求必须包含至少一个 #### Scenario: 块");
+      bullets.push("- 使用 --json 重新运行可查看结构化报告");
     }
-    console.error('Next steps:');
-    bullets.forEach(b => console.error(`  ${b}`));
+    console.error("后续步骤：");
+    bullets.forEach((b) => console.error(`  ${b}`));
   }
 
-  private async runBulkValidation(scope: { changes: boolean; specs: boolean }, opts: { strict: boolean; json: boolean; concurrency?: string; noInteractive?: boolean }): Promise<void> {
-    const spinner = !opts.json && !opts.noInteractive ? ora('Validating...').start() : undefined;
+  private async runBulkValidation(
+    scope: { changes: boolean; specs: boolean },
+    opts: {
+      strict: boolean;
+      json: boolean;
+      concurrency?: string;
+      noInteractive?: boolean;
+    },
+  ): Promise<void> {
+    const spinner =
+      !opts.json && !opts.noInteractive
+        ? ora("正在校验...").start()
+        : undefined;
     const [changeIds, specIds] = await Promise.all([
       scope.changes ? getActiveChangeIds() : Promise.resolve<string[]>([]),
       scope.specs ? getSpecIds() : Promise.resolve<string[]>([]),
@@ -190,26 +291,41 @@ export class ValidateCommand {
 
     const DEFAULT_CONCURRENCY = 6;
     const maxSuggestions = 5; // used by nearestMatches
-    const concurrency = normalizeConcurrency(opts.concurrency) ?? normalizeConcurrency(process.env.OPENSPEC_CONCURRENCY) ?? DEFAULT_CONCURRENCY;
+    const concurrency =
+      normalizeConcurrency(opts.concurrency) ??
+      normalizeConcurrency(process.env.PHSPEC_CONCURRENCY) ??
+      DEFAULT_CONCURRENCY;
     const validator = new Validator(opts.strict);
     const queue: Array<() => Promise<BulkItemResult>> = [];
 
     for (const id of changeIds) {
       queue.push(async () => {
         const start = Date.now();
-        const changeDir = path.join(process.cwd(), 'openspec', 'changes', id);
+        const changeDir = path.join(process.cwd(), "phspec", "changes", id);
         const report = await validator.validateChangeDeltaSpecs(changeDir);
         const durationMs = Date.now() - start;
-        return { id, type: 'change' as const, valid: report.valid, issues: report.issues, durationMs };
+        return {
+          id,
+          type: "change" as const,
+          valid: report.valid,
+          issues: report.issues,
+          durationMs,
+        };
       });
     }
     for (const id of specIds) {
       queue.push(async () => {
         const start = Date.now();
-        const file = path.join(process.cwd(), 'openspec', 'specs', id, 'spec.md');
+        const file = path.join(process.cwd(), "phspec", "specs", id, "spec.md");
         const report = await validator.validateSpec(file);
         const durationMs = Date.now() - start;
-        return { id, type: 'spec' as const, valid: report.valid, issues: report.issues, durationMs };
+        return {
+          id,
+          type: "spec" as const,
+          valid: report.valid,
+          issues: report.issues,
+          durationMs,
+        };
       });
     }
 
@@ -219,16 +335,18 @@ export class ValidateCommand {
       const summary = {
         totals: { items: 0, passed: 0, failed: 0 },
         byType: {
-          ...(scope.changes ? { change: { items: 0, passed: 0, failed: 0 } } : {}),
+          ...(scope.changes
+            ? { change: { items: 0, passed: 0, failed: 0 } }
+            : {}),
           ...(scope.specs ? { spec: { items: 0, passed: 0, failed: 0 } } : {}),
         },
       } as const;
 
       if (opts.json) {
-        const out = { items: [] as BulkItemResult[], summary, version: '1.0' };
+        const out = { items: [] as BulkItemResult[], summary, version: "1.0" };
         console.log(JSON.stringify(out, null, 2));
       } else {
-        console.log('No items found to validate.');
+        console.log("未找到可校验的项。");
       }
 
       process.exitCode = 0;
@@ -247,15 +365,24 @@ export class ValidateCommand {
           const currentIndex = index++;
           const task = queue[currentIndex];
           running++;
-          if (spinner) spinner.text = `Validating (${currentIndex + 1}/${queue.length})...`;
+          if (spinner)
+            spinner.text = `正在校验 (${currentIndex + 1}/${queue.length})...`;
           task()
-            .then(res => {
+            .then((res) => {
               results.push(res);
-              if (res.valid) passed++; else failed++;
+              if (res.valid) passed++;
+              else failed++;
             })
             .catch((error: any) => {
-              const message = error?.message || 'Unknown error';
-              const res: BulkItemResult = { id: getPlannedId(currentIndex, changeIds, specIds) ?? 'unknown', type: getPlannedType(currentIndex, changeIds, specIds) ?? 'change', valid: false, issues: [{ level: 'ERROR', path: 'file', message }], durationMs: 0 };
+              const message = error?.message || "未知错误";
+              const res: BulkItemResult = {
+                id: getPlannedId(currentIndex, changeIds, specIds) ?? "unknown",
+                type:
+                  getPlannedType(currentIndex, changeIds, specIds) ?? "change",
+                valid: false,
+                issues: [{ level: "ERROR", path: "file", message }],
+                durationMs: 0,
+              };
               results.push(res);
               failed++;
             })
@@ -275,20 +402,22 @@ export class ValidateCommand {
     const summary = {
       totals: { items: results.length, passed, failed },
       byType: {
-        ...(scope.changes ? { change: summarizeType(results, 'change') } : {}),
-        ...(scope.specs ? { spec: summarizeType(results, 'spec') } : {}),
+        ...(scope.changes ? { change: summarizeType(results, "change") } : {}),
+        ...(scope.specs ? { spec: summarizeType(results, "spec") } : {}),
       },
     } as const;
 
     if (opts.json) {
-      const out = { items: results, summary, version: '1.0' };
+      const out = { items: results, summary, version: "1.0" };
       console.log(JSON.stringify(out, null, 2));
     } else {
       for (const res of results) {
         if (res.valid) console.log(`✓ ${res.type}/${res.id}`);
         else console.error(`✗ ${res.type}/${res.id}`);
       }
-      console.log(`Totals: ${summary.totals.passed} passed, ${summary.totals.failed} failed (${summary.totals.items} items)`);
+      console.log(
+        `合计：${summary.totals.passed} 通过，${summary.totals.failed} 未通过（共 ${summary.totals.items} 项）`,
+      );
     }
 
     process.exitCode = failed > 0 ? 1 : 0;
@@ -296,9 +425,9 @@ export class ValidateCommand {
 }
 
 function summarizeType(results: BulkItemResult[], type: ItemType) {
-  const filtered = results.filter(r => r.type === type);
+  const filtered = results.filter((r) => r.type === type);
   const items = filtered.length;
-  const passed = filtered.filter(r => r.valid).length;
+  const passed = filtered.filter((r) => r.valid).length;
   const failed = items - passed;
   return { items, passed, failed };
 }
@@ -310,17 +439,25 @@ function normalizeConcurrency(value?: string): number | undefined {
   return n;
 }
 
-function getPlannedId(index: number, changeIds: string[], specIds: string[]): string | undefined {
+function getPlannedId(
+  index: number,
+  changeIds: string[],
+  specIds: string[],
+): string | undefined {
   const totalChanges = changeIds.length;
   if (index < totalChanges) return changeIds[index];
   const specIndex = index - totalChanges;
   return specIds[specIndex];
 }
 
-function getPlannedType(index: number, changeIds: string[], specIds: string[]): ItemType | undefined {
+function getPlannedType(
+  index: number,
+  changeIds: string[],
+  specIds: string[],
+): ItemType | undefined {
   const totalChanges = changeIds.length;
-  if (index < totalChanges) return 'change';
+  if (index < totalChanges) return "change";
   const specIndex = index - totalChanges;
-  if (specIndex >= 0 && specIndex < specIds.length) return 'spec';
+  if (specIndex >= 0 && specIndex < specIds.length) return "spec";
   return undefined;
 }

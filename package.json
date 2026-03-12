@@ -1,21 +1,21 @@
 {
-  "name": "@fission-ai/openspec",
-  "version": "1.1.1",
-  "description": "AI-native system for spec-driven development",
+  "name": "@bobby_z/phspec",
+  "version": "0.0.3",
+  "description": "OpenSpec-based system with internalization support and internal Agent tools for spec-driven development",
   "keywords": [
-    "openspec",
+    "phspec",
     "specs",
     "cli",
     "ai",
     "development"
   ],
-  "homepage": "https://github.com/Fission-AI/OpenSpec",
+  "homepage": "https://github.com/zhangluka/OpenSpec",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Fission-AI/OpenSpec"
+    "url": "https://github.com/zhangluka/OpenSpec"
   },
   "license": "MIT",
-  "author": "OpenSpec Contributors",
+  "author": "zhangluka",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -27,7 +27,7 @@
     }
   },
   "bin": {
-    "openspec": "./bin/openspec.js"
+    "phspec": "./bin/phspec.js"
   },
   "files": [
     "dist",
@@ -42,7 +42,7 @@
     "lint": "eslint src/",
     "build": "node build.js",
     "dev": "tsc --watch",
-    "dev:cli": "pnpm build && node bin/openspec.js",
+    "dev:cli": "pnpm build && node bin/phspec.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",

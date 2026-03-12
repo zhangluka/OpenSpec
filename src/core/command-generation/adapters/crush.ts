@@ -4,23 +4,23 @@
  * Formats commands for Crush following its frontmatter specification.
  */
 
-import path from 'path';
-import type { CommandContent, ToolCommandAdapter } from '../types.js';
+import path from "path";
+import type { CommandContent, ToolCommandAdapter } from "../types.js";
 
 /**
  * Crush adapter for command generation.
- * File path: .crush/commands/opsx/<id>.md
+ * File path: .crush/commands/phsx/<id>.md
  * Frontmatter: name, description, category, tags
  */
 export const crushAdapter: ToolCommandAdapter = {
-  toolId: 'crush',
+  toolId: "crush",
 
   getFilePath(commandId: string): string {
-    return path.join('.crush', 'commands', 'opsx', `${commandId}.md`);
+    return path.join(".crush", "commands", "phsx", `${commandId}.md`);
   },
 
   formatFile(content: CommandContent): string {
-    const tagsStr = content.tags.join(', ');
+    const tagsStr = content.tags.join(", ");
     return `---
 name: ${content.name}
 description: ${content.description}

@@ -5,16 +5,16 @@
  * Applies delta specs from a change to main specs without archiving.
  */
 
-import { promises as fs } from 'fs';
-import path from 'path';
-import chalk from 'chalk';
+import { promises as fs } from "fs";
+import path from "path";
+import chalk from "chalk";
 import {
   extractRequirementsSection,
   parseDeltaSpec,
   normalizeRequirementName,
   type RequirementBlock,
-} from './parsers/requirement-blocks.js';
-import { Validator } from './validation/validator.js';
+} from "./parsers/requirement-blocks.js";
+import { Validator } from "./validation/validator.js";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -53,17 +53,20 @@ export interface SpecsApplyOutput {
 /**
  * Find all delta spec files that need to be applied from a change.
  */
-export async function findSpecUpdates(changeDir: string, mainSpecsDir: string): Promise<SpecUpdate[]> {
+export async function findSpecUpdates(
+  changeDir: string,
+  mainSpecsDir: string,
+): Promise<SpecUpdate[]> {
   const updates: SpecUpdate[] = [];
-  const changeSpecsDir = path.join(changeDir, 'specs');
+  const changeSpecsDir = path.join(changeDir, "specs");
 
   try {
     const entries = await fs.readdir(changeSpecsDir, { withFileTypes: true });
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        const specFile = path.join(changeSpecsDir, entry.name, 'spec.md');
-        const targetFile = path.join(mainSpecsDir, entry.name, 'spec.md');
+        const specFile = path.join(changeSpecsDir, entry.name, "spec.md");
+        const targetFile = path.join(mainSpecsDir, entry.name, "spec.md");
 
         try {
           await fs.access(specFile);
@@ -100,10 +103,13 @@ export async function findSpecUpdates(changeDir: string, mainSpecsDir: string): 
  */
 export async function buildUpdatedSpec(
   update: SpecUpdate,
-  changeName: string
-): Promise<{ rebuilt: string; counts: { added: number; modified: number; removed: number; renamed: number } }> {
+  changeName: string,
+): Promise<{
+  rebuilt: string;
+  counts: { added: number; modified: number; removed: number; renamed: number };
+}> {
   // Read change spec content (delta-format expected)
-  const changeContent = await fs.readFile(update.source, 'utf-8');
+  const changeContent = await fs.readFile(update.source, "utf-8");
 
   // Parse deltas from the change spec file
   const plan = parseDeltaSpec(changeContent);
@@ -115,7 +121,7 @@ export async function buildUpdatedSpec(
     const name = normalizeRequirementName(add.name);
     if (addedNames.has(name)) {
       throw new Error(
-        `${specName} validation failed - duplicate requirement in ADDED for header "### Requirement: ${add.name}"`
+        `${specName} validation failed - duplicate requirement in ADDED for header "### Requirement: ${add.name}"`,
       );
     }
     addedNames.add(name);
@@ -125,7 +131,7 @@ export async function buildUpdatedSpec(
     const name = normalizeRequirementName(mod.name);
     if (modifiedNames.has(name)) {
       throw new Error(
-        `${specName} validation failed - duplicate requirement in MODIFIED for header "### Requirement: ${mod.name}"`
+        `${specName} validation failed - duplicate requirement in MODIFIED for header "### Requirement: ${mod.name}"`,
       );
     }
     modifiedNames.add(name);
@@ -135,7 +141,7 @@ export async function buildUpdatedSpec(
     const name = normalizeRequirementName(rem);
     if (removedNamesSet.has(name)) {
       throw new Error(
-        `${specName} validation failed - duplicate requirement in REMOVED for header "### Requirement: ${rem}"`
+        `${specName} validation failed - duplicate requirement in REMOVED for header "### Requirement: ${rem}"`,
       );
     }
     removedNamesSet.add(name);
@@ -147,12 +153,12 @@ export async function buildUpdatedSpec(
     const toNorm = normalizeRequirementName(to);
     if (renamedFromSet.has(fromNorm)) {
       throw new Error(
-        `${specName} validation failed - duplicate FROM in RENAMED for header "### Requirement: ${from}"`
+        `${specName} validation failed - duplicate FROM in RENAMED for header "### Requirement: ${from}"`,
       );
     }
     if (renamedToSet.has(toNorm)) {
       throw new Error(
-        `${specName} validation failed - duplicate TO in RENAMED for header "### Requirement: ${to}"`
+        `${specName} validation failed - duplicate TO in RENAMED for header "### Requirement: ${to}"`,
       );
     }
     renamedFromSet.add(fromNorm);
@@ -162,11 +168,14 @@ export async function buildUpdatedSpec(
   // Pre-validate cross-section conflicts
   const conflicts: Array<{ name: string; a: string; b: string }> = [];
   for (const n of modifiedNames) {
-    if (removedNamesSet.has(n)) conflicts.push({ name: n, a: 'MODIFIED', b: 'REMOVED' });
-    if (addedNames.has(n)) conflicts.push({ name: n, a: 'MODIFIED', b: 'ADDED' });
+    if (removedNamesSet.has(n))
+      conflicts.push({ name: n, a: "MODIFIED", b: "REMOVED" });
+    if (addedNames.has(n))
+      conflicts.push({ name: n, a: "MODIFIED", b: "ADDED" });
   }
   for (const n of addedNames) {
-    if (removedNamesSet.has(n)) conflicts.push({ name: n, a: 'ADDED', b: 'REMOVED' });
+    if (removedNamesSet.has(n))
+      conflicts.push({ name: n, a: "ADDED", b: "REMOVED" });
   }
   // Renamed interplay: MODIFIED must reference the NEW header, not FROM
   for (const { from, to } of plan.renamed) {
@@ -174,27 +183,32 @@ export async function buildUpdatedSpec(
     const toNorm = normalizeRequirementName(to);
     if (modifiedNames.has(fromNorm)) {
       throw new Error(
-        `${specName} validation failed - when a rename exists, MODIFIED must reference the NEW header "### Requirement: ${to}"`
+        `${specName} validation failed - when a rename exists, MODIFIED must reference the NEW header "### Requirement: ${to}"`,
       );
     }
     // Detect ADDED colliding with a RENAMED TO
     if (addedNames.has(toNorm)) {
       throw new Error(
-        `${specName} validation failed - RENAMED TO header collides with ADDED for "### Requirement: ${to}"`
+        `${specName} validation failed - RENAMED TO header collides with ADDED for "### Requirement: ${to}"`,
       );
     }
   }
   if (conflicts.length > 0) {
     const c = conflicts[0];
     throw new Error(
-      `${specName} validation failed - requirement present in multiple sections (${c.a} and ${c.b}) for header "### Requirement: ${c.name}"`
+      `${specName} validation failed - requirement present in multiple sections (${c.a} and ${c.b}) for header "### Requirement: ${c.name}"`,
     );
   }
-  const hasAnyDelta = plan.added.length + plan.modified.length + plan.removed.length + plan.renamed.length > 0;
+  const hasAnyDelta =
+    plan.added.length +
+      plan.modified.length +
+      plan.removed.length +
+      plan.renamed.length >
+    0;
   if (!hasAnyDelta) {
     throw new Error(
       `Delta parsing found no operations for ${path.basename(path.dirname(update.source))}. ` +
-        `Provide ADDED/MODIFIED/REMOVED/RENAMED sections in change spec.`
+        `Provide ADDED/MODIFIED/REMOVED/RENAMED sections in change spec.`,
     );
   }
 
@@ -202,21 +216,21 @@ export async function buildUpdatedSpec(
   let targetContent: string;
   let isNewSpec = false;
   try {
-    targetContent = await fs.readFile(update.target, 'utf-8');
+    targetContent = await fs.readFile(update.target, "utf-8");
   } catch {
     // Target spec does not exist; MODIFIED and RENAMED are not allowed for new specs
     // REMOVED will be ignored with a warning since there's nothing to remove
     if (plan.modified.length > 0 || plan.renamed.length > 0) {
       throw new Error(
-        `${specName}: target spec does not exist; only ADDED requirements are allowed for new specs. MODIFIED and RENAMED operations require an existing spec.`
+        `${specName}: target spec does not exist; only ADDED requirements are allowed for new specs. MODIFIED and RENAMED operations require an existing spec.`,
       );
     }
     // Warn about REMOVED requirements being ignored for new specs
     if (plan.removed.length > 0) {
       console.log(
         chalk.yellow(
-          `⚠️  Warning: ${specName} - ${plan.removed.length} REMOVED requirement(s) ignored for new spec (nothing to remove).`
-        )
+          `⚠️  Warning: ${specName} - ${plan.removed.length} REMOVED requirement(s) ignored for new spec (nothing to remove).`,
+        ),
       );
     }
     isNewSpec = true;
@@ -236,19 +250,23 @@ export async function buildUpdatedSpec(
     const from = normalizeRequirementName(r.from);
     const to = normalizeRequirementName(r.to);
     if (!nameToBlock.has(from)) {
-      throw new Error(`${specName} RENAMED failed for header "### Requirement: ${r.from}" - source not found`);
+      throw new Error(
+        `${specName} RENAMED failed for header "### Requirement: ${r.from}" - source not found`,
+      );
     }
     if (nameToBlock.has(to)) {
-      throw new Error(`${specName} RENAMED failed for header "### Requirement: ${r.to}" - target already exists`);
+      throw new Error(
+        `${specName} RENAMED failed for header "### Requirement: ${r.to}" - target already exists`,
+      );
     }
     const block = nameToBlock.get(from)!;
     const newHeader = `### Requirement: ${to}`;
-    const rawLines = block.raw.split('\n');
+    const rawLines = block.raw.split("\n");
     rawLines[0] = newHeader;
     const renamedBlock: RequirementBlock = {
       headerLine: newHeader,
       name: to,
-      raw: rawLines.join('\n'),
+      raw: rawLines.join("\n"),
     };
     nameToBlock.delete(from);
     nameToBlock.set(to, renamedBlock);
@@ -261,7 +279,9 @@ export async function buildUpdatedSpec(
       // For new specs, REMOVED requirements are already warned about and ignored
       // For existing specs, missing requirements are an error
       if (!isNewSpec) {
-        throw new Error(`${specName} REMOVED failed for header "### Requirement: ${name}" - not found`);
+        throw new Error(
+          `${specName} REMOVED failed for header "### Requirement: ${name}" - not found`,
+        );
       }
       // Skip removal for new specs (already warned above)
       continue;
@@ -273,13 +293,20 @@ export async function buildUpdatedSpec(
   for (const mod of plan.modified) {
     const key = normalizeRequirementName(mod.name);
     if (!nameToBlock.has(key)) {
-      throw new Error(`${specName} MODIFIED failed for header "### Requirement: ${mod.name}" - not found`);
+      throw new Error(
+        `${specName} MODIFIED failed for header "### Requirement: ${mod.name}" - not found`,
+      );
     }
     // Replace block with provided raw (ensure header line matches key)
-    const modHeaderMatch = mod.raw.split('\n')[0].match(/^###\s*Requirement:\s*(.+)\s*$/);
-    if (!modHeaderMatch || normalizeRequirementName(modHeaderMatch[1]) !== key) {
+    const modHeaderMatch = mod.raw
+      .split("\n")[0]
+      .match(/^###\s*Requirement:\s*(.+)\s*$/);
+    if (
+      !modHeaderMatch ||
+      normalizeRequirementName(modHeaderMatch[1]) !== key
+    ) {
       throw new Error(
-        `${specName} MODIFIED failed for header "### Requirement: ${mod.name}" - header mismatch in content`
+        `${specName} MODIFIED failed for header "### Requirement: ${mod.name}" - header mismatch in content`,
       );
     }
     nameToBlock.set(key, mod);
@@ -289,7 +316,9 @@ export async function buildUpdatedSpec(
   for (const add of plan.added) {
     const key = normalizeRequirementName(add.name);
     if (nameToBlock.has(key)) {
-      throw new Error(`${specName} ADDED failed for header "### Requirement: ${add.name}" - already exists`);
+      throw new Error(
+        `${specName} ADDED failed for header "### Requirement: ${add.name}" - already exists`,
+      );
     }
     nameToBlock.set(key, add);
   }
@@ -314,16 +343,23 @@ export async function buildUpdatedSpec(
     }
   }
 
-  const reqBody = [parts.preamble && parts.preamble.trim() ? parts.preamble.trimEnd() : '']
+  const reqBody = [
+    parts.preamble && parts.preamble.trim() ? parts.preamble.trimEnd() : "",
+  ]
     .filter(Boolean)
     .concat(keptOrder.map((b) => b.raw))
-    .join('\n\n')
+    .join("\n\n")
     .trimEnd();
 
-  const rebuilt = [parts.before.trimEnd(), parts.headerLine, reqBody, parts.after]
-    .filter((s, idx) => !(idx === 0 && s === ''))
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n');
+  const rebuilt = [
+    parts.before.trimEnd(),
+    parts.headerLine,
+    reqBody,
+    parts.after,
+  ]
+    .filter((s, idx) => !(idx === 0 && s === ""))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n");
 
   return {
     rebuilt,
@@ -342,7 +378,7 @@ export async function buildUpdatedSpec(
 export async function writeUpdatedSpec(
   update: SpecUpdate,
   rebuilt: string,
-  counts: { added: number; modified: number; removed: number; renamed: number }
+  counts: { added: number; modified: number; removed: number; renamed: number },
 ): Promise<void> {
   // Create target directory if needed
   const targetDir = path.dirname(update.target);
@@ -350,7 +386,7 @@ export async function writeUpdatedSpec(
   await fs.writeFile(update.target, rebuilt);
 
   const specName = path.basename(path.dirname(update.target));
-  console.log(`Applying changes to openspec/specs/${specName}/spec.md:`);
+  console.log(`Applying changes to phspec/specs/${specName}/spec.md:`);
   if (counts.added) console.log(`  + ${counts.added} added`);
   if (counts.modified) console.log(`  ~ ${counts.modified} modified`);
   if (counts.removed) console.log(`  - ${counts.removed} removed`);
@@ -360,9 +396,12 @@ export async function writeUpdatedSpec(
 /**
  * Build a skeleton spec for new capabilities.
  */
-export function buildSpecSkeleton(specFolderName: string, changeName: string): string {
+export function buildSpecSkeleton(
+  specFolderName: string,
+  changeName: string,
+): string {
   const titleBase = specFolderName;
-  return `# ${titleBase} Specification\n\n## Purpose\nTBD - created by archiving change ${changeName}. Update Purpose after archive.\n\n## Requirements\n`;
+  return `# ${titleBase} 规范\n\n## 目的\n待补充 - 由归档变更 ${changeName} 时创建。归档后请更新此处目的说明。\n\n## 需求\n`;
 }
 
 /**
@@ -380,10 +419,10 @@ export async function applySpecs(
     dryRun?: boolean;
     skipValidation?: boolean;
     silent?: boolean;
-  } = {}
+  } = {},
 ): Promise<SpecsApplyOutput> {
-  const changeDir = path.join(projectRoot, 'openspec', 'changes', changeName);
-  const mainSpecsDir = path.join(projectRoot, 'openspec', 'specs');
+  const changeDir = path.join(projectRoot, "phspec", "changes", changeName);
+  const mainSpecsDir = path.join(projectRoot, "phspec", "specs");
 
   // Verify change exists
   try {
@@ -411,7 +450,12 @@ export async function applySpecs(
   const prepared: Array<{
     update: SpecUpdate;
     rebuilt: string;
-    counts: { added: number; modified: number; removed: number; renamed: number };
+    counts: {
+      added: number;
+      modified: number;
+      removed: number;
+      renamed: number;
+    };
   }> = [];
 
   for (const update of specUpdates) {
@@ -427,10 +471,12 @@ export async function applySpecs(
       const report = await validator.validateSpecContent(specName, p.rebuilt);
       if (!report.valid) {
         const errors = report.issues
-          .filter((i) => i.level === 'ERROR')
+          .filter((i) => i.level === "ERROR")
           .map((i) => `  ✗ ${i.message}`)
-          .join('\n');
-        throw new Error(`Validation errors in rebuilt spec for ${specName}:\n${errors}`);
+          .join("\n");
+        throw new Error(
+          `Validation errors in rebuilt spec for ${specName}:\n${errors}`,
+        );
       }
     }
   }
@@ -449,14 +495,14 @@ export async function applySpecs(
       await fs.writeFile(p.update.target, p.rebuilt);
 
       if (!options.silent) {
-        console.log(`Applying changes to openspec/specs/${capability}/spec.md:`);
+        console.log(`Applying changes to phspec/specs/${capability}/spec.md:`);
         if (p.counts.added) console.log(`  + ${p.counts.added} added`);
         if (p.counts.modified) console.log(`  ~ ${p.counts.modified} modified`);
         if (p.counts.removed) console.log(`  - ${p.counts.removed} removed`);
         if (p.counts.renamed) console.log(`  → ${p.counts.renamed} renamed`);
       }
     } else if (!options.silent) {
-      console.log(`Would apply changes to openspec/specs/${capability}/spec.md:`);
+      console.log(`Would apply changes to phspec/specs/${capability}/spec.md:`);
       if (p.counts.added) console.log(`  + ${p.counts.added} added`);
       if (p.counts.modified) console.log(`  ~ ${p.counts.modified} modified`);
       if (p.counts.removed) console.log(`  - ${p.counts.removed} removed`);

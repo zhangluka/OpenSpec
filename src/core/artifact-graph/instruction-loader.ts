@@ -1,11 +1,11 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { getSchemaDir, resolveSchema } from './resolver.js';
-import { ArtifactGraph } from './graph.js';
-import { detectCompleted } from './state.js';
-import { resolveSchemaForChange } from '../../utils/change-metadata.js';
-import { readProjectConfig, validateConfigRules } from '../project-config.js';
-import type { Artifact, CompletedSet } from './types.js';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { getSchemaDir, resolveSchema } from "./resolver.js";
+import { ArtifactGraph } from "./graph.js";
+import { detectCompleted } from "./state.js";
+import { resolveSchemaForChange } from "../../utils/change-metadata.js";
+import { readProjectConfig, validateConfigRules } from "../project-config.js";
+import type { Artifact, CompletedSet } from "./types.js";
 
 // Session-level cache for validation warnings (avoid repeating same warnings)
 const shownWarnings = new Set<string>();
@@ -16,10 +16,10 @@ const shownWarnings = new Set<string>();
 export class TemplateLoadError extends Error {
   constructor(
     message: string,
-    public readonly templatePath: string
+    public readonly templatePath: string,
   ) {
     super(message);
-    this.name = 'TemplateLoadError';
+    this.name = "TemplateLoadError";
   }
 }
 
@@ -94,7 +94,7 @@ export interface ArtifactStatus {
   /** Output path pattern */
   outputPath: string;
   /** Status: done, ready, or blocked */
-  status: 'done' | 'ready' | 'blocked';
+  status: "done" | "ready" | "blocked";
   /** Missing dependencies (only for blocked) */
   missingDeps?: string[];
 }
@@ -127,32 +127,29 @@ export interface ChangeStatus {
 export function loadTemplate(
   schemaName: string,
   templatePath: string,
-  projectRoot?: string
+  projectRoot?: string,
 ): string {
   const schemaDir = getSchemaDir(schemaName, projectRoot);
   if (!schemaDir) {
     throw new TemplateLoadError(
       `Schema '${schemaName}' not found`,
-      templatePath
+      templatePath,
     );
   }
 
-  const fullPath = path.join(schemaDir, 'templates', templatePath);
+  const fullPath = path.join(schemaDir, "templates", templatePath);
 
   if (!fs.existsSync(fullPath)) {
-    throw new TemplateLoadError(
-      `Template not found: ${fullPath}`,
-      fullPath
-    );
+    throw new TemplateLoadError(`Template not found: ${fullPath}`, fullPath);
   }
 
   try {
-    return fs.readFileSync(fullPath, 'utf-8');
+    return fs.readFileSync(fullPath, "utf-8");
   } catch (err) {
     const ioError = err instanceof Error ? err : new Error(String(err));
     throw new TemplateLoadError(
       `Failed to read template: ${ioError.message}`,
-      fullPath
+      fullPath,
     );
   }
 }
@@ -173,9 +170,9 @@ export function loadTemplate(
 export function loadChangeContext(
   projectRoot: string,
   changeName: string,
-  schemaName?: string
+  schemaName?: string,
 ): ChangeContext {
-  const changeDir = path.join(projectRoot, 'openspec', 'changes', changeName);
+  const changeDir = path.join(projectRoot, "phspec", "changes", changeName);
 
   // Resolve schema: explicit > metadata > default
   const resolvedSchemaName = resolveSchemaForChange(changeDir, schemaName);
@@ -211,15 +208,25 @@ export function loadChangeContext(
 export function generateInstructions(
   context: ChangeContext,
   artifactId: string,
-  projectRoot?: string
+  projectRoot?: string,
 ): ArtifactInstructions {
   const artifact = context.graph.getArtifact(artifactId);
   if (!artifact) {
-    throw new Error(`Artifact '${artifactId}' not found in schema '${context.schemaName}'`);
+    throw new Error(
+      `Artifact '${artifactId}' not found in schema '${context.schemaName}'`,
+    );
   }
 
-  const templateContent = loadTemplate(context.schemaName, artifact.template, context.projectRoot);
-  const dependencies = getDependencyInfo(artifact, context.graph, context.completed);
+  const templateContent = loadTemplate(
+    context.schemaName,
+    artifact.template,
+    context.projectRoot,
+  );
+  const dependencies = getDependencyInfo(
+    artifact,
+    context.graph,
+    context.completed,
+  );
   const unlocks = getUnlockedArtifacts(context.graph, artifactId);
 
   // Use projectRoot from context if not explicitly provided
@@ -237,11 +244,13 @@ export function generateInstructions(
 
   // Validate rules artifact IDs if config has rules (only once per session)
   if (projectConfig?.rules) {
-    const validArtifactIds = new Set(context.graph.getAllArtifacts().map((a) => a.id));
+    const validArtifactIds = new Set(
+      context.graph.getAllArtifacts().map((a) => a.id),
+    );
     const warnings = validateConfigRules(
       projectConfig.rules,
       validArtifactIds,
-      context.schemaName
+      context.schemaName,
     );
 
     // Show each unique warning only once per session
@@ -256,7 +265,10 @@ export function generateInstructions(
   // Extract context and rules as separate fields (not prepended to template)
   const configContext = projectConfig?.context?.trim() || undefined;
   const rulesForArtifact = projectConfig?.rules?.[artifactId];
-  const configRules = rulesForArtifact && rulesForArtifact.length > 0 ? rulesForArtifact : undefined;
+  const configRules =
+    rulesForArtifact && rulesForArtifact.length > 0
+      ? rulesForArtifact
+      : undefined;
 
   return {
     changeName: context.changeName,
@@ -280,15 +292,15 @@ export function generateInstructions(
 function getDependencyInfo(
   artifact: Artifact,
   graph: ArtifactGraph,
-  completed: CompletedSet
+  completed: CompletedSet,
 ): DependencyInfo[] {
-  return artifact.requires.map(id => {
+  return artifact.requires.map((id) => {
     const depArtifact = graph.getArtifact(id);
     return {
       id,
       done: completed.has(id),
       path: depArtifact?.generates ?? id,
-      description: depArtifact?.description ?? '',
+      description: depArtifact?.description ?? "",
     };
   });
 }
@@ -296,7 +308,10 @@ function getDependencyInfo(
 /**
  * Gets artifacts that become available after completing the given artifact.
  */
-function getUnlockedArtifacts(graph: ArtifactGraph, artifactId: string): string[] {
+function getUnlockedArtifacts(
+  graph: ArtifactGraph,
+  artifactId: string,
+): string[] {
   const unlocks: string[] = [];
 
   for (const artifact of graph.getAllArtifacts()) {
@@ -317,18 +332,19 @@ function getUnlockedArtifacts(graph: ArtifactGraph, artifactId: string): string[
 export function formatChangeStatus(context: ChangeContext): ChangeStatus {
   // Load schema to get apply phase configuration
   const schema = resolveSchema(context.schemaName, context.projectRoot);
-  const applyRequires = schema.apply?.requires ?? schema.artifacts.map(a => a.id);
+  const applyRequires =
+    schema.apply?.requires ?? schema.artifacts.map((a) => a.id);
 
   const artifacts = context.graph.getAllArtifacts();
   const ready = new Set(context.graph.getNextArtifacts(context.completed));
   const blocked = context.graph.getBlocked(context.completed);
 
-  const artifactStatuses: ArtifactStatus[] = artifacts.map(artifact => {
+  const artifactStatuses: ArtifactStatus[] = artifacts.map((artifact) => {
     if (context.completed.has(artifact.id)) {
       return {
         id: artifact.id,
         outputPath: artifact.generates,
-        status: 'done' as const,
+        status: "done" as const,
       };
     }
 
@@ -336,14 +352,14 @@ export function formatChangeStatus(context: ChangeContext): ChangeStatus {
       return {
         id: artifact.id,
         outputPath: artifact.generates,
-        status: 'ready' as const,
+        status: "ready" as const,
       };
     }
 
     return {
       id: artifact.id,
       outputPath: artifact.generates,
-      status: 'blocked' as const,
+      status: "blocked" as const,
       missingDeps: blocked[artifact.id] ?? [],
     };
   });
@@ -351,7 +367,9 @@ export function formatChangeStatus(context: ChangeContext): ChangeStatus {
   // Sort by build order for consistent output
   const buildOrder = context.graph.getBuildOrder();
   const orderMap = new Map(buildOrder.map((id, idx) => [id, idx]));
-  artifactStatuses.sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
+  artifactStatuses.sort(
+    (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+  );
 
   return {
     changeName: context.changeName,

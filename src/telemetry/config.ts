@@ -1,10 +1,10 @@
 /**
  * Global configuration for telemetry state.
- * Stores anonymous ID and notice-seen flag in ~/.config/openspec/config.json
+ * Stores anonymous ID and notice-seen flag in ~/.config/phspec/config.json
  */
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
+import { promises as fs } from "fs";
+import path from "path";
+import os from "os";
 
 export interface TelemetryConfig {
   anonymousId?: string;
@@ -18,11 +18,11 @@ export interface GlobalConfig {
 
 /**
  * Get the path to the global config file.
- * Uses ~/.config/openspec/config.json on all platforms.
+ * Uses ~/.config/phspec/config.json on all platforms.
  */
 export function getConfigPath(): string {
-  const configDir = path.join(os.homedir(), '.config', 'openspec');
-  return path.join(configDir, 'config.json');
+  const configDir = path.join(os.homedir(), ".config", "phspec");
+  return path.join(configDir, "config.json");
 }
 
 /**
@@ -32,10 +32,10 @@ export function getConfigPath(): string {
 export async function readConfig(): Promise<GlobalConfig> {
   const configPath = getConfigPath();
   try {
-    const content = await fs.readFile(configPath, 'utf-8');
+    const content = await fs.readFile(configPath, "utf-8");
     return JSON.parse(content) as GlobalConfig;
   } catch (error: unknown) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return {};
     }
     // If parse fails or other error, return empty config
@@ -47,7 +47,9 @@ export async function readConfig(): Promise<GlobalConfig> {
  * Write to the global config file.
  * Preserves existing fields and merges in new values.
  */
-export async function writeConfig(updates: Partial<GlobalConfig>): Promise<void> {
+export async function writeConfig(
+  updates: Partial<GlobalConfig>,
+): Promise<void> {
   const configPath = getConfigPath();
   const configDir = path.dirname(configPath);
 
@@ -63,7 +65,7 @@ export async function writeConfig(updates: Partial<GlobalConfig>): Promise<void>
     merged.telemetry = { ...existing.telemetry, ...updates.telemetry };
   }
 
-  await fs.writeFile(configPath, JSON.stringify(merged, null, 2) + '\n');
+  await fs.writeFile(configPath, JSON.stringify(merged, null, 2) + "\n");
 }
 
 /**
@@ -77,7 +79,9 @@ export async function getTelemetryConfig(): Promise<TelemetryConfig> {
 /**
  * Update the telemetry config section.
  */
-export async function updateTelemetryConfig(updates: Partial<TelemetryConfig>): Promise<void> {
+export async function updateTelemetryConfig(
+  updates: Partial<TelemetryConfig>,
+): Promise<void> {
   const existing = await getTelemetryConfig();
   await writeConfig({
     telemetry: { ...existing, ...updates },

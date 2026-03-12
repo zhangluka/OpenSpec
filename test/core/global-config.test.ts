@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as os from 'node:os';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as os from "node:os";
 
 import {
   getGlobalConfigDir,
@@ -9,24 +9,24 @@ import {
   getGlobalConfig,
   saveGlobalConfig,
   GLOBAL_CONFIG_DIR_NAME,
-  GLOBAL_CONFIG_FILE_NAME
-} from '../../src/core/global-config.js';
+  GLOBAL_CONFIG_FILE_NAME,
+} from "../../src/core/global-config.js";
 
-describe('global-config', () => {
+describe("global-config", () => {
   let tempDir: string;
   let originalEnv: NodeJS.ProcessEnv;
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     // Create temp directory for tests
-    tempDir = path.join(os.tmpdir(), `openspec-global-config-test-${Date.now()}`);
+    tempDir = path.join(os.tmpdir(), `phspec-global-config-test-${Date.now()}`);
     fs.mkdirSync(tempDir, { recursive: true });
 
     // Save original env
     originalEnv = { ...process.env };
 
     // Spy on console.error for warning tests
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -40,62 +40,62 @@ describe('global-config', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  describe('constants', () => {
-    it('should export correct directory name', () => {
-      expect(GLOBAL_CONFIG_DIR_NAME).toBe('openspec');
+  describe("constants", () => {
+    it("should export correct directory name", () => {
+      expect(GLOBAL_CONFIG_DIR_NAME).toBe("phspec");
     });
 
-    it('should export correct file name', () => {
-      expect(GLOBAL_CONFIG_FILE_NAME).toBe('config.json');
+    it("should export correct file name", () => {
+      expect(GLOBAL_CONFIG_FILE_NAME).toBe("config.json");
     });
   });
 
-  describe('getGlobalConfigDir', () => {
-    it('should use XDG_CONFIG_HOME when set', () => {
+  describe("getGlobalConfigDir", () => {
+    it("should use XDG_CONFIG_HOME when set", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
 
       const result = getGlobalConfigDir();
 
-      expect(result).toBe(path.join(tempDir, 'openspec'));
+      expect(result).toBe(path.join(tempDir, "phspec"));
     });
 
-    it('should fall back to ~/.config on Unix/macOS without XDG_CONFIG_HOME', () => {
+    it("should fall back to ~/.config on Unix/macOS without XDG_CONFIG_HOME", () => {
       delete process.env.XDG_CONFIG_HOME;
 
       const result = getGlobalConfigDir();
 
-      // On non-Windows, should use ~/.config/openspec
-      if (os.platform() !== 'win32') {
-        expect(result).toBe(path.join(os.homedir(), '.config', 'openspec'));
+      // On non-Windows, should use ~/.config/phspec
+      if (os.platform() !== "win32") {
+        expect(result).toBe(path.join(os.homedir(), ".config", "phspec"));
       }
     });
 
-    it('should use APPDATA on Windows when XDG_CONFIG_HOME is not set', () => {
+    it("should use APPDATA on Windows when XDG_CONFIG_HOME is not set", () => {
       // This test only makes sense conceptually - we can't change os.platform()
       // But we can verify the APPDATA logic by checking the code path
-      if (os.platform() === 'win32') {
+      if (os.platform() === "win32") {
         delete process.env.XDG_CONFIG_HOME;
         const appData = process.env.APPDATA;
         if (appData) {
           const result = getGlobalConfigDir();
-          expect(result).toBe(path.join(appData, 'openspec'));
+          expect(result).toBe(path.join(appData, "phspec"));
         }
       }
     });
   });
 
-  describe('getGlobalConfigPath', () => {
-    it('should return path to config.json in config directory', () => {
+  describe("getGlobalConfigPath", () => {
+    it("should return path to config.json in config directory", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
 
       const result = getGlobalConfigPath();
 
-      expect(result).toBe(path.join(tempDir, 'openspec', 'config.json'));
+      expect(result).toBe(path.join(tempDir, "phspec", "config.json"));
     });
   });
 
-  describe('getGlobalConfig', () => {
-    it('should return defaults when config file does not exist', () => {
+  describe("getGlobalConfig", () => {
+    it("should return defaults when config file does not exist", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
 
       const config = getGlobalConfig();
@@ -103,86 +103,98 @@ describe('global-config', () => {
       expect(config).toEqual({ featureFlags: {} });
     });
 
-    it('should not create directory when reading non-existent config', () => {
+    it("should not create directory when reading non-existent config", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
+      const configDir = path.join(tempDir, "phspec");
 
       getGlobalConfig();
 
       expect(fs.existsSync(configDir)).toBe(false);
     });
 
-    it('should load valid config from file', () => {
+    it("should load valid config from file", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
-      const configPath = path.join(configDir, 'config.json');
+      const configDir = path.join(tempDir, "phspec");
+      const configPath = path.join(configDir, "config.json");
 
       fs.mkdirSync(configDir, { recursive: true });
-      fs.writeFileSync(configPath, JSON.stringify({
-        featureFlags: { testFlag: true, anotherFlag: false }
-      }));
+      fs.writeFileSync(
+        configPath,
+        JSON.stringify({
+          featureFlags: { testFlag: true, anotherFlag: false },
+        }),
+      );
 
       const config = getGlobalConfig();
 
-      expect(config.featureFlags).toEqual({ testFlag: true, anotherFlag: false });
+      expect(config.featureFlags).toEqual({
+        testFlag: true,
+        anotherFlag: false,
+      });
     });
 
-    it('should return defaults for invalid JSON', () => {
+    it("should return defaults for invalid JSON", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
-      const configPath = path.join(configDir, 'config.json');
+      const configDir = path.join(tempDir, "phspec");
+      const configPath = path.join(configDir, "config.json");
 
       fs.mkdirSync(configDir, { recursive: true });
-      fs.writeFileSync(configPath, '{ invalid json }');
+      fs.writeFileSync(configPath, "{ invalid json }");
 
       const config = getGlobalConfig();
 
       expect(config).toEqual({ featureFlags: {} });
     });
 
-    it('should log warning for invalid JSON', () => {
+    it("should log warning for invalid JSON", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
-      const configPath = path.join(configDir, 'config.json');
+      const configDir = path.join(tempDir, "phspec");
+      const configPath = path.join(configDir, "config.json");
 
       fs.mkdirSync(configDir, { recursive: true });
-      fs.writeFileSync(configPath, '{ invalid json }');
+      fs.writeFileSync(configPath, "{ invalid json }");
 
       getGlobalConfig();
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid JSON')
+        expect.stringContaining("Invalid JSON"),
       );
     });
 
-    it('should preserve unknown fields from config file', () => {
+    it("should preserve unknown fields from config file", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
-      const configPath = path.join(configDir, 'config.json');
+      const configDir = path.join(tempDir, "phspec");
+      const configPath = path.join(configDir, "config.json");
 
       fs.mkdirSync(configDir, { recursive: true });
-      fs.writeFileSync(configPath, JSON.stringify({
-        featureFlags: { x: true },
-        unknownField: 'preserved',
-        futureOption: 123
-      }));
+      fs.writeFileSync(
+        configPath,
+        JSON.stringify({
+          featureFlags: { x: true },
+          unknownField: "preserved",
+          futureOption: 123,
+        }),
+      );
 
       const config = getGlobalConfig();
 
-      expect((config as any).unknownField).toBe('preserved');
+      expect((config as any).unknownField).toBe("preserved");
       expect((config as any).futureOption).toBe(123);
     });
 
-    it('should merge loaded config with defaults', () => {
+    it("should merge loaded config with defaults", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
-      const configPath = path.join(configDir, 'config.json');
+      const configDir = path.join(tempDir, "phspec");
+      const configPath = path.join(configDir, "config.json");
 
       // Config with only some fields
       fs.mkdirSync(configDir, { recursive: true });
-      fs.writeFileSync(configPath, JSON.stringify({
-        featureFlags: { customFlag: true }
-      }));
+      fs.writeFileSync(
+        configPath,
+        JSON.stringify({
+          featureFlags: { customFlag: true },
+        }),
+      );
 
       const config = getGlobalConfig();
 
@@ -191,60 +203,63 @@ describe('global-config', () => {
     });
   });
 
-  describe('saveGlobalConfig', () => {
-    it('should create directory if it does not exist', () => {
+  describe("saveGlobalConfig", () => {
+    it("should create directory if it does not exist", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
+      const configDir = path.join(tempDir, "phspec");
 
       saveGlobalConfig({ featureFlags: { test: true } });
 
       expect(fs.existsSync(configDir)).toBe(true);
     });
 
-    it('should write config to file', () => {
+    it("should write config to file", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configPath = path.join(tempDir, 'openspec', 'config.json');
+      const configPath = path.join(tempDir, "phspec", "config.json");
 
       saveGlobalConfig({ featureFlags: { myFlag: true } });
 
-      const content = fs.readFileSync(configPath, 'utf-8');
+      const content = fs.readFileSync(configPath, "utf-8");
       const parsed = JSON.parse(content);
       expect(parsed.featureFlags.myFlag).toBe(true);
     });
 
-    it('should overwrite existing config file', () => {
+    it("should overwrite existing config file", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configDir = path.join(tempDir, 'openspec');
-      const configPath = path.join(configDir, 'config.json');
+      const configDir = path.join(tempDir, "phspec");
+      const configPath = path.join(configDir, "config.json");
 
       // Create initial config
       fs.mkdirSync(configDir, { recursive: true });
-      fs.writeFileSync(configPath, JSON.stringify({ featureFlags: { old: true } }));
+      fs.writeFileSync(
+        configPath,
+        JSON.stringify({ featureFlags: { old: true } }),
+      );
 
       // Overwrite
       saveGlobalConfig({ featureFlags: { new: true } });
 
-      const content = fs.readFileSync(configPath, 'utf-8');
+      const content = fs.readFileSync(configPath, "utf-8");
       const parsed = JSON.parse(content);
       expect(parsed.featureFlags.new).toBe(true);
       expect(parsed.featureFlags.old).toBeUndefined();
     });
 
-    it('should write formatted JSON with trailing newline', () => {
+    it("should write formatted JSON with trailing newline", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
-      const configPath = path.join(tempDir, 'openspec', 'config.json');
+      const configPath = path.join(tempDir, "phspec", "config.json");
 
       saveGlobalConfig({ featureFlags: {} });
 
-      const content = fs.readFileSync(configPath, 'utf-8');
-      expect(content).toContain('\n');
-      expect(content.endsWith('\n')).toBe(true);
+      const content = fs.readFileSync(configPath, "utf-8");
+      expect(content).toContain("\n");
+      expect(content.endsWith("\n")).toBe(true);
     });
 
-    it('should round-trip config correctly', () => {
+    it("should round-trip config correctly", () => {
       process.env.XDG_CONFIG_HOME = tempDir;
       const originalConfig = {
-        featureFlags: { flag1: true, flag2: false }
+        featureFlags: { flag1: true, flag2: false },
       };
 
       saveGlobalConfig(originalConfig);

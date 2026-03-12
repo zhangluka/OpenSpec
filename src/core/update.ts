@@ -1,21 +1,21 @@
 /**
  * Update Command
  *
- * Refreshes OpenSpec skills and commands for configured tools.
+ * Refreshes PhSpec skills and commands for configured tools.
  * Supports smart update detection to skip updates when already current.
  */
 
-import path from 'path';
-import chalk from 'chalk';
-import ora from 'ora';
-import { createRequire } from 'module';
-import { FileSystemUtils } from '../utils/file-system.js';
-import { transformToHyphenCommands } from '../utils/command-references.js';
-import { AI_TOOLS, OPENSPEC_DIR_NAME } from './config.js';
+import path from "path";
+import chalk from "chalk";
+import ora from "ora";
+import { createRequire } from "module";
+import { FileSystemUtils } from "../utils/file-system.js";
+import { transformToHyphenCommands } from "../utils/command-references.js";
+import { AI_TOOLS, PHSPEC_DIR_NAME } from "./config.js";
 import {
   generateCommands,
   CommandAdapterRegistry,
-} from './command-generation/index.js';
+} from "./command-generation/index.js";
 import {
   getConfiguredTools,
   getAllToolVersionStatus,
@@ -24,7 +24,7 @@ import {
   generateSkillContent,
   getToolsWithSkillsDir,
   type ToolVersionStatus,
-} from './shared/index.js';
+} from "./shared/index.js";
 import {
   detectLegacyArtifacts,
   cleanupLegacyArtifacts,
@@ -32,11 +32,11 @@ import {
   formatDetectionSummary,
   getToolsFromLegacyArtifacts,
   type LegacyDetectionResult,
-} from './legacy-cleanup.js';
-import { isInteractive } from '../utils/interactive.js';
+} from "./legacy-cleanup.js";
+import { isInteractive } from "../utils/interactive.js";
 
 const require = createRequire(import.meta.url);
-const { version: OPENSPEC_VERSION } = require('../../package.json');
+const { version: OPENSPEC_VERSION } = require("../../package.json");
 
 /**
  * Options for the update command.
@@ -55,27 +55,31 @@ export class UpdateCommand {
 
   async execute(projectPath: string): Promise<void> {
     const resolvedProjectPath = path.resolve(projectPath);
-    const openspecPath = path.join(resolvedProjectPath, OPENSPEC_DIR_NAME);
+    const phspecPath = path.join(resolvedProjectPath, PHSPEC_DIR_NAME);
 
-    // 1. Check openspec directory exists
-    if (!await FileSystemUtils.directoryExists(openspecPath)) {
-      throw new Error(`No OpenSpec directory found. Run 'openspec init' first.`);
+    // 1. Check phspec directory exists
+    if (!(await FileSystemUtils.directoryExists(phspecPath))) {
+      throw new Error(`未找到 PhSpec 目录，请先执行 'phspec init'。`);
     }
 
     // 2. Detect and handle legacy artifacts + upgrade legacy tools to new skills
-    const newlyConfiguredTools = await this.handleLegacyCleanup(resolvedProjectPath);
+    const newlyConfiguredTools =
+      await this.handleLegacyCleanup(resolvedProjectPath);
 
     // 3. Find configured tools
     const configuredTools = getConfiguredTools(resolvedProjectPath);
 
     if (configuredTools.length === 0 && newlyConfiguredTools.length === 0) {
-      console.log(chalk.yellow('No configured tools found.'));
-      console.log(chalk.dim('Run "openspec init" to set up tools.'));
+      console.log(chalk.yellow("未配置任何工具。"));
+      console.log(chalk.dim('请执行 "phspec init" 配置工具。'));
       return;
     }
 
     // 4. Check version status for all configured tools
-    const toolStatuses = getAllToolVersionStatus(resolvedProjectPath, OPENSPEC_VERSION);
+    const toolStatuses = getAllToolVersionStatus(
+      resolvedProjectPath,
+      OPENSPEC_VERSION,
+    );
 
     // 5. Smart update detection
     const toolsNeedingUpdate = toolStatuses.filter((s) => s.needsUpdate);
@@ -89,7 +93,9 @@ export class UpdateCommand {
 
     // 6. Display update plan
     if (this.force) {
-      console.log(`Force updating ${configuredTools.length} tool(s): ${configuredTools.join(', ')}`);
+      console.log(
+        `正在强制更新 ${configuredTools.length} 个工具：${configuredTools.join(", ")}`,
+      );
     } else {
       this.displayUpdatePlan(toolsNeedingUpdate, toolsUpToDate);
     }
@@ -100,7 +106,9 @@ export class UpdateCommand {
     const commandContents = getCommandContents();
 
     // 8. Update tools (all if force, otherwise only those needing update)
-    const toolsToUpdate = this.force ? configuredTools : toolsNeedingUpdate.map((s) => s.toolId);
+    const toolsToUpdate = this.force
+      ? configuredTools
+      : toolsNeedingUpdate.map((s) => s.toolId);
     const updatedTools: string[] = [];
     const failedTools: Array<{ name: string; error: string }> = [];
 
@@ -108,19 +116,28 @@ export class UpdateCommand {
       const tool = AI_TOOLS.find((t) => t.value === toolId);
       if (!tool?.skillsDir) continue;
 
-      const spinner = ora(`Updating ${tool.name}...`).start();
+      const spinner = ora(`正在更新 ${tool.name}...`).start();
 
       try {
-        const skillsDir = path.join(resolvedProjectPath, tool.skillsDir, 'skills');
+        const skillsDir = path.join(
+          resolvedProjectPath,
+          tool.skillsDir,
+          "skills",
+        );
 
         // Update skill files
         for (const { template, dirName } of skillTemplates) {
           const skillDir = path.join(skillsDir, dirName);
-          const skillFile = path.join(skillDir, 'SKILL.md');
+          const skillFile = path.join(skillDir, "SKILL.md");
 
           // Use hyphen-based command references for OpenCode
-          const transformer = tool.value === 'opencode' ? transformToHyphenCommands : undefined;
-          const skillContent = generateSkillContent(template, OPENSPEC_VERSION, transformer);
+          const transformer =
+            tool.value === "opencode" ? transformToHyphenCommands : undefined;
+          const skillContent = generateSkillContent(
+            template,
+            OPENSPEC_VERSION,
+            transformer,
+          );
           await FileSystemUtils.writeFile(skillFile, skillContent);
         }
 
@@ -130,18 +147,20 @@ export class UpdateCommand {
           const generatedCommands = generateCommands(commandContents, adapter);
 
           for (const cmd of generatedCommands) {
-            const commandFile = path.isAbsolute(cmd.path) ? cmd.path : path.join(resolvedProjectPath, cmd.path);
+            const commandFile = path.isAbsolute(cmd.path)
+              ? cmd.path
+              : path.join(resolvedProjectPath, cmd.path);
             await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
           }
         }
 
-        spinner.succeed(`Updated ${tool.name}`);
+        spinner.succeed(`已更新 ${tool.name}`);
         updatedTools.push(tool.name);
       } catch (error) {
-        spinner.fail(`Failed to update ${tool.name}`);
+        spinner.fail(`更新 ${tool.name} 失败`);
         failedTools.push({
           name: tool.name,
-          error: error instanceof Error ? error.message : String(error)
+          error: error instanceof Error ? error.message : String(error),
         });
       }
     }
@@ -149,25 +168,35 @@ export class UpdateCommand {
     // 9. Summary
     console.log();
     if (updatedTools.length > 0) {
-      console.log(chalk.green(`✓ Updated: ${updatedTools.join(', ')} (v${OPENSPEC_VERSION})`));
+      console.log(
+        chalk.green(
+          `✓ 已更新：${updatedTools.join(", ")} (v${OPENSPEC_VERSION})`,
+        ),
+      );
     }
     if (failedTools.length > 0) {
-      console.log(chalk.red(`✗ Failed: ${failedTools.map(f => `${f.name} (${f.error})`).join(', ')}`));
+      console.log(
+        chalk.red(
+          `✗ 失败：${failedTools.map((f) => `${f.name} (${f.error})`).join(", ")}`,
+        ),
+      );
     }
 
     // 10. Show onboarding message for newly configured tools from legacy upgrade
     if (newlyConfiguredTools.length > 0) {
       console.log();
-      console.log(chalk.bold('Getting started:'));
-      console.log('  /opsx:new       Start a new change');
-      console.log('  /opsx:continue  Create the next artifact');
-      console.log('  /opsx:apply     Implement tasks');
+      console.log(chalk.bold("快速开始："));
+      console.log("  /phsx:new       新建变更");
+      console.log("  /phsx:continue  创建下一个制品");
+      console.log("  /phsx:apply     实施任务");
       console.log();
-      console.log(`Learn more: ${chalk.cyan('https://github.com/Fission-AI/OpenSpec')}`);
+      console.log(
+        `了解更多：${chalk.cyan("https://github.com/zhangluka/OpenSpec")}`,
+      );
     }
 
     console.log();
-    console.log(chalk.dim('Restart your IDE for changes to take effect.'));
+    console.log(chalk.dim("请重启 IDE 使更改生效。"));
   }
 
   /**
@@ -175,10 +204,14 @@ export class UpdateCommand {
    */
   private displayUpToDateMessage(toolStatuses: ToolVersionStatus[]): void {
     const toolNames = toolStatuses.map((s) => s.toolId);
-    console.log(chalk.green(`✓ All ${toolStatuses.length} tool(s) up to date (v${OPENSPEC_VERSION})`));
-    console.log(chalk.dim(`  Tools: ${toolNames.join(', ')}`));
+    console.log(
+      chalk.green(
+        `✓ 共 ${toolStatuses.length} 个工具已是最新 (v${OPENSPEC_VERSION})`,
+      ),
+    );
+    console.log(chalk.dim(`  工具：${toolNames.join(", ")}`));
     console.log();
-    console.log(chalk.dim('Use --force to refresh skills anyway.'));
+    console.log(chalk.dim("使用 --force 可强制刷新技能。"));
   }
 
   /**
@@ -186,23 +219,25 @@ export class UpdateCommand {
    */
   private displayUpdatePlan(
     needingUpdate: ToolVersionStatus[],
-    upToDate: ToolVersionStatus[]
+    upToDate: ToolVersionStatus[],
   ): void {
     const updates = needingUpdate.map((s) => {
-      const fromVersion = s.generatedByVersion ?? 'unknown';
+      const fromVersion = s.generatedByVersion ?? "unknown";
       return `${s.toolId} (${fromVersion} → ${OPENSPEC_VERSION})`;
     });
 
-    console.log(`Updating ${needingUpdate.length} tool(s): ${updates.join(', ')}`);
+    console.log(
+      `正在更新 ${needingUpdate.length} 个工具：${updates.join(", ")}`,
+    );
 
     if (upToDate.length > 0) {
       const upToDateNames = upToDate.map((s) => s.toolId);
-      console.log(chalk.dim(`Already up to date: ${upToDateNames.join(', ')}`));
+      console.log(chalk.dim(`已是最新：${upToDateNames.join(", ")}`));
     }
   }
 
   /**
-   * Detect and handle legacy OpenSpec artifacts.
+   * Detect and handle legacy PhSpec artifacts.
    * Unlike init, update warns but continues if legacy files found in non-interactive mode.
    * Returns array of tool IDs that were newly configured during legacy upgrade.
    */
@@ -231,15 +266,17 @@ export class UpdateCommand {
     if (!canPrompt) {
       // Non-interactive mode without --force: warn and continue
       // (Unlike init, update doesn't abort - user may just want to update skills)
-      console.log(chalk.yellow('⚠ Run with --force to auto-cleanup legacy files, or run interactively.'));
+      console.log(
+        chalk.yellow("⚠ 使用 --force 可自动清理旧版文件，或在交互模式下运行。"),
+      );
       console.log();
       return [];
     }
 
     // Interactive mode: prompt for confirmation
-    const { confirm } = await import('@inquirer/prompts');
+    const { confirm } = await import("@inquirer/prompts");
     const shouldCleanup = await confirm({
-      message: 'Upgrade and clean up legacy files?',
+      message: "是否升级并清理旧版文件？",
       default: true,
     });
 
@@ -248,7 +285,7 @@ export class UpdateCommand {
       // Then upgrade legacy tools to new skills
       return this.upgradeLegacyTools(projectPath, detection, canPrompt);
     } else {
-      console.log(chalk.dim('Skipping legacy cleanup. Continuing with skill update...'));
+      console.log(chalk.dim("已跳过旧版清理，继续更新技能..."));
       console.log();
       return [];
     }
@@ -257,12 +294,15 @@ export class UpdateCommand {
   /**
    * Perform cleanup of legacy artifacts.
    */
-  private async performLegacyCleanup(projectPath: string, detection: LegacyDetectionResult): Promise<void> {
-    const spinner = ora('Cleaning up legacy files...').start();
+  private async performLegacyCleanup(
+    projectPath: string,
+    detection: LegacyDetectionResult,
+  ): Promise<void> {
+    const spinner = ora("正在清理旧版文件...").start();
 
     const result = await cleanupLegacyArtifacts(projectPath, detection);
 
-    spinner.succeed('Legacy files cleaned up');
+    spinner.succeed("旧版文件已清理");
 
     const summary = formatCleanupSummary(result);
     if (summary) {
@@ -280,7 +320,7 @@ export class UpdateCommand {
   private async upgradeLegacyTools(
     projectPath: string,
     detection: LegacyDetectionResult,
-    canPrompt: boolean
+    canPrompt: boolean,
   ): Promise<string[]> {
     // Get tools that had legacy artifacts
     const legacyTools = getToolsFromLegacyArtifacts(detection);
@@ -294,7 +334,9 @@ export class UpdateCommand {
     const configuredSet = new Set(configuredTools);
 
     // Filter to tools that aren't already configured
-    const unconfiguredLegacyTools = legacyTools.filter((t) => !configuredSet.has(t));
+    const unconfiguredLegacyTools = legacyTools.filter(
+      (t) => !configuredSet.has(t),
+    );
 
     if (unconfiguredLegacyTools.length === 0) {
       return [];
@@ -302,14 +344,16 @@ export class UpdateCommand {
 
     // Get valid tools (those with skillsDir)
     const validToolIds = new Set(getToolsWithSkillsDir());
-    const validUnconfiguredTools = unconfiguredLegacyTools.filter((t) => validToolIds.has(t));
+    const validUnconfiguredTools = unconfiguredLegacyTools.filter((t) =>
+      validToolIds.has(t),
+    );
 
     if (validUnconfiguredTools.length === 0) {
       return [];
     }
 
     // Show what tools were detected from legacy artifacts
-    console.log(chalk.bold('Tools detected from legacy artifacts:'));
+    console.log(chalk.bold("从旧版制品中检测到以下工具："));
     for (const toolId of validUnconfiguredTools) {
       const tool = AI_TOOLS.find((t) => t.value === toolId);
       console.log(`  • ${tool?.name || toolId}`);
@@ -321,10 +365,11 @@ export class UpdateCommand {
     if (this.force || !canPrompt) {
       // Non-interactive with --force: auto-select detected tools
       selectedTools = validUnconfiguredTools;
-      console.log(`Setting up skills for: ${selectedTools.join(', ')}`);
+      console.log(`正在为以下工具配置技能：${selectedTools.join(", ")}`);
     } else {
       // Interactive mode: prompt for tool selection with detected tools pre-selected
-      const { searchableMultiSelect } = await import('../prompts/searchable-multi-select.js');
+      const { searchableMultiSelect } =
+        await import("../prompts/searchable-multi-select.js");
 
       const sortedChoices = validUnconfiguredTools.map((toolId) => {
         const tool = AI_TOOLS.find((t) => t.value === toolId);
@@ -337,14 +382,14 @@ export class UpdateCommand {
       });
 
       selectedTools = await searchableMultiSelect({
-        message: 'Select tools to set up with the new skill system:',
+        message: "选择要使用新技能系统配置的工具：",
         pageSize: 15,
         choices: sortedChoices,
         validate: (_selected: string[]) => true, // Allow empty selection (user can skip)
       });
 
       if (selectedTools.length === 0) {
-        console.log(chalk.dim('Skipping tool setup.'));
+        console.log(chalk.dim("已跳过工具配置。"));
         console.log();
         return [];
       }
@@ -359,19 +404,24 @@ export class UpdateCommand {
       const tool = AI_TOOLS.find((t) => t.value === toolId);
       if (!tool?.skillsDir) continue;
 
-      const spinner = ora(`Setting up ${tool.name}...`).start();
+      const spinner = ora(`正在配置 ${tool.name}...`).start();
 
       try {
-        const skillsDir = path.join(projectPath, tool.skillsDir, 'skills');
+        const skillsDir = path.join(projectPath, tool.skillsDir, "skills");
 
         // Create skill files
         for (const { template, dirName } of skillTemplates) {
           const skillDir = path.join(skillsDir, dirName);
-          const skillFile = path.join(skillDir, 'SKILL.md');
+          const skillFile = path.join(skillDir, "SKILL.md");
 
           // Use hyphen-based command references for OpenCode
-          const transformer = tool.value === 'opencode' ? transformToHyphenCommands : undefined;
-          const skillContent = generateSkillContent(template, OPENSPEC_VERSION, transformer);
+          const transformer =
+            tool.value === "opencode" ? transformToHyphenCommands : undefined;
+          const skillContent = generateSkillContent(
+            template,
+            OPENSPEC_VERSION,
+            transformer,
+          );
           await FileSystemUtils.writeFile(skillFile, skillContent);
         }
 
@@ -381,16 +431,22 @@ export class UpdateCommand {
           const generatedCommands = generateCommands(commandContents, adapter);
 
           for (const cmd of generatedCommands) {
-            const commandFile = path.isAbsolute(cmd.path) ? cmd.path : path.join(projectPath, cmd.path);
+            const commandFile = path.isAbsolute(cmd.path)
+              ? cmd.path
+              : path.join(projectPath, cmd.path);
             await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
           }
         }
 
-        spinner.succeed(`Setup complete for ${tool.name}`);
+        spinner.succeed(`已为 ${tool.name} 完成配置`);
         newlyConfigured.push(toolId);
       } catch (error) {
-        spinner.fail(`Failed to set up ${tool.name}`);
-        console.log(chalk.red(`  ${error instanceof Error ? error.message : String(error)}`));
+        spinner.fail(`配置 ${tool.name} 失败`);
+        console.log(
+          chalk.red(
+            `  ${error instanceof Error ? error.message : String(error)}`,
+          ),
+        );
       }
     }
 

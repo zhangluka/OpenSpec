@@ -1,82 +1,57 @@
-# OPSX Workflow
+# OPSX 工作流
 
-> Feedback welcome on [Discord](https://discord.gg/YctCnvvshC).
+> 欢迎在 [Discord](https://discord.gg/YctCnvvshC) 反馈。
 
-## What Is It?
+## 是什么？
 
-OPSX is now the standard workflow for OpenSpec.
+OPSX 是 PhSpec 的当前标准工作流。
 
-It's a **fluid, iterative workflow** for OpenSpec changes. No more rigid phases — just actions you can take anytime.
+它是一个**灵活、可迭代**的变更流程：没有固定阶段，只有可随时执行的动作。
 
-## Why This Exists
+## 为何存在
 
-The legacy OpenSpec workflow works, but it's **locked down**:
+旧版 PhSpec 工作流能用，但**封闭**：
 
-- **Instructions are hardcoded** — buried in TypeScript, you can't change them
-- **All-or-nothing** — one big command creates everything, can't test individual pieces
-- **Fixed structure** — same workflow for everyone, no customization
-- **Black box** — when AI output is bad, you can't tweak the prompts
+- **指令写死在代码里** — 无法修改
+- **要么全做要么不做** — 一条命令生成全部，无法单独验证
+- **结构固定** — 人人相同，无法定制
+- **黑盒** — AI 产出不好时没法调 prompt
 
-**OPSX opens it up.** Now anyone can:
+**OPSX 打开这些限制**：可以改模板试效果、按制品单独验证、自定义工作流、改完即测无需发版。
 
-1. **Experiment with instructions** — edit a template, see if the AI does better
-2. **Test granularly** — validate each artifact's instructions independently
-3. **Customize workflows** — define your own artifacts and dependencies
-4. **Iterate quickly** — change a template, test immediately, no rebuild
+适合团队（按真实工作方式定制）、高级用户（针对代码库调 prompt）、贡献者（无需发版即可试验）。
 
-```
-Legacy workflow:                      OPSX:
-┌────────────────────────┐           ┌────────────────────────┐
-│  Hardcoded in package  │           │  schema.yaml           │◄── You edit this
-│  (can't change)        │           │  templates/*.md        │◄── Or this
-│        ↓               │           │        ↓               │
-│  Wait for new release  │           │  Instant effect        │
-│        ↓               │           │        ↓               │
-│  Hope it's better      │           │  Test it yourself      │
-└────────────────────────┘           └────────────────────────┘
-```
+## 使用体验
 
-**This is for everyone:**
-- **Teams** — create workflows that match how you actually work
-- **Power users** — tweak prompts to get better AI outputs for your codebase
-- **OpenSpec contributors** — experiment with new approaches without releases
+**线性工作流的问题：** 先「规划阶段」再「实现阶段」再「完成」，但真实工作往往不是这样——实现到一半发现设计不对，需要更新规范再继续。线性阶段和实际工作方式冲突。
 
-We're all still learning what works best. OPSX lets us learn together.
+**OPSX 的做法：**
 
-## The User Experience
-
-**The problem with linear workflows:**
-You're "in planning phase", then "in implementation phase", then "done". But real work doesn't work that way. You implement something, realize your design was wrong, need to update specs, continue implementing. Linear phases fight against how work actually happens.
-
-**OPSX approach:**
-- **Actions, not phases** — create, implement, update, archive — do any of them anytime
-- **Dependencies are enablers** — they show what's possible, not what's required next
+- **动作而非阶段** — 创建、实施、更新、归档，随时可做
+- **依赖是「可做」** — 表示能创建什么，而不是必须下一步做什么
 
 ```
-  proposal ──→ specs ──→ design ──→ tasks ──→ implement
+  提案 ──→ 规范 ──→ 设计 ──→ 任务 ──→ 实施
 ```
 
-## Setup
+## 配置
 
 ```bash
-# Make sure you have openspec installed — skills are automatically generated
-openspec init
+phspec init
 ```
 
-This creates skills in `.claude/skills/` (or equivalent) that AI coding assistants auto-detect.
+会在 `.claude/skills/`（或对应工具目录）生成技能，供 AI 编程助手自动加载。过程中会提示是否创建**项目配置**（`phspec/config.yaml`），可选但推荐。
 
-During setup, you'll be prompted to create a **project config** (`openspec/config.yaml`). This is optional but recommended.
+## 项目配置
 
-## Project Configuration
+项目配置用于设置默认值，并把项目专属上下文注入到所有制品。
 
-Project config lets you set defaults and inject project-specific context into all artifacts.
+### 创建配置
 
-### Creating Config
-
-Config is created during `openspec init`, or manually:
+在 `phspec init` 时创建，或手动在项目根目录创建：
 
 ```yaml
-# openspec/config.yaml
+# phspec/config.yaml
 schema: spec-driven
 
 context: |
@@ -95,550 +70,71 @@ rules:
     - Include sequence diagrams for complex flows
 ```
 
-### Config Fields
+### 配置字段
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `schema` | string | Default schema for new changes (e.g., `spec-driven`) |
-| `context` | string | Project context injected into all artifact instructions |
-| `rules` | object | Per-artifact rules, keyed by artifact ID |
+| 字段      | 类型   | 说明                                         |
+| --------- | ------ | -------------------------------------------- |
+| `schema`  | string | 新建变更的默认工作流模式（如 `spec-driven`） |
+| `context` | string | 注入到所有制品指引中的项目上下文             |
+| `rules`   | object | 按制品 ID 的规则                             |
 
-### How It Works
+### 模式解析顺序（从高到低）
 
-**Schema precedence** (highest to lowest):
-1. CLI flag (`--schema <name>`)
-2. Change metadata (`.openspec.yaml` in change directory)
-3. Project config (`openspec/config.yaml`)
-4. Default (`spec-driven`)
+1. CLI 参数（`--schema <name>`）
+2. 变更元数据（变更目录下的 `.phspec.yaml`）
+3. 项目配置（`phspec/config.yaml`）
+4. 默认（`spec-driven`）
 
-**Context injection:**
-- Context is prepended to every artifact's instructions
-- Wrapped in `<context>...</context>` tags
-- Helps AI understand your project's conventions
+上下文会包在 `<context>...</context>` 中注入；规则仅对匹配的制品注入，包在 `<rules>...</rules>` 中。
 
-**Rules injection:**
-- Rules are only injected for matching artifacts
-- Wrapped in `<rules>...</rules>` tags
-- Appear after context, before the template
+### spec-driven 的制品 ID
 
-### Artifact IDs by Schema
+- `proposal` — 变更提案
+- `specs` — 规范
+- `design` — 技术设计
+- `tasks` — 实施任务
 
-**spec-driven** (default):
-- `proposal` — Change proposal
-- `specs` — Specifications
-- `design` — Technical design
-- `tasks` — Implementation tasks
+## 命令速查
 
-### Config Validation
+| 命令             | 作用                                         |
+| ---------------- | -------------------------------------------- |
+| `/phsx:explore`  | 梳理想法、排查问题、澄清需求                 |
+| `/phsx:new`      | 新建变更                                     |
+| `/phsx:continue` | 创建下一个就绪的制品                         |
+| `/phsx:ff`       | 快进 — 一次性创建全部规划制品                |
+| `/phsx:apply`    | 实施任务，按需更新制品                       |
+| `/phsx:sync`     | 将增量规范同步到主规范（可选，归档时会提示） |
+| `/phsx:archive`  | 完成后归档                                   |
 
-- Unknown artifact IDs in `rules` generate warnings
-- Schema names are validated against available schemas
-- Context has a 50KB size limit
-- Invalid YAML is reported with line numbers
+## 使用要点
 
-### Troubleshooting
+- **探索**：`/phsx:explore`，无结构要求，思路清晰后可 `/phsx:new` 或 `/phsx:ff`
+- **新建变更**：`/phsx:new`，会询问要做什么以及使用哪个工作流模式
+- **创建制品**：`/phsx:continue` 按依赖逐个创建；`/phsx:ff <name>` 一次性创建全部规划制品
+- **实施**：`/phsx:apply`，按任务推进并勾选；多变更时可用 `/phsx:apply <name>`
+- **收尾**：`/phsx:archive`，会提示是否同步规范
 
-**"Unknown artifact ID in rules: X"**
-- Check artifact IDs match your schema (see list above)
-- Run `openspec schemas --json` to see artifact IDs for each schema
+## 更新既有变更 vs 新建变更
 
-**Config not being applied:**
-- Ensure file is at `openspec/config.yaml` (not `.yml`)
-- Check YAML syntax with a validator
-- Config changes take effect immediately (no restart needed)
+- **在既有变更上更新**：意图相同、执行更精炼；范围收窄（先 MVP）；因对代码库的新认识做修正；设计小改。
+- **新建变更**：意图根本改变；范围扩大到完全不同工作；原变更可独立「完成」；在原有上打补丁会更乱。
 
-**Context too large:**
-- Context is limited to 50KB
-- Summarize or link to external docs instead
+原则：**更新保留上下文，新建提供清晰。** 思考历程有价值时更新；重新开一条线更清晰时新建。
 
-## Commands
+## 与旧版的区别
 
-| Command | What it does |
-|---------|--------------|
-| `/opsx:explore` | Think through ideas, investigate problems, clarify requirements |
-| `/opsx:new` | Start a new change |
-| `/opsx:continue` | Create the next artifact (based on what's ready) |
-| `/opsx:ff` | Fast-forward — create all planning artifacts at once |
-| `/opsx:apply` | Implement tasks, updating artifacts as needed |
-| `/opsx:sync` | Sync delta specs to main (optional—archive prompts if needed) |
-| `/opsx:archive` | Archive when done |
+|            | 旧版（`/openspec:proposal`） | PHSX（`/phsx:*`）      |
+| ---------- | ---------------------------- | ---------------------- |
+| **结构**   | 一份大提案文档               | 离散制品 + 依赖        |
+| **流程**   | 线性阶段：规划 → 实现 → 归档 | 灵活动作，随时可做     |
+| **迭代**   | 回头改不自然                 | 随时更新制品           |
+| **自定义** | 结构固定                     | 模式驱动，可自定义制品 |
 
-## Usage
+核心点：工作不是线性的，OPSX 不再假装它是。
 
-### Explore an idea
-```
-/opsx:explore
-```
-Think through ideas, investigate problems, compare options. No structure required - just a thinking partner. When insights crystallize, transition to `/opsx:new` or `/opsx:ff`.
+## 相关文档
 
-### Start a new change
-```
-/opsx:new
-```
-You'll be asked what you want to build and which workflow schema to use.
-
-### Create artifacts
-```
-/opsx:continue
-```
-Shows what's ready to create based on dependencies, then creates one artifact. Use repeatedly to build up your change incrementally.
-
-```
-/opsx:ff add-dark-mode
-```
-Creates all planning artifacts at once. Use when you have a clear picture of what you're building.
-
-### Implement (the fluid part)
-```
-/opsx:apply
-```
-Works through tasks, checking them off as you go. If you're juggling multiple changes, you can run `/opsx:apply <name>`; otherwise it should infer from the conversation and prompt you to choose if it can't tell.
-
-### Finish up
-```
-/opsx:archive   # Move to archive when done (prompts to sync specs if needed)
-```
-
-## When to Update vs. Start Fresh
-
-You can always edit your proposal or specs before implementation. But when does refining become "this is different work"?
-
-### What a Proposal Captures
-
-A proposal defines three things:
-1. **Intent** — What problem are you solving?
-2. **Scope** — What's in/out of bounds?
-3. **Approach** — How will you solve it?
-
-The question is: which changed, and by how much?
-
-### Update the Existing Change When:
-
-**Same intent, refined execution**
-- You discover edge cases you didn't consider
-- The approach needs tweaking but the goal is unchanged
-- Implementation reveals the design was slightly off
-
-**Scope narrows**
-- You realize full scope is too big, want to ship MVP first
-- "Add dark mode" → "Add dark mode toggle (system preference in v2)"
-
-**Learning-driven corrections**
-- Codebase isn't structured how you thought
-- A dependency doesn't work as expected
-- "Use CSS variables" → "Use Tailwind's dark: prefix instead"
-
-### Start a New Change When:
-
-**Intent fundamentally changed**
-- The problem itself is different now
-- "Add dark mode" → "Add comprehensive theme system with custom colors, fonts, spacing"
-
-**Scope exploded**
-- Change grew so much it's essentially different work
-- Original proposal would be unrecognizable after updates
-- "Fix login bug" → "Rewrite auth system"
-
-**Original is completable**
-- The original change can be marked "done"
-- New work stands alone, not a refinement
-- Complete "Add dark mode MVP" → Archive → New change "Enhance dark mode"
-
-### The Heuristics
-
-```
-                        ┌─────────────────────────────────────┐
-                        │     Is this the same work?          │
-                        └──────────────┬──────────────────────┘
-                                       │
-                    ┌──────────────────┼──────────────────┐
-                    │                  │                  │
-                    ▼                  ▼                  ▼
-             Same intent?      >50% overlap?      Can original
-             Same problem?     Same scope?        be "done" without
-                    │                  │          these changes?
-                    │                  │                  │
-          ┌────────┴────────┐  ┌──────┴──────┐   ┌───────┴───────┐
-          │                 │  │             │   │               │
-         YES               NO YES           NO  NO              YES
-          │                 │  │             │   │               │
-          ▼                 ▼  ▼             ▼   ▼               ▼
-       UPDATE            NEW  UPDATE       NEW  UPDATE          NEW
-```
-
-| Test | Update | New Change |
-|------|--------|------------|
-| **Identity** | "Same thing, refined" | "Different work" |
-| **Scope overlap** | >50% overlaps | <50% overlaps |
-| **Completion** | Can't be "done" without changes | Can finish original, new work stands alone |
-| **Story** | Update chain tells coherent story | Patches would confuse more than clarify |
-
-### The Principle
-
-> **Update preserves context. New change provides clarity.**
->
-> Choose update when the history of your thinking is valuable.
-> Choose new when starting fresh would be clearer than patching.
-
-Think of it like git branches:
-- Keep committing while working on the same feature
-- Start a new branch when it's genuinely new work
-- Sometimes merge a partial feature and start fresh for phase 2
-
-## What's Different?
-
-| | Legacy (`/openspec:proposal`) | OPSX (`/opsx:*`) |
-|---|---|---|
-| **Structure** | One big proposal document | Discrete artifacts with dependencies |
-| **Workflow** | Linear phases: plan → implement → archive | Fluid actions — do anything anytime |
-| **Iteration** | Awkward to go back | Update artifacts as you learn |
-| **Customization** | Fixed structure | Schema-driven (define your own artifacts) |
-
-**The key insight:** work isn't linear. OPSX stops pretending it is.
-
-## Architecture Deep Dive
-
-This section explains how OPSX works under the hood and how it compares to the legacy workflow.
-
-### Philosophy: Phases vs Actions
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         LEGACY WORKFLOW                                      │
-│                    (Phase-Locked, All-or-Nothing)                           │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   ┌──────────────┐      ┌──────────────┐      ┌──────────────┐             │
-│   │   PLANNING   │ ───► │ IMPLEMENTING │ ───► │   ARCHIVING  │             │
-│   │    PHASE     │      │    PHASE     │      │    PHASE     │             │
-│   └──────────────┘      └──────────────┘      └──────────────┘             │
-│         │                     │                     │                       │
-│         ▼                     ▼                     ▼                       │
-│   /openspec:proposal   /openspec:apply      /openspec:archive              │
-│                                                                             │
-│   • Creates ALL artifacts at once                                          │
-│   • Can't go back to update specs during implementation                    │
-│   • Phase gates enforce linear progression                                  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            OPSX WORKFLOW                                     │
-│                      (Fluid Actions, Iterative)                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│              ┌────────────────────────────────────────────┐                 │
-│              │           ACTIONS (not phases)             │                 │
-│              │                                            │                 │
-│              │   new ◄──► continue ◄──► apply ◄──► archive │                 │
-│              │    │          │           │           │    │                 │
-│              │    └──────────┴───────────┴───────────┘    │                 │
-│              │              any order                     │                 │
-│              └────────────────────────────────────────────┘                 │
-│                                                                             │
-│   • Create artifacts one at a time OR fast-forward                         │
-│   • Update specs/design/tasks during implementation                        │
-│   • Dependencies enable progress, phases don't exist                       │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Component Architecture
-
-**Legacy workflow** uses hardcoded templates in TypeScript:
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      LEGACY WORKFLOW COMPONENTS                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   Hardcoded Templates (TypeScript strings)                                  │
-│                    │                                                        │
-│                    ▼                                                        │
-│   Configurators (18+ classes, one per editor)                               │
-│                    │                                                        │
-│                    ▼                                                        │
-│   Generated Command Files (.claude/commands/openspec/*.md)                  │
-│                                                                             │
-│   • Fixed structure, no artifact awareness                                  │
-│   • Change requires code modification + rebuild                             │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-**OPSX** uses external schemas and a dependency graph engine:
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         OPSX COMPONENTS                                      │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   Schema Definitions (YAML)                                                 │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  name: spec-driven                                                  │   │
-│   │  artifacts:                                                         │   │
-│   │    - id: proposal                                                   │   │
-│   │      generates: proposal.md                                         │   │
-│   │      requires: []              ◄── Dependencies                     │   │
-│   │    - id: specs                                                      │   │
-│   │      generates: specs/**/*.md  ◄── Glob patterns                    │   │
-│   │      requires: [proposal]      ◄── Enables after proposal           │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                    │                                                        │
-│                    ▼                                                        │
-│   Artifact Graph Engine                                                     │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │  • Topological sort (dependency ordering)                           │   │
-│   │  • State detection (filesystem existence)                           │   │
-│   │  • Rich instruction generation (templates + context)                │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                    │                                                        │
-│                    ▼                                                        │
-│   Skill Files (.claude/skills/openspec-*/SKILL.md)                          │
-│                                                                             │
-│   • Cross-editor compatible (Claude Code, Cursor, Windsurf)                 │
-│   • Skills query CLI for structured data                                    │
-│   • Fully customizable via schema files                                     │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Dependency Graph Model
-
-Artifacts form a directed acyclic graph (DAG). Dependencies are **enablers**, not gates:
-
-```
-                              proposal
-                             (root node)
-                                  │
-                    ┌─────────────┴─────────────┐
-                    │                           │
-                    ▼                           ▼
-                 specs                       design
-              (requires:                  (requires:
-               proposal)                   proposal)
-                    │                           │
-                    └─────────────┬─────────────┘
-                                  │
-                                  ▼
-                               tasks
-                           (requires:
-                           specs, design)
-                                  │
-                                  ▼
-                          ┌──────────────┐
-                          │ APPLY PHASE  │
-                          │ (requires:   │
-                          │  tasks)      │
-                          └──────────────┘
-```
-
-**State transitions:**
-
-```
-   BLOCKED ────────────────► READY ────────────────► DONE
-      │                        │                       │
-   Missing                  All deps               File exists
-   dependencies             are DONE               on filesystem
-```
-
-### Information Flow
-
-**Legacy workflow** — agent receives static instructions:
-
-```
-  User: "/openspec:proposal"
-           │
-           ▼
-  ┌─────────────────────────────────────────┐
-  │  Static instructions:                   │
-  │  • Create proposal.md                   │
-  │  • Create tasks.md                      │
-  │  • Create design.md                     │
-  │  • Create specs/<capability>/spec.md    │
-  │                                         │
-  │  No awareness of what exists or         │
-  │  dependencies between artifacts         │
-  └─────────────────────────────────────────┘
-           │
-           ▼
-  Agent creates ALL artifacts in one go
-```
-
-**OPSX** — agent queries for rich context:
-
-```
-  User: "/opsx:continue"
-           │
-           ▼
-  ┌──────────────────────────────────────────────────────────────────────────┐
-  │  Step 1: Query current state                                             │
-  │  ┌────────────────────────────────────────────────────────────────────┐  │
-  │  │  $ openspec status --change "add-auth" --json                      │  │
-  │  │                                                                    │  │
-  │  │  {                                                                 │  │
-  │  │    "artifacts": [                                                  │  │
-  │  │      {"id": "proposal", "status": "done"},                         │  │
-  │  │      {"id": "specs", "status": "ready"},      ◄── First ready      │  │
-  │  │      {"id": "design", "status": "ready"},                          │  │
-  │  │      {"id": "tasks", "status": "blocked", "missingDeps": ["specs"]}│  │
-  │  │    ]                                                               │  │
-  │  │  }                                                                 │  │
-  │  └────────────────────────────────────────────────────────────────────┘  │
-  │                                                                          │
-  │  Step 2: Get rich instructions for ready artifact                        │
-  │  ┌────────────────────────────────────────────────────────────────────┐  │
-  │  │  $ openspec instructions specs --change "add-auth" --json          │  │
-  │  │                                                                    │  │
-  │  │  {                                                                 │  │
-  │  │    "template": "# Specification\n\n## ADDED Requirements...",      │  │
-  │  │    "dependencies": [{"id": "proposal", "path": "...", "done": true}│  │
-  │  │    "unlocks": ["tasks"]                                            │  │
-  │  │  }                                                                 │  │
-  │  └────────────────────────────────────────────────────────────────────┘  │
-  │                                                                          │
-  │  Step 3: Read dependencies → Create ONE artifact → Show what's unlocked  │
-  └──────────────────────────────────────────────────────────────────────────┘
-```
-
-### Iteration Model
-
-**Legacy workflow** — awkward to iterate:
-
-```
-  ┌─────────┐     ┌─────────┐     ┌─────────┐
-  │/proposal│ ──► │ /apply  │ ──► │/archive │
-  └─────────┘     └─────────┘     └─────────┘
-       │               │
-       │               ├── "Wait, the design is wrong"
-       │               │
-       │               ├── Options:
-       │               │   • Edit files manually (breaks context)
-       │               │   • Abandon and start over
-       │               │   • Push through and fix later
-       │               │
-       │               └── No official "go back" mechanism
-       │
-       └── Creates ALL artifacts at once
-```
-
-**OPSX** — natural iteration:
-
-```
-  /opsx:new ───► /opsx:continue ───► /opsx:apply ───► /opsx:archive
-      │                │                  │
-      │                │                  ├── "The design is wrong"
-      │                │                  │
-      │                │                  ▼
-      │                │            Just edit design.md
-      │                │            and continue!
-      │                │                  │
-      │                │                  ▼
-      │                │         /opsx:apply picks up
-      │                │         where you left off
-      │                │
-      │                └── Creates ONE artifact, shows what's unlocked
-      │
-      └── Scaffolds change, waits for direction
-```
-
-### Custom Schemas
-
-Create custom workflows using the schema management commands:
-
-```bash
-# Create a new schema from scratch (interactive)
-openspec schema init my-workflow
-
-# Or fork an existing schema as a starting point
-openspec schema fork spec-driven my-workflow
-
-# Validate your schema structure
-openspec schema validate my-workflow
-
-# See where a schema resolves from (useful for debugging)
-openspec schema which my-workflow
-```
-
-Schemas are stored in `openspec/schemas/` (project-local, version controlled) or `~/.local/share/openspec/schemas/` (user global).
-
-**Schema structure:**
-```
-openspec/schemas/research-first/
-├── schema.yaml
-└── templates/
-    ├── research.md
-    ├── proposal.md
-    └── tasks.md
-```
-
-**Example schema.yaml:**
-```yaml
-name: research-first
-artifacts:
-  - id: research        # Added before proposal
-    generates: research.md
-    requires: []
-
-  - id: proposal
-    generates: proposal.md
-    requires: [research]  # Now depends on research
-
-  - id: tasks
-    generates: tasks.md
-    requires: [proposal]
-```
-
-**Dependency Graph:**
-```
-   research ──► proposal ──► tasks
-```
-
-### Summary
-
-| Aspect | Legacy | OPSX |
-|--------|----------|------|
-| **Templates** | Hardcoded TypeScript | External YAML + Markdown |
-| **Dependencies** | None (all at once) | DAG with topological sort |
-| **State** | Phase-based mental model | Filesystem existence |
-| **Customization** | Edit source, rebuild | Create schema.yaml |
-| **Iteration** | Phase-locked | Fluid, edit anything |
-| **Editor Support** | 18+ configurator classes | Single skills directory |
-
-## Schemas
-
-Schemas define what artifacts exist and their dependencies. Currently available:
-
-- **spec-driven** (default): proposal → specs → design → tasks
-
-```bash
-# List available schemas
-openspec schemas
-
-# See all schemas with their resolution sources
-openspec schema which --all
-
-# Create a new schema interactively
-openspec schema init my-workflow
-
-# Fork an existing schema for customization
-openspec schema fork spec-driven my-workflow
-
-# Validate schema structure before use
-openspec schema validate my-workflow
-```
-
-## Tips
-
-- Use `/opsx:explore` to think through an idea before committing to a change
-- `/opsx:ff` when you know what you want, `/opsx:continue` when exploring
-- During `/opsx:apply`, if something's wrong — fix the artifact, then continue
-- Tasks track progress via checkboxes in `tasks.md`
-- Check status anytime: `openspec status --change "name"`
-
-## Feedback
-
-This is rough. That's intentional — we're learning what works.
-
-Found a bug? Have ideas? Join us on [Discord](https://discord.gg/YctCnvvshC) or open an issue on [GitHub](https://github.com/Fission-AI/openspec/issues).
+- [概念](concepts.md) - 规范、制品与工作流模式
+- [棕地接入与 SDD 最佳实践](brownfield-sdd-best-practices.md) - 现有项目接入与业务开发流程规范
+- [自定义](customization.md) - 项目配置与自定义模式
+- [命令](commands.md) - 斜杠命令完整说明

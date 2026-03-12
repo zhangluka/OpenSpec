@@ -1,14 +1,17 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import { getTaskProgressForChange, formatTaskStatus } from '../utils/task-progress.js';
-import { Validator } from './validation/validator.js';
-import chalk from 'chalk';
+import { promises as fs } from "fs";
+import path from "path";
+import {
+  getTaskProgressForChange,
+  formatTaskStatus,
+} from "../utils/task-progress.js";
+import { Validator } from "./validation/validator.js";
+import chalk from "chalk";
 import {
   findSpecUpdates,
   buildUpdatedSpec,
   writeUpdatedSpec,
   type SpecUpdate,
-} from './specs-apply.js';
+} from "./specs-apply.js";
 
 /**
  * Recursively copy a directory. Used when fs.rename fails (e.g. EPERM on Windows).
@@ -38,7 +41,7 @@ async function moveDirectory(src: string, dest: string): Promise<void> {
     await fs.rename(src, dest);
   } catch (err: any) {
     const code = err?.code;
-    if (code === 'EPERM' || code === 'EXDEV') {
+    if (code === "EPERM" || code === "EXDEV") {
       await copyDirRecursive(src, dest);
       await fs.rm(src, { recursive: true, force: true });
     } else {
@@ -50,25 +53,30 @@ async function moveDirectory(src: string, dest: string): Promise<void> {
 export class ArchiveCommand {
   async execute(
     changeName?: string,
-    options: { yes?: boolean; skipSpecs?: boolean; noValidate?: boolean; validate?: boolean } = {}
+    options: {
+      yes?: boolean;
+      skipSpecs?: boolean;
+      noValidate?: boolean;
+      validate?: boolean;
+    } = {},
   ): Promise<void> {
-    const targetPath = '.';
-    const changesDir = path.join(targetPath, 'openspec', 'changes');
-    const archiveDir = path.join(changesDir, 'archive');
-    const mainSpecsDir = path.join(targetPath, 'openspec', 'specs');
+    const targetPath = ".";
+    const changesDir = path.join(targetPath, "phspec", "changes");
+    const archiveDir = path.join(changesDir, "archive");
+    const mainSpecsDir = path.join(targetPath, "phspec", "specs");
 
     // Check if changes directory exists
     try {
       await fs.access(changesDir);
     } catch {
-      throw new Error("No OpenSpec changes directory found. Run 'openspec init' first.");
+      throw new Error("未找到 PhSpec 变更目录，请先执行 'phspec init'。");
     }
 
     // Get change name interactively if not provided
     if (!changeName) {
       const selectedChange = await this.selectChange(changesDir);
       if (!selectedChange) {
-        console.log('No change selected. Aborting.');
+        console.log("未选择变更，已取消。");
         return;
       }
       changeName = selectedChange;
@@ -80,13 +88,14 @@ export class ArchiveCommand {
     try {
       const stat = await fs.stat(changeDir);
       if (!stat.isDirectory()) {
-        throw new Error(`Change '${changeName}' not found.`);
+        throw new Error(`未找到变更 "${changeName}"。`);
       }
     } catch {
-      throw new Error(`Change '${changeName}' not found.`);
+      throw new Error(`未找到变更 "${changeName}"。`);
     }
 
-    const skipValidation = options.validate === false || options.noValidate === true;
+    const skipValidation =
+      options.validate === false || options.noValidate === true;
 
     // Validate specs and change before archiving
     if (!skipValidation) {
@@ -94,15 +103,20 @@ export class ArchiveCommand {
       let hasValidationErrors = false;
 
       // Validate proposal.md (non-blocking unless strict mode desired in future)
-      const changeFile = path.join(changeDir, 'proposal.md');
+      const changeFile = path.join(changeDir, "proposal.md");
       try {
         await fs.access(changeFile);
         const changeReport = await validator.validateChange(changeFile);
         // Proposal validation is informative only (do not block archive)
         if (!changeReport.valid) {
-          console.log(chalk.yellow(`\nProposal warnings in proposal.md (non-blocking):`));
+          console.log(chalk.yellow(`\nproposal.md 中的提案警告（不阻塞）：`));
           for (const issue of changeReport.issues) {
-            const symbol = issue.level === 'ERROR' ? '⚠' : (issue.level === 'WARNING' ? '⚠' : 'ℹ');
+            const symbol =
+              issue.level === "ERROR"
+                ? "⚠"
+                : issue.level === "WARNING"
+                  ? "⚠"
+                  : "ℹ";
             console.log(chalk.yellow(`  ${symbol} ${issue.message}`));
           }
         }
@@ -111,17 +125,27 @@ export class ArchiveCommand {
       }
 
       // Validate delta-formatted spec files under the change directory if present
-      const changeSpecsDir = path.join(changeDir, 'specs');
+      const changeSpecsDir = path.join(changeDir, "specs");
       let hasDeltaSpecs = false;
       try {
-        const candidates = await fs.readdir(changeSpecsDir, { withFileTypes: true });
+        const candidates = await fs.readdir(changeSpecsDir, {
+          withFileTypes: true,
+        });
         for (const c of candidates) {
           if (c.isDirectory()) {
             try {
-              const candidatePath = path.join(changeSpecsDir, c.name, 'spec.md');
+              const candidatePath = path.join(
+                changeSpecsDir,
+                c.name,
+                "spec.md",
+              );
               await fs.access(candidatePath);
-              const content = await fs.readFile(candidatePath, 'utf-8');
-              if (/^##\s+(ADDED|MODIFIED|REMOVED|RENAMED)\s+Requirements/m.test(content)) {
+              const content = await fs.readFile(candidatePath, "utf-8");
+              if (
+                /^##\s+(ADDED|MODIFIED|REMOVED|RENAMED)\s+Requirements/m.test(
+                  content,
+                )
+              ) {
                 hasDeltaSpecs = true;
                 break;
               }
@@ -133,11 +157,11 @@ export class ArchiveCommand {
         const deltaReport = await validator.validateChangeDeltaSpecs(changeDir);
         if (!deltaReport.valid) {
           hasValidationErrors = true;
-          console.log(chalk.red(`\nValidation errors in change delta specs:`));
+          console.log(chalk.red(`\n变更增量规范校验错误：`));
           for (const issue of deltaReport.issues) {
-            if (issue.level === 'ERROR') {
+            if (issue.level === "ERROR") {
               console.log(chalk.red(`  ✗ ${issue.message}`));
-            } else if (issue.level === 'WARNING') {
+            } else if (issue.level === "WARNING") {
               console.log(chalk.yellow(`  ⚠ ${issue.message}`));
             }
           }
@@ -145,92 +169,111 @@ export class ArchiveCommand {
       }
 
       if (hasValidationErrors) {
-        console.log(chalk.red('\nValidation failed. Please fix the errors before archiving.'));
-        console.log(chalk.yellow('To skip validation (not recommended), use --no-validate flag.'));
+        console.log(chalk.red("\n校验未通过，请修正后再归档。"));
+        console.log(
+          chalk.yellow("若需跳过校验（不推荐），可使用 --no-validate。"),
+        );
         return;
       }
     } else {
       // Log warning when validation is skipped
       const timestamp = new Date().toISOString();
-      
+
       if (!options.yes) {
-        const { confirm } = await import('@inquirer/prompts');
+        const { confirm } = await import("@inquirer/prompts");
         const proceed = await confirm({
-          message: chalk.yellow('⚠️  WARNING: Skipping validation may archive invalid specs. Continue? (y/N)'),
-          default: false
+          message: chalk.yellow(
+            "⚠️  警告：跳过校验可能归档无效规范。是否继续？(y/N)",
+          ),
+          default: false,
         });
         if (!proceed) {
-          console.log('Archive cancelled.');
+          console.log("已取消归档。");
           return;
         }
       } else {
-        console.log(chalk.yellow(`\n⚠️  WARNING: Skipping validation may archive invalid specs.`));
+        console.log(chalk.yellow(`\n⚠️  警告：跳过校验可能归档无效规范。`));
       }
-      
-      console.log(chalk.yellow(`[${timestamp}] Validation skipped for change: ${changeName}`));
-      console.log(chalk.yellow(`Affected files: ${changeDir}`));
+
+      console.log(chalk.yellow(`[${timestamp}] 已跳过变更校验：${changeName}`));
+      console.log(chalk.yellow(`涉及目录：${changeDir}`));
     }
 
     // Show progress and check for incomplete tasks
     const progress = await getTaskProgressForChange(changesDir, changeName);
     const status = formatTaskStatus(progress);
-    console.log(`Task status: ${status}`);
+    console.log(`任务状态：${status}`);
 
     const incompleteTasks = Math.max(progress.total - progress.completed, 0);
     if (incompleteTasks > 0) {
       if (!options.yes) {
-        const { confirm } = await import('@inquirer/prompts');
+        const { confirm } = await import("@inquirer/prompts");
         const proceed = await confirm({
-          message: `Warning: ${incompleteTasks} incomplete task(s) found. Continue?`,
-          default: false
+          message: `警告：发现 ${incompleteTasks} 个未完成任务。是否继续？`,
+          default: false,
         });
         if (!proceed) {
-          console.log('Archive cancelled.');
+          console.log("已取消归档。");
           return;
         }
       } else {
-        console.log(`Warning: ${incompleteTasks} incomplete task(s) found. Continuing due to --yes flag.`);
+        console.log(
+          `警告：发现 ${incompleteTasks} 个未完成任务，因 --yes 将继续。`,
+        );
       }
     }
 
     // Handle spec updates unless skipSpecs flag is set
     if (options.skipSpecs) {
-      console.log('Skipping spec updates (--skip-specs flag provided).');
+      console.log("已跳过规范更新（已指定 --skip-specs）。");
     } else {
       // Find specs to update
       const specUpdates = await findSpecUpdates(changeDir, mainSpecsDir);
-      
+
       if (specUpdates.length > 0) {
-        console.log('\nSpecs to update:');
+        console.log("\n待更新规范：");
         for (const update of specUpdates) {
-          const status = update.exists ? 'update' : 'create';
+          const status = update.exists ? "update" : "create";
           const capability = path.basename(path.dirname(update.target));
           console.log(`  ${capability}: ${status}`);
         }
 
         let shouldUpdateSpecs = true;
         if (!options.yes) {
-          const { confirm } = await import('@inquirer/prompts');
+          const { confirm } = await import("@inquirer/prompts");
           shouldUpdateSpecs = await confirm({
-            message: 'Proceed with spec updates?',
-            default: true
+            message: "是否执行规范更新？",
+            default: true,
           });
           if (!shouldUpdateSpecs) {
-            console.log('Skipping spec updates. Proceeding with archive.');
+            console.log("跳过规范更新，继续归档。");
           }
         }
 
         if (shouldUpdateSpecs) {
           // Prepare all updates first (validation pass, no writes)
-          const prepared: Array<{ update: SpecUpdate; rebuilt: string; counts: { added: number; modified: number; removed: number; renamed: number } }> = [];
+          const prepared: Array<{
+            update: SpecUpdate;
+            rebuilt: string;
+            counts: {
+              added: number;
+              modified: number;
+              removed: number;
+              renamed: number;
+            };
+          }> = [];
           try {
             for (const update of specUpdates) {
               const built = await buildUpdatedSpec(update, changeName!);
-              prepared.push({ update, rebuilt: built.rebuilt, counts: built.counts });
+              prepared.push({
+                update,
+                rebuilt: built.rebuilt,
+                counts: built.counts,
+              });
             }
           } catch (err: any) {
             console.log(String(err.message || err));
-            console.log('Aborted. No files were changed.');
+            console.log("已中止，未修改任何文件。");
             return;
           }
 
@@ -239,14 +282,23 @@ export class ArchiveCommand {
           for (const p of prepared) {
             const specName = path.basename(path.dirname(p.update.target));
             if (!skipValidation) {
-              const report = await new Validator().validateSpecContent(specName, p.rebuilt);
+              const report = await new Validator().validateSpecContent(
+                specName,
+                p.rebuilt,
+              );
               if (!report.valid) {
-                console.log(chalk.red(`\nValidation errors in rebuilt spec for ${specName} (will not write changes):`));
+                console.log(
+                  chalk.red(
+                    `\n重建规范 ${specName} 的校验错误（不会写入更改）：`,
+                  ),
+                );
                 for (const issue of report.issues) {
-                  if (issue.level === 'ERROR') console.log(chalk.red(`  ✗ ${issue.message}`));
-                  else if (issue.level === 'WARNING') console.log(chalk.yellow(`  ⚠ ${issue.message}`));
+                  if (issue.level === "ERROR")
+                    console.log(chalk.red(`  ✗ ${issue.message}`));
+                  else if (issue.level === "WARNING")
+                    console.log(chalk.yellow(`  ⚠ ${issue.message}`));
                 }
-                console.log('Aborted. No files were changed.');
+                console.log("已中止，未修改任何文件。");
                 return;
               }
             }
@@ -257,9 +309,9 @@ export class ArchiveCommand {
             totals.renamed += p.counts.renamed;
           }
           console.log(
-            `Totals: + ${totals.added}, ~ ${totals.modified}, - ${totals.removed}, → ${totals.renamed}`
+            `Totals: + ${totals.added}, ~ ${totals.modified}, - ${totals.removed}, → ${totals.renamed}`,
           );
-          console.log('Specs updated successfully.');
+          console.log("规范已更新。");
         }
       }
     }
@@ -271,9 +323,9 @@ export class ArchiveCommand {
     // Check if archive already exists
     try {
       await fs.access(archivePath);
-      throw new Error(`Archive '${archiveName}' already exists.`);
+      throw new Error(`归档目录 "${archiveName}" 已存在。`);
     } catch (error: any) {
-      if (error.code !== 'ENOENT') {
+      if (error.code !== "ENOENT") {
         throw error;
       }
     }
@@ -284,25 +336,27 @@ export class ArchiveCommand {
     // Move change to archive (uses copy+remove on EPERM/EXDEV, e.g. Windows)
     await moveDirectory(changeDir, archivePath);
 
-    console.log(`Change '${changeName}' archived as '${archiveName}'.`);
+    console.log(`变更 "${changeName}" 已归档为 "${archiveName}"。`);
   }
 
   private async selectChange(changesDir: string): Promise<string | null> {
-    const { select } = await import('@inquirer/prompts');
+    const { select } = await import("@inquirer/prompts");
     // Get all directories in changes (excluding archive)
     const entries = await fs.readdir(changesDir, { withFileTypes: true });
     const changeDirs = entries
-      .filter(entry => entry.isDirectory() && entry.name !== 'archive')
-      .map(entry => entry.name)
+      .filter((entry) => entry.isDirectory() && entry.name !== "archive")
+      .map((entry) => entry.name)
       .sort();
 
     if (changeDirs.length === 0) {
-      console.log('No active changes found.');
+      console.log("未找到进行中的变更。");
       return null;
     }
 
     // Build choices with progress inline to avoid duplicate lists
-    let choices: Array<{ name: string; value: string }> = changeDirs.map(name => ({ name, value: name }));
+    let choices: Array<{ name: string; value: string }> = changeDirs.map(
+      (name) => ({ name, value: name }),
+    );
     try {
       const progressList: Array<{ id: string; status: string }> = [];
       for (const id of changeDirs) {
@@ -310,20 +364,20 @@ export class ArchiveCommand {
         const status = formatTaskStatus(progress);
         progressList.push({ id, status });
       }
-      const nameWidth = Math.max(...progressList.map(p => p.id.length));
-      choices = progressList.map(p => ({
+      const nameWidth = Math.max(...progressList.map((p) => p.id.length));
+      choices = progressList.map((p) => ({
         name: `${p.id.padEnd(nameWidth)}     ${p.status}`,
-        value: p.id
+        value: p.id,
       }));
     } catch {
       // If anything fails, fall back to simple names
-      choices = changeDirs.map(name => ({ name, value: name }));
+      choices = changeDirs.map((name) => ({ name, value: name }));
     }
 
     try {
       const answer = await select({
-        message: 'Select a change to archive',
-        choices
+        message: "选择要归档的变更",
+        choices,
       });
       return answer;
     } catch (error) {
@@ -334,6 +388,6 @@ export class ArchiveCommand {
 
   private getArchiveDate(): string {
     // Returns date in YYYY-MM-DD format
-    return new Date().toISOString().split('T')[0];
+    return new Date().toISOString().split("T")[0];
   }
 }

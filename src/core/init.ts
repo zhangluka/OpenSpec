@@ -1,36 +1,32 @@
 /**
  * Init Command
  *
- * Sets up OpenSpec with Agent Skills and /opsx:* slash commands.
+ * Sets up PhSpec with Agent Skills and /phsx:* slash commands.
  * This is the unified setup command that replaces both the old init and experimental commands.
  */
 
-import path from 'path';
-import chalk from 'chalk';
-import ora from 'ora';
-import * as fs from 'fs';
-import { createRequire } from 'module';
-import { FileSystemUtils } from '../utils/file-system.js';
-import { transformToHyphenCommands } from '../utils/command-references.js';
-import {
-  AI_TOOLS,
-  OPENSPEC_DIR_NAME,
-  AIToolOption,
-} from './config.js';
-import { PALETTE } from './styles/palette.js';
-import { isInteractive } from '../utils/interactive.js';
-import { serializeConfig } from './config-prompts.js';
+import path from "path";
+import chalk from "chalk";
+import ora from "ora";
+import * as fs from "fs";
+import { createRequire } from "module";
+import { FileSystemUtils } from "../utils/file-system.js";
+import { transformToHyphenCommands } from "../utils/command-references.js";
+import { AI_TOOLS, PHSPEC_DIR_NAME, AIToolOption } from "./config.js";
+import { PALETTE } from "./styles/palette.js";
+import { isInteractive } from "../utils/interactive.js";
+import { serializeConfig } from "./config-prompts.js";
 import {
   generateCommands,
   CommandAdapterRegistry,
-} from './command-generation/index.js';
+} from "./command-generation/index.js";
 import {
   detectLegacyArtifacts,
   cleanupLegacyArtifacts,
   formatCleanupSummary,
   formatDetectionSummary,
   type LegacyDetectionResult,
-} from './legacy-cleanup.js';
+} from "./legacy-cleanup.js";
 import {
   SKILL_NAMES,
   getToolsWithSkillsDir,
@@ -40,20 +36,20 @@ import {
   getCommandContents,
   generateSkillContent,
   type ToolSkillStatus,
-} from './shared/index.js';
+} from "./shared/index.js";
 
 const require = createRequire(import.meta.url);
-const { version: OPENSPEC_VERSION } = require('../../package.json');
+const { version: OPENSPEC_VERSION } = require("../../package.json");
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
 
-const DEFAULT_SCHEMA = 'spec-driven';
+const DEFAULT_SCHEMA = "lean-sdd";
 
 const PROGRESS_SPINNER = {
   interval: 80,
-  frames: ['░░░', '▒░░', '▒▒░', '▒▒▒', '▓▒▒', '▓▓▒', '▓▓▓', '▒▓▓', '░▒▓'],
+  frames: ["░░░", "▒░░", "▒▒░", "▒▒▒", "▓▒▒", "▓▓▒", "▓▓▓", "▒▓▓", "░▒▓"],
 };
 
 // -----------------------------------------------------------------------------
@@ -83,11 +79,11 @@ export class InitCommand {
 
   async execute(targetPath: string): Promise<void> {
     const projectPath = path.resolve(targetPath);
-    const openspecDir = OPENSPEC_DIR_NAME;
-    const openspecPath = path.join(projectPath, openspecDir);
+    const phspecDir = PHSPEC_DIR_NAME;
+    const phspecPath = path.join(projectPath, phspecDir);
 
     // Validation happens silently in the background
-    const extendMode = await this.validate(projectPath, openspecPath);
+    const extendMode = await this.validate(projectPath, phspecPath);
 
     // Check for legacy artifacts and handle cleanup
     await this.handleLegacyCleanup(projectPath, extendMode);
@@ -95,7 +91,7 @@ export class InitCommand {
     // Show animated welcome screen (interactive mode only)
     const canPrompt = this.canPromptInteractively();
     if (canPrompt) {
-      const { showWelcomeScreen } = await import('../ui/welcome-screen.js');
+      const { showWelcomeScreen } = await import("../ui/welcome-screen.js");
       await showWelcomeScreen();
     }
 
@@ -109,16 +105,24 @@ export class InitCommand {
     const validatedTools = this.validateTools(selectedToolIds, toolStates);
 
     // Create directory structure and config
-    await this.createDirectoryStructure(openspecPath, extendMode);
+    await this.createDirectoryStructure(phspecPath, extendMode);
 
     // Generate skills and commands for each tool
-    const results = await this.generateSkillsAndCommands(projectPath, validatedTools);
+    const results = await this.generateSkillsAndCommands(
+      projectPath,
+      validatedTools,
+    );
 
     // Create config.yaml if needed
-    const configStatus = await this.createConfig(openspecPath, extendMode);
+    const configStatus = await this.createConfig(phspecPath, extendMode);
 
     // Display success message
-    this.displaySuccessMessage(projectPath, validatedTools, results, configStatus);
+    this.displaySuccessMessage(
+      projectPath,
+      validatedTools,
+      results,
+      configStatus,
+    );
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -127,13 +131,13 @@ export class InitCommand {
 
   private async validate(
     projectPath: string,
-    openspecPath: string
+    phspecPath: string,
   ): Promise<boolean> {
-    const extendMode = await FileSystemUtils.directoryExists(openspecPath);
+    const extendMode = await FileSystemUtils.directoryExists(phspecPath);
 
     // Check write permissions
     if (!(await FileSystemUtils.ensureWritePermissions(projectPath))) {
-      throw new Error(`Insufficient permissions to write to ${projectPath}`);
+      throw new Error(`对 ${projectPath} 无写入权限`);
     }
     return extendMode;
   }
@@ -148,7 +152,10 @@ export class InitCommand {
   // LEGACY CLEANUP
   // ═══════════════════════════════════════════════════════════
 
-  private async handleLegacyCleanup(projectPath: string, extendMode: boolean): Promise<void> {
+  private async handleLegacyCleanup(
+    projectPath: string,
+    extendMode: boolean,
+  ): Promise<void> {
     // Detect legacy artifacts
     const detection = await detectLegacyArtifacts(projectPath);
 
@@ -171,33 +178,38 @@ export class InitCommand {
 
     if (!canPrompt) {
       // Non-interactive mode without --force: abort
-      console.log(chalk.red('Legacy files detected in non-interactive mode.'));
-      console.log(chalk.dim('Run interactively to upgrade, or use --force to auto-cleanup.'));
+      console.log(chalk.red("非交互模式下检测到旧版文件。"));
+      console.log(
+        chalk.dim("请以交互方式运行以升级，或使用 --force 自动清理。"),
+      );
       process.exit(1);
     }
 
     // Interactive mode: prompt for confirmation
-    const { confirm } = await import('@inquirer/prompts');
+    const { confirm } = await import("@inquirer/prompts");
     const shouldCleanup = await confirm({
-      message: 'Upgrade and clean up legacy files?',
+      message: "是否升级并清理旧版文件？",
       default: true,
     });
 
     if (!shouldCleanup) {
-      console.log(chalk.dim('Initialization cancelled.'));
-      console.log(chalk.dim('Run with --force to skip this prompt, or manually remove legacy files.'));
+      console.log(chalk.dim("已取消初始化。"));
+      console.log(chalk.dim("使用 --force 可跳过此提示，或手动删除旧版文件。"));
       process.exit(0);
     }
 
     await this.performLegacyCleanup(projectPath, detection);
   }
 
-  private async performLegacyCleanup(projectPath: string, detection: LegacyDetectionResult): Promise<void> {
-    const spinner = ora('Cleaning up legacy files...').start();
+  private async performLegacyCleanup(
+    projectPath: string,
+    detection: LegacyDetectionResult,
+  ): Promise<void> {
+    const spinner = ora("正在清理旧版文件...").start();
 
     const result = await cleanupLegacyArtifacts(projectPath, detection);
 
-    spinner.succeed('Legacy files cleaned up');
+    spinner.succeed("旧版文件已清理");
 
     const summary = formatCleanupSummary(result);
     if (summary) {
@@ -214,7 +226,7 @@ export class InitCommand {
 
   private async getSelectedTools(
     toolStates: Map<string, ToolSkillStatus>,
-    extendMode: boolean
+    extendMode: boolean,
   ): Promise<string[]> {
     // Check for --tools flag first
     const nonInteractiveSelection = this.resolveToolsArg();
@@ -227,12 +239,13 @@ export class InitCommand {
 
     if (!canPrompt || validTools.length === 0) {
       throw new Error(
-        `Missing required option --tools. Valid tools:\n  ${validTools.join('\n  ')}\n\nUse --tools all, --tools none, or --tools claude,cursor,...`
+        `Missing required option --tools. Valid tools:\n  ${validTools.join("\n  ")}\n\nUse --tools all, --tools none, or --tools claude,cursor,...`,
       );
     }
 
     // Interactive mode: show searchable multi-select
-    const { searchableMultiSelect } = await import('../prompts/searchable-multi-select.js');
+    const { searchableMultiSelect } =
+      await import("../prompts/searchable-multi-select.js");
 
     // Build choices with configured status and sort configured tools first
     const sortedChoices = validTools
@@ -259,65 +272,66 @@ export class InitCommand {
       message: `Select tools to set up (${validTools.length} available)`,
       pageSize: 15,
       choices: sortedChoices,
-      validate: (selected: string[]) => selected.length > 0 || 'Select at least one tool',
+      validate: (selected: string[]) =>
+        selected.length > 0 || "请至少选择一种工具",
     });
 
     if (selectedTools.length === 0) {
-      throw new Error('At least one tool must be selected');
+      throw new Error("必须至少选择一种工具");
     }
 
     return selectedTools;
   }
 
   private resolveToolsArg(): string[] | null {
-    if (typeof this.toolsArg === 'undefined') {
+    if (typeof this.toolsArg === "undefined") {
       return null;
     }
 
     const raw = this.toolsArg.trim();
     if (raw.length === 0) {
       throw new Error(
-        'The --tools option requires a value. Use "all", "none", or a comma-separated list of tool IDs.'
+        '--tools 需要取值。可使用 "all"、"none" 或逗号分隔的工具 ID 列表。',
       );
     }
 
     const availableTools = getToolsWithSkillsDir();
     const availableSet = new Set(availableTools);
-    const availableList = ['all', 'none', ...availableTools].join(', ');
+    const availableList = ["all", "none", ...availableTools].join(", ");
 
     const lowerRaw = raw.toLowerCase();
-    if (lowerRaw === 'all') {
+    if (lowerRaw === "all") {
       return availableTools;
     }
 
-    if (lowerRaw === 'none') {
+    if (lowerRaw === "none") {
       return [];
     }
 
     const tokens = raw
-      .split(',')
+      .split(",")
       .map((token) => token.trim())
       .filter((token) => token.length > 0);
 
     if (tokens.length === 0) {
       throw new Error(
-        'The --tools option requires at least one tool ID when not using "all" or "none".'
+        '未使用 "all" 或 "none" 时，--tools 至少需要一个工具 ID。',
       );
     }
 
     const normalizedTokens = tokens.map((token) => token.toLowerCase());
 
-    if (normalizedTokens.some((token) => token === 'all' || token === 'none')) {
-      throw new Error('Cannot combine reserved values "all" or "none" with specific tool IDs.');
+    if (normalizedTokens.some((token) => token === "all" || token === "none")) {
+      throw new Error('不能将保留值 "all" 或 "none" 与具体工具 ID 混用。');
     }
 
     const invalidTokens = tokens.filter(
-      (_token, index) => !availableSet.has(normalizedTokens[index])
+      (_token, index) => !availableSet.has(normalizedTokens[index]),
     );
 
     if (invalidTokens.length > 0) {
       throw new Error(
-        `Invalid tool(s): ${invalidTokens.join(', ')}. Available values: ${availableList}`
+        `无效工具：${invalidTokens.join(", ")}。可用值：${availableList}`,
       );
     }
 
@@ -334,23 +348,33 @@ export class InitCommand {
 
   private validateTools(
     toolIds: string[],
-    toolStates: Map<string, ToolSkillStatus>
-  ): Array<{ value: string; name: string; skillsDir: string; wasConfigured: boolean }> {
-    const validatedTools: Array<{ value: string; name: string; skillsDir: string; wasConfigured: boolean }> = [];
+    toolStates: Map<string, ToolSkillStatus>,
+  ): Array<{
+    value: string;
+    name: string;
+    skillsDir: string;
+    wasConfigured: boolean;
+  }> {
+    const validatedTools: Array<{
+      value: string;
+      name: string;
+      skillsDir: string;
+      wasConfigured: boolean;
+    }> = [];
 
     for (const toolId of toolIds) {
       const tool = AI_TOOLS.find((t) => t.value === toolId);
       if (!tool) {
         const validToolIds = getToolsWithSkillsDir();
         throw new Error(
-          `Unknown tool '${toolId}'. Valid tools:\n  ${validToolIds.join('\n  ')}`
+          `未知工具 "${toolId}"。有效工具：\n  ${validToolIds.join("\n  ")}`,
         );
       }
 
       if (!tool.skillsDir) {
         const validToolsWithSkills = getToolsWithSkillsDir();
         throw new Error(
-          `Tool '${toolId}' does not support skill generation.\nTools with skill generation support:\n  ${validToolsWithSkills.join('\n  ')}`
+          `工具 "${toolId}" 不支持技能生成。支持技能生成的工具：\n  ${validToolsWithSkills.join("\n  ")}`,
         );
       }
 
@@ -370,14 +394,17 @@ export class InitCommand {
   // DIRECTORY STRUCTURE
   // ═══════════════════════════════════════════════════════════
 
-  private async createDirectoryStructure(openspecPath: string, extendMode: boolean): Promise<void> {
+  private async createDirectoryStructure(
+    phspecPath: string,
+    extendMode: boolean,
+  ): Promise<void> {
     if (extendMode) {
       // In extend mode, just ensure directories exist without spinner
       const directories = [
-        openspecPath,
-        path.join(openspecPath, 'specs'),
-        path.join(openspecPath, 'changes'),
-        path.join(openspecPath, 'changes', 'archive'),
+        phspecPath,
+        path.join(phspecPath, "specs"),
+        path.join(phspecPath, "changes"),
+        path.join(phspecPath, "changes", "archive"),
       ];
 
       for (const dir of directories) {
@@ -386,13 +413,13 @@ export class InitCommand {
       return;
     }
 
-    const spinner = this.startSpinner('Creating OpenSpec structure...');
+    const spinner = this.startSpinner("Creating PhSpec structure...");
 
     const directories = [
-      openspecPath,
-      path.join(openspecPath, 'specs'),
-      path.join(openspecPath, 'changes'),
-      path.join(openspecPath, 'changes', 'archive'),
+      phspecPath,
+      path.join(phspecPath, "specs"),
+      path.join(phspecPath, "changes"),
+      path.join(phspecPath, "changes", "archive"),
     ];
 
     for (const dir of directories) {
@@ -400,8 +427,8 @@ export class InitCommand {
     }
 
     spinner.stopAndPersist({
-      symbol: PALETTE.white('▌'),
-      text: PALETTE.white('OpenSpec structure created'),
+      symbol: PALETTE.white("▌"),
+      text: PALETTE.white("PhSpec structure created"),
     });
   }
 
@@ -411,7 +438,12 @@ export class InitCommand {
 
   private async generateSkillsAndCommands(
     projectPath: string,
-    tools: Array<{ value: string; name: string; skillsDir: string; wasConfigured: boolean }>
+    tools: Array<{
+      value: string;
+      name: string;
+      skillsDir: string;
+      wasConfigured: boolean;
+    }>,
   ): Promise<{
     createdTools: typeof tools;
     refreshedTools: typeof tools;
@@ -429,21 +461,26 @@ export class InitCommand {
 
     // Process each tool
     for (const tool of tools) {
-      const spinner = ora(`Setting up ${tool.name}...`).start();
+      const spinner = ora(`正在配置 ${tool.name}...`).start();
 
       try {
         // Use tool-specific skillsDir
-        const skillsDir = path.join(projectPath, tool.skillsDir, 'skills');
+        const skillsDir = path.join(projectPath, tool.skillsDir, "skills");
 
         // Create skill directories and SKILL.md files
         for (const { template, dirName } of skillTemplates) {
           const skillDir = path.join(skillsDir, dirName);
-          const skillFile = path.join(skillDir, 'SKILL.md');
+          const skillFile = path.join(skillDir, "SKILL.md");
 
           // Generate SKILL.md content with YAML frontmatter including generatedBy
           // Use hyphen-based command references for OpenCode
-          const transformer = tool.value === 'opencode' ? transformToHyphenCommands : undefined;
-          const skillContent = generateSkillContent(template, OPENSPEC_VERSION, transformer);
+          const transformer =
+            tool.value === "opencode" ? transformToHyphenCommands : undefined;
+          const skillContent = generateSkillContent(
+            template,
+            OPENSPEC_VERSION,
+            transformer,
+          );
 
           // Write the skill file
           await FileSystemUtils.writeFile(skillFile, skillContent);
@@ -455,14 +492,16 @@ export class InitCommand {
           const generatedCommands = generateCommands(commandContents, adapter);
 
           for (const cmd of generatedCommands) {
-            const commandFile = path.isAbsolute(cmd.path) ? cmd.path : path.join(projectPath, cmd.path);
+            const commandFile = path.isAbsolute(cmd.path)
+              ? cmd.path
+              : path.join(projectPath, cmd.path);
             await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
           }
         } else {
           commandsSkipped.push(tool.value);
         }
 
-        spinner.succeed(`Setup complete for ${tool.name}`);
+        spinner.succeed(`${tool.name} 配置完成`);
 
         if (tool.wasConfigured) {
           refreshedTools.push(tool);
@@ -470,7 +509,7 @@ export class InitCommand {
           createdTools.push(tool);
         }
       } catch (error) {
-        spinner.fail(`Failed for ${tool.name}`);
+        spinner.fail(`${tool.name} 配置失败`);
         failedTools.push({ name: tool.name, error: error as Error });
       }
     }
@@ -482,27 +521,30 @@ export class InitCommand {
   // CONFIG FILE
   // ═══════════════════════════════════════════════════════════
 
-  private async createConfig(openspecPath: string, extendMode: boolean): Promise<'created' | 'exists' | 'skipped'> {
-    const configPath = path.join(openspecPath, 'config.yaml');
-    const configYmlPath = path.join(openspecPath, 'config.yml');
+  private async createConfig(
+    phspecPath: string,
+    extendMode: boolean,
+  ): Promise<"created" | "exists" | "skipped"> {
+    const configPath = path.join(phspecPath, "config.yaml");
+    const configYmlPath = path.join(phspecPath, "config.yml");
     const configYamlExists = fs.existsSync(configPath);
     const configYmlExists = fs.existsSync(configYmlPath);
 
     if (configYamlExists || configYmlExists) {
-      return 'exists';
+      return "exists";
     }
 
     // In non-interactive mode without --force, skip config creation
     if (!this.canPromptInteractively() && !this.force) {
-      return 'skipped';
+      return "skipped";
     }
 
     try {
       const yamlContent = serializeConfig({ schema: DEFAULT_SCHEMA });
       await FileSystemUtils.writeFile(configPath, yamlContent);
-      return 'created';
+      return "created";
     } catch {
-      return 'skipped';
+      return "skipped";
     }
   }
 
@@ -512,78 +554,111 @@ export class InitCommand {
 
   private displaySuccessMessage(
     projectPath: string,
-    tools: Array<{ value: string; name: string; skillsDir: string; wasConfigured: boolean }>,
+    tools: Array<{
+      value: string;
+      name: string;
+      skillsDir: string;
+      wasConfigured: boolean;
+    }>,
     results: {
       createdTools: typeof tools;
       refreshedTools: typeof tools;
       failedTools: Array<{ name: string; error: Error }>;
       commandsSkipped: string[];
     },
-    configStatus: 'created' | 'exists' | 'skipped'
+    configStatus: "created" | "exists" | "skipped",
   ): void {
     console.log();
-    console.log(chalk.bold('OpenSpec Setup Complete'));
+    console.log(chalk.bold("PhSpec 配置完成"));
     console.log();
 
     // Show created vs refreshed tools
     if (results.createdTools.length > 0) {
-      console.log(`Created: ${results.createdTools.map((t) => t.name).join(', ')}`);
+      console.log(
+        `已创建：${results.createdTools.map((t) => t.name).join(", ")}`,
+      );
     }
     if (results.refreshedTools.length > 0) {
-      console.log(`Refreshed: ${results.refreshedTools.map((t) => t.name).join(', ')}`);
+      console.log(
+        `已刷新：${results.refreshedTools.map((t) => t.name).join(", ")}`,
+      );
     }
 
     // Show counts
-    const successfulTools = [...results.createdTools, ...results.refreshedTools];
+    const successfulTools = [
+      ...results.createdTools,
+      ...results.refreshedTools,
+    ];
     if (successfulTools.length > 0) {
-      const toolDirs = [...new Set(successfulTools.map((t) => t.skillsDir))].join(', ');
-      const hasCommands = results.commandsSkipped.length < successfulTools.length;
+      const toolDirs = [
+        ...new Set(successfulTools.map((t) => t.skillsDir)),
+      ].join(", ");
+      const hasCommands =
+        results.commandsSkipped.length < successfulTools.length;
       if (hasCommands) {
-        console.log(`${getSkillTemplates().length} skills and ${getCommandContents().length} commands in ${toolDirs}/`);
+        console.log(
+          `${getSkillTemplates().length} 个技能与 ${getCommandContents().length} 个命令已写入 ${toolDirs}/`,
+        );
       } else {
-        console.log(`${getSkillTemplates().length} skills in ${toolDirs}/`);
+        console.log(`${getSkillTemplates().length} 个技能已写入 ${toolDirs}/`);
       }
     }
 
     // Show failures
     if (results.failedTools.length > 0) {
-      console.log(chalk.red(`Failed: ${results.failedTools.map((f) => `${f.name} (${f.error.message})`).join(', ')}`));
+      console.log(
+        chalk.red(
+          `失败：${results.failedTools.map((f) => `${f.name} (${f.error.message})`).join(", ")}`,
+        ),
+      );
     }
 
     // Show skipped commands
     if (results.commandsSkipped.length > 0) {
-      console.log(chalk.dim(`Commands skipped for: ${results.commandsSkipped.join(', ')} (no adapter)`));
+      console.log(
+        chalk.dim(
+          `未生成命令：${results.commandsSkipped.join(", ")}（无适配器）`,
+        ),
+      );
     }
 
     // Config status
-    if (configStatus === 'created') {
-      console.log(`Config: openspec/config.yaml (schema: ${DEFAULT_SCHEMA})`);
-    } else if (configStatus === 'exists') {
+    if (configStatus === "created") {
+      console.log(`配置：phspec/config.yaml (schema: ${DEFAULT_SCHEMA})`);
+    } else if (configStatus === "exists") {
       // Show actual filename (config.yaml or config.yml)
-      const configYaml = path.join(projectPath, OPENSPEC_DIR_NAME, 'config.yaml');
-      const configYml = path.join(projectPath, OPENSPEC_DIR_NAME, 'config.yml');
-      const configName = fs.existsSync(configYaml) ? 'config.yaml' : fs.existsSync(configYml) ? 'config.yml' : 'config.yaml';
-      console.log(`Config: openspec/${configName} (exists)`);
+      const configYaml = path.join(projectPath, PHSPEC_DIR_NAME, "config.yaml");
+      const configYml = path.join(projectPath, PHSPEC_DIR_NAME, "config.yml");
+      const configName = fs.existsSync(configYaml)
+        ? "config.yaml"
+        : fs.existsSync(configYml)
+          ? "config.yml"
+          : "config.yaml";
+      console.log(`配置：phspec/${configName}（已存在）`);
     } else {
-      console.log(chalk.dim(`Config: skipped (non-interactive mode)`));
+      console.log(chalk.dim(`配置：已跳过（非交互模式）`));
     }
 
     // Getting started
     console.log();
-    console.log(chalk.bold('Getting started:'));
-    console.log('  /opsx:new       Start a new change');
-    console.log('  /opsx:continue  Create the next artifact');
-    console.log('  /opsx:apply     Implement tasks');
+    console.log(chalk.bold("快速开始："));
+    console.log("  /phsx:new       新建变更");
+    console.log("  /phsx:continue  创建下一个制品");
+    console.log("  /phsx:apply     实施任务");
 
     // Links
     console.log();
-    console.log(`Learn more: ${chalk.cyan('https://github.com/Fission-AI/OpenSpec')}`);
-    console.log(`Feedback:   ${chalk.cyan('https://github.com/Fission-AI/OpenSpec/issues')}`);
+    console.log(
+      `了解更多：${chalk.cyan("https://github.com/zhangluka/OpenSpec")}`,
+    );
+    console.log(
+      `反馈：    ${chalk.cyan("https://github.com/zhangluka/OpenSpec/issues")}`,
+    );
 
     // Restart instruction if any tools were configured
     if (results.createdTools.length > 0 || results.refreshedTools.length > 0) {
       console.log();
-      console.log(chalk.white('Restart your IDE for slash commands to take effect.'));
+      console.log(chalk.white("请重启 IDE 以使slash命令生效。"));
     }
 
     console.log();
@@ -593,7 +668,7 @@ export class InitCommand {
     return ora({
       text,
       stream: process.stdout,
-      color: 'gray',
+      color: "gray",
       spinner: PROGRESS_SPINNER,
     }).start();
   }

@@ -1,10 +1,10 @@
-# Multi-Language Guide
+# 多语言指南
 
-Configure OpenSpec to generate artifacts in languages other than English.
+配置 PhSpec，使生成的制品使用英语以外的语言。
 
-## Quick Setup
+## 快速配置
 
-Add a language instruction to your `openspec/config.yaml`:
+在 `phspec/config.yaml` 中加入语言说明：
 
 ```yaml
 schema: spec-driven
@@ -13,31 +13,15 @@ context: |
   Language: Portuguese (pt-BR)
   All artifacts must be written in Brazilian Portuguese.
 
-  # Your other project context below...
+  # 下面写你的其他项目上下文...
   Tech stack: TypeScript, React, Node.js
 ```
 
-That's it. All generated artifacts will now be in Portuguese.
+之后生成的制品会使用该语言。
 
-## Language Examples
+## 示例
 
-### Portuguese (Brazil)
-
-```yaml
-context: |
-  Language: Portuguese (pt-BR)
-  All artifacts must be written in Brazilian Portuguese.
-```
-
-### Spanish
-
-```yaml
-context: |
-  Idioma: Español
-  Todos los artefactos deben escribirse en español.
-```
-
-### Chinese (Simplified)
+### 简体中文
 
 ```yaml
 context: |
@@ -45,7 +29,15 @@ context: |
   所有产出物必须用简体中文撰写。
 ```
 
-### Japanese
+### 葡萄牙语（巴西）
+
+```yaml
+context: |
+  Language: Portuguese (pt-BR)
+  All artifacts must be written in Brazilian Portuguese.
+```
+
+### 日语
 
 ```yaml
 context: |
@@ -53,27 +45,9 @@ context: |
   すべての成果物は日本語で作成してください。
 ```
 
-### French
+### 技术术语处理
 
-```yaml
-context: |
-  Langue : Français
-  Tous les artefacts doivent être rédigés en français.
-```
-
-### German
-
-```yaml
-context: |
-  Sprache: Deutsch
-  Alle Artefakte müssen auf Deutsch verfasst werden.
-```
-
-## Tips
-
-### Handle Technical Terms
-
-Decide how to handle technical terminology:
+可单独约定技术术语写法，例如：
 
 ```yaml
 context: |
@@ -83,33 +57,19 @@ context: |
   - Code examples and file paths remain in English
 ```
 
-### Combine with Other Context
+语言设置可与其它项目上下文一起使用。
 
-Language settings work alongside your other project context:
+## 校验
 
-```yaml
-schema: spec-driven
-
-context: |
-  Language: Portuguese (pt-BR)
-  All artifacts must be written in Brazilian Portuguese.
-
-  Tech stack: TypeScript, React 18, Node.js 20
-  Database: PostgreSQL with Prisma ORM
-```
-
-## Verification
-
-To verify your language config is working:
+确认语言配置生效：
 
 ```bash
-# Check the instructions - should show your language context
-openspec instructions proposal --change my-change
-
-# Output will include your language context
+phspec instructions proposal --change my-change
 ```
 
-## Related Documentation
+输出中应包含你配置的语言说明。
 
-- [Customization Guide](./customization.md) - Project configuration options
-- [Workflows Guide](./workflows.md) - Full workflow documentation
+## 相关文档
+
+- [自定义](customization.md) - 项目配置选项
+- [工作流](workflows.md) - 工作流说明

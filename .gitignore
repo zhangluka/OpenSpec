@@ -153,3 +153,5 @@ result
 # OpenCode
 .opencode/
 opencode.json
+
+.npmrc

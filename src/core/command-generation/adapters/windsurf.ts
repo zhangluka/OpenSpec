@@ -5,8 +5,8 @@
  * Windsurf uses a similar format to Claude but may have different conventions.
  */
 
-import path from 'path';
-import type { CommandContent, ToolCommandAdapter } from '../types.js';
+import path from "path";
+import type { CommandContent, ToolCommandAdapter } from "../types.js";
 
 /**
  * Escapes a string value for safe YAML output.
@@ -17,7 +17,10 @@ function escapeYamlValue(value: string): string {
   const needsQuoting = /[:\n\r#{}[\],&*!|>'"%@`]|^\s|\s$/.test(value);
   if (needsQuoting) {
     // Use double quotes and escape internal double quotes and backslashes
-    const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    const escaped = value
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "\\n");
     return `"${escaped}"`;
   }
   return value;
@@ -28,19 +31,19 @@ function escapeYamlValue(value: string): string {
  */
 function formatTagsArray(tags: string[]): string {
   const escapedTags = tags.map((tag) => escapeYamlValue(tag));
-  return `[${escapedTags.join(', ')}]`;
+  return `[${escapedTags.join(", ")}]`;
 }
 
 /**
  * Windsurf adapter for command generation.
- * File path: .windsurf/workflows/opsx-<id>.md
+ * File path: .windsurf/workflows/phsx-<id>.md
  * Frontmatter: name, description, category, tags
  */
 export const windsurfAdapter: ToolCommandAdapter = {
-  toolId: 'windsurf',
+  toolId: "windsurf",
 
   getFilePath(commandId: string): string {
-    return path.join('.windsurf', 'workflows', `opsx-${commandId}.md`);
+    return path.join(".windsurf", "workflows", `phsx-${commandId}.md`);
   },
 
   formatFile(content: CommandContent): string {
