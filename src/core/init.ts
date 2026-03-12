@@ -45,7 +45,7 @@ const { version: OPENSPEC_VERSION } = require("../../package.json");
 // Constants
 // -----------------------------------------------------------------------------
 
-const DEFAULT_SCHEMA = "spec-driven";
+const DEFAULT_SCHEMA = "lean-sdd";
 
 const PROGRESS_SPINNER = {
   interval: 80,
