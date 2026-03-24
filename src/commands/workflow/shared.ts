@@ -25,6 +25,7 @@ export interface ApplyInstructions {
   changeName: string;
   changeDir: string;
   schemaName: string;
+  tracksFile?: string;
   contextFiles: Record<string, string>;
   progress: {
     total: number;

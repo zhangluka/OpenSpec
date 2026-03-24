@@ -6,8 +6,10 @@ export interface RalphTaskItem {
 
 export interface RalphApplyInstructions {
   changeName: string;
+  changeDir?: string;
   schemaName: string;
   contextFiles: Record<string, string>;
+  tracksFile?: string;
   progress: {
     total: number;
     complete: number;
@@ -23,7 +25,10 @@ export interface RalphExecutionInput {
   changeName: string;
   instructions: RalphApplyInstructions;
   task: RalphTaskItem | null;
+  policy: RalphRunPolicy;
 }
+
+export type RalphRunPolicy = "conservative" | "relentless";
 
 export type RalphExecutionResultKind =
   | "success"
@@ -43,16 +48,29 @@ export interface RalphExecutor {
 
 export interface RalphSnapshot {
   updatedAt: string;
+  policy?: RalphRunPolicy;
   retries: number;
   attempts: number;
   lastError?: string;
   lastCompletedCount: number;
   lastTaskId?: string;
+  sameErrorCount?: number;
+  lastErrorFingerprint?: string;
+  lastProgressAt?: string;
 }
 
 export interface RalphRunSummary {
   changeName: string;
   status: "completed" | "blocked" | "failed";
+  stopReason:
+    | "completed"
+    | "blocked"
+    | "fatal_error"
+    | "needs_input"
+    | "stagnant"
+    | "retry_limit"
+    | "attempt_limit"
+    | "runtime_budget";
   attempts: number;
   retries: number;
   completedTasks: number;

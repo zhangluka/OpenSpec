@@ -176,6 +176,12 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
         takesValue: true,
       },
       {
+        name: "policy",
+        description: "执行策略（conservative|relentless）",
+        takesValue: true,
+        values: ["conservative", "relentless"],
+      },
+      {
         name: "max-retries",
         description: "可恢复错误最大重试次数",
         takesValue: true,
@@ -193,6 +199,16 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
       {
         name: "max-attempts",
         description: "最大循环尝试次数",
+        takesValue: true,
+      },
+      {
+        name: "max-stagnant-rounds",
+        description: "允许连续无进展轮次",
+        takesValue: true,
+      },
+      {
+        name: "max-runtime-minutes",
+        description: "最长运行分钟数（0 表示不限制）",
         takesValue: true,
       },
       COMMON_FLAGS.json,

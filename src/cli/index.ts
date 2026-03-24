@@ -3,6 +3,7 @@ import { createRequire } from "module";
 import ora from "ora";
 import path from "path";
 import { promises as fs } from "fs";
+import { spawn } from "node:child_process";
 import { AI_TOOLS } from "../core/config.js";
 import { UpdateCommand } from "../core/update.js";
 import { ListCommand } from "../core/list.js";
@@ -37,6 +38,10 @@ import {
   trackCommand,
   shutdown,
 } from "../telemetry/index.js";
+import {
+  markTaskDoneByDescription,
+  markTaskDoneById,
+} from "../core/ralph/task-tracker.js";
 
 const program = new Command();
 const require = createRequire(import.meta.url);
@@ -492,10 +497,60 @@ program
     }
   });
 
+interface RalphExecPayload {
+  changeName: string;
+  schemaName?: string;
+  changeDir?: string;
+  tracksFile?: string;
+  instruction?: string;
+  task?: { id: string; description: string } | null;
+  progress?: { complete?: number; total?: number };
+  policy?: string;
+  contextFiles?: Record<string, string>;
+}
+
+function parseEnvArgs(raw: string | undefined): string[] {
+  const normalized = raw?.trim();
+  if (!normalized) {
+    return [];
+  }
+  return normalized.split(/\s+/).filter(Boolean);
+}
+
+async function runRalphBackend(
+  payloadRaw: string,
+  command: string,
+  args: string[],
+): Promise<{ exitCode: number; stdout: string; stderr: string; combined: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on("error", reject);
+    child.on("close", (exitCode) => {
+      const code = typeof exitCode === "number" ? exitCode : 1;
+      const combined = [stdout, stderr].filter(Boolean).join("\n").trim();
+      resolve({ exitCode: code, stdout, stderr, combined });
+    });
+
+    child.stdin.write(payloadRaw);
+    child.stdin.end();
+  });
+}
+
 // Hidden command: built-in Ralph executor (called by RalphCliExecutor)
 program
   .command("__ralph-exec", { hidden: true })
-  .description("内置 Ralph 执行器桩（供 apply-ralph 内部调用）")
+  .description("内置 Ralph 执行器（供 apply-ralph 内部调用）")
   .action(async () => {
     try {
       const chunks: Buffer[] = [];
@@ -503,13 +558,59 @@ program
         chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
       }
       const raw = Buffer.concat(chunks).toString("utf-8");
-      const payload = JSON.parse(raw);
+      const payload = JSON.parse(raw) as RalphExecPayload;
+      const backendCommand = process.env.PHSPEC_RALPH_EXEC_COMMAND?.trim();
+      const backendArgs = parseEnvArgs(process.env.PHSPEC_RALPH_EXEC_ARGS);
+
+      if (backendCommand) {
+        const backendResult = await runRalphBackend(raw, backendCommand, backendArgs);
+        if (backendResult.stdout.trim()) {
+          process.stdout.write(backendResult.stdout);
+        }
+        if (backendResult.stderr.trim()) {
+          process.stderr.write(backendResult.stderr);
+        }
+        if (backendResult.exitCode !== 0) {
+          process.exitCode = backendResult.exitCode;
+          return;
+        }
+      } else if (process.env.PHSPEC_RALPH_AUTOCHECK !== "1") {
+        console.error(
+          "[__ralph-exec] needs clarification: configure PHSPEC_RALPH_EXEC_COMMAND or enable PHSPEC_RALPH_AUTOCHECK=1",
+        );
+        process.exitCode = 1;
+        return;
+      }
+
+      const tracksPath = payload.tracksFile;
+      const taskId = payload.task?.id;
+      const taskDescription = payload.task?.description;
+      if (!tracksPath || !taskId) {
+        console.error(
+          "[__ralph-exec] needs clarification: missing tracksFile or task id in payload.",
+        );
+        process.exitCode = 1;
+        return;
+      }
+
+      let marked = await markTaskDoneById(tracksPath, taskId);
+      if (!marked && taskDescription) {
+        marked = await markTaskDoneByDescription(tracksPath, taskDescription);
+      }
+      if (!marked) {
+        console.error(
+          `[__ralph-exec] needs clarification: unable to mark task ${taskId} as done in ${tracksPath}.`,
+        );
+        process.exitCode = 1;
+        return;
+      }
+
       const taskDesc = payload.task?.description ?? "(no task)";
       const progress = payload.progress
         ? `${payload.progress.complete}/${payload.progress.total}`
         : "?/?";
       console.log(
-        `[__ralph-exec] change=${payload.changeName} task="${taskDesc}" progress=${progress}`,
+        `[__ralph-exec] change=${payload.changeName} task="${taskDesc}" progress=${progress} marked=true`,
       );
     } catch (error) {
       console.error(`[__ralph-exec] ${(error as Error).message}`);
@@ -569,10 +670,16 @@ program
   .option("--change <id>", "变更名")
   .option("--schema <name>", "工作流模式覆盖（默认从 config.yaml 检测）")
   .option("--snapshot <path>", "Ralph 快照文件路径")
+  .option(
+    "--policy <mode>",
+    "执行策略：conservative（默认）或 relentless",
+  )
   .option("--max-retries <n>", "可恢复错误最大重试次数")
   .option("--backoff-ms <n>", "初始退避毫秒")
   .option("--max-backoff-ms <n>", "最大退避毫秒")
   .option("--max-attempts <n>", "最大循环尝试次数")
+  .option("--max-stagnant-rounds <n>", "允许连续无进展轮次")
+  .option("--max-runtime-minutes <n>", "最长运行分钟数（0 表示不限制）")
   .option("--json", "输出 JSON")
   .action(async (options: ApplyRalphOptions) => {
     try {

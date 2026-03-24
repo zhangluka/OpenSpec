@@ -9,6 +9,7 @@ const RETRYABLE_ERROR_RE =
   /(429|too many requests|rate limit|timed out|timeout|econnreset|socket hang up|5\d\d|temporar)/i;
 const NEEDS_INPUT_RE =
   /(need(s)? user input|needs clarification|ambiguous|manual decision|human input)/i;
+const MAX_RESULT_OUTPUT_CHARS = 4000;
 
 const PHSPEC_BIN_PATH = process.argv[1];
 
@@ -42,11 +43,11 @@ export class RalphCliExecutor implements RalphExecutor {
         return {
           kind: "success",
           message: output.stdout.trim() || "Ralph run succeeded.",
-          rawOutput: output.combined,
+          rawOutput: this.truncateOutput(output.combined),
         };
       }
 
-      return this.classifyFailure(output.combined);
+      return this.classifyFailure(output.combined, output.exitCode);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       return {
@@ -74,6 +75,9 @@ export class RalphCliExecutor implements RalphExecutor {
         task: input.task
           ? { id: input.task.id, description: input.task.description }
           : null,
+        policy: input.policy,
+        changeDir: input.instructions.changeDir,
+        tracksFile: input.instructions.tracksFile,
         progress: input.instructions.progress,
         contextFiles: input.instructions.contextFiles,
       },
@@ -111,8 +115,29 @@ export class RalphCliExecutor implements RalphExecutor {
     });
   }
 
-  private classifyFailure(output: string): RalphExecutionResult {
-    const normalizedOutput = output || "Unknown Ralph failure.";
+  private truncateOutput(output: string): string {
+    if (!output || output.length <= MAX_RESULT_OUTPUT_CHARS) {
+      return output;
+    }
+    return `${output.slice(0, MAX_RESULT_OUTPUT_CHARS)}...<truncated>`;
+  }
+
+  private classifyFailure(output: string, exitCode?: number): RalphExecutionResult {
+    const normalizedOutput = this.truncateOutput(output || "Unknown Ralph failure.");
+    if (exitCode === 2) {
+      return {
+        kind: "needs_input",
+        message: normalizedOutput,
+        rawOutput: normalizedOutput,
+      };
+    }
+    if (exitCode === 3) {
+      return {
+        kind: "retryable_error",
+        message: normalizedOutput,
+        rawOutput: normalizedOutput,
+      };
+    }
     if (NEEDS_INPUT_RE.test(normalizedOutput)) {
       return {
         kind: "needs_input",

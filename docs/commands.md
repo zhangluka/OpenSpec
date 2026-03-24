@@ -290,7 +290,7 @@ AI:  Implementing add-dark-mode...
 
 ### `/phsx:apply-ralph`
 
-通过 Ralph 执行可恢复的实施循环。遇到限流、超时、短暂网络异常时自动退避重试，直到任务完成或遇到必须人工决策的硬阻塞。
+通过 Ralph 执行可恢复的实施循环。遇到限流、超时、短暂网络异常时自动退避重试，并可在 `relentless` 策略下持续重试直到任务完成。
 
 **语法：**
 
@@ -310,6 +310,13 @@ AI:  Implementing add-dark-mode...
 - 对 429/5xx/超时等可恢复错误执行自动重试
 - 将执行快照写入变更目录，便于中断后续跑
 
+**运行策略（CLI 对应）：**
+
+- `conservative`（默认）：保守模式，遇到硬阻塞会暂停，适合人工介入较多的项目
+- `relentless`：持续模式，将 `needs_input` / `fatal_error` 视为可恢复并继续退避重试
+- `--max-retries 0` 或 `--max-attempts 0`：表示不设次数上限
+- `--max-runtime-minutes`：可选安全阀，到达预算后停止并保留快照
+
 **何时优先用它：**
 
 - 模型 API 经常触发速率限制或偶发超时
@@ -319,7 +326,7 @@ AI:  Implementing add-dark-mode...
 **提示：**
 
 - 仍保留 `/phsx:apply`：适合你希望每次阻塞都人工确认的场景
-- `/phsx:apply-ralph` 只自动处理可恢复错误，需求歧义等硬阻塞会暂停
+- `/phsx:apply-ralph` 在 `conservative` 下会在硬阻塞暂停；在 `relentless` 下会继续自恢复重试
 
 ---
 

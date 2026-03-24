@@ -93,6 +93,13 @@ OPSX（灵活动作）：
 | 任务长、希望“一口气跑完” | `/phsx:apply-ralph` |
 | 需求仍频繁变化、需高频人工介入 | `/phsx:apply` |
 
+`/phsx:apply-ralph` 还支持双策略：
+
+- `conservative`：默认，出现硬阻塞会停下等待你决策
+- `relentless`：持续推进，自动退避重试，适合长链任务与不稳定模型接口
+
+可通过 `--max-runtime-minutes` 设置运行时预算，避免持续模式在异常情况下无限占用资源。
+
 ### `/phsx:ff` 与 `/phsx:continue`
 
 | 情况                   | 使用             |

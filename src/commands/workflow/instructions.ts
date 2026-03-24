@@ -402,6 +402,7 @@ export async function generateApplyInstructions(
     changeName,
     changeDir,
     schemaName: context.schemaName,
+    tracksFile: tracksFile ? path.join(changeDir, tracksFile) : undefined,
     contextFiles,
     progress: { total, complete, remaining },
     tasks,
