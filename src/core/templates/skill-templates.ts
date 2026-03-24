@@ -667,6 +667,69 @@ export function getApplyChangeSkillTemplate(): SkillTemplate {
 }
 
 /**
+ * Template for phspec-apply-ralph skill
+ * For resilient task implementation with Ralph orchestrator
+ */
+export function getApplyRalphSkillTemplate(): SkillTemplate {
+  return {
+    name: "phspec-apply-ralph",
+    description:
+      "使用 Ralph 稳健实施任务。适用于希望在限流/超时等可恢复错误下自动重试并持续推进直到完成时。",
+    instructions: `使用 Ralph 执行可恢复的 apply 循环，直到任务完成或遇到硬阻塞。
+
+**输入**：可指定变更名。未指定时从对话推断；若含糊或有歧义，必须让用户从可用变更中选择。
+
+**目标语义**：与 \`/phsx:apply\` 不同，本技能默认会在可恢复错误下自动重试与续跑，不因一次模型接口失败而提前结束。
+
+**步骤**
+
+1. **选定变更**  
+   逻辑同 \`phspec-apply-change\`：可显式指定；否则推断；有歧义时让用户选择。
+
+2. **读取 apply 指令并建立上下文**  
+   \`\`\`bash
+   phspec instructions apply --change "<name>" --json
+   \`\`\`
+   读取 \`contextFiles\`、任务进度与动态指令。
+
+3. **按状态处理**
+   - \`state: "blocked"\`：输出阻塞原因并停止（硬阻塞，不重试）
+   - \`state: "all_done"\`：输出完成并建议归档
+   - \`state: "ready"\`：进入 Ralph 循环
+
+4. **Ralph 循环执行（核心）**
+   - 每轮前重新读取 apply 指令，确保任务状态最新
+   - 优先处理未完成任务（若存在）
+   - 调用 Ralph 执行当前轮实施
+   - 任务完成后立即勾选 \`tasks.md\`（\`- [ ]\` → \`- [x]\`）
+   - 持久化进度快照，确保进程中断后可恢复
+
+5. **错误分级与恢复**
+   - **可恢复错误**：429、5xx、超时、网络抖动  
+     → 指数退避后重试（保留上下文与进度）
+   - **需人工介入（硬阻塞）**：需求歧义、设计冲突、无法自动判定的失败  
+     → 说明原因并等待用户决策
+
+6. **收敛条件**
+   - 所有任务完成：输出完成摘要并建议 \`/phsx:archive\`
+   - 命中硬阻塞：输出暂停摘要与建议选项
+
+**输出**
+- 运行中：当前任务、重试次数、退避状态、累计进度
+- 结束时：完成/暂停结论、已完成任务列表、下一步建议
+
+**边界**
+- 仅对可恢复错误自动重试；硬阻塞必须暂停
+- 每轮都以 \`phspec instructions apply --json\` 为真相源，避免状态漂移
+- 改动保持最小并紧扣当前任务
+- 每完成一项立即更新任务勾选与快照`,
+    license: "MIT",
+    compatibility: "Requires phspec CLI and Ralph CLI.",
+    metadata: { author: "phspec", version: "1.0" },
+  };
+}
+
+/**
  * Template for phspec-ff-change skill
  * Fast-forward through artifact creation
  */
@@ -1726,6 +1789,49 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
 **实施过程输出示例**：见技能指令中的「实施过程输出示例」「全部完成时输出」「暂停时输出」。
 
 **边界**：始终先读上下文文件；任务不明确时暂停并询问（若环境无用户确认工具，直接输出问题并写明「请回复后再继续」）；改动最小化并紧扣任务；完成每项后立即勾选；遇错或受阻时暂停不猜测；以 CLI 的 contextFiles 为准。本技能可随时调用（制品未全完成时若已有任务、部分实施后、与其他操作交替），实施中若发现设计问题可建议更新制品。`,
+  };
+}
+
+/**
+ * Template for /phsx:apply-ralph slash command
+ */
+export function getOpsxApplyRalphCommandTemplate(): CommandTemplate {
+  return {
+    name: "PHSX: Apply Ralph",
+    description: "通过 Ralph 执行可恢复的任务实施循环",
+    category: "Workflow",
+    tags: ["workflow", "apply", "ralph", "resilient"],
+    content: `使用 Ralph 执行可恢复的 apply 循环，直到任务完成或遇到硬阻塞。
+
+**输入**：\`/phsx:apply-ralph\` 后可接变更名（可选）。
+
+**与 \`/phsx:apply\` 的区别**
+- \`/phsx:apply\`：偏交互式，遇阻塞会暂停等待用户
+- \`/phsx:apply-ralph\`：偏自治，遇可恢复错误会自动重试并续跑
+
+**步骤**
+
+1. 选定变更（逻辑同 \`/phsx:apply\`）
+2. 读取 apply 指令：\`phspec instructions apply --change "<name>" --json\`
+3. 若 \`blocked\` / \`all_done\` 则按状态输出并结束
+4. 若 \`ready\`，进入 Ralph 循环：
+   - 每轮重读 apply 指令
+   - 执行当前未完成任务
+   - 任务完成即勾选
+   - 写入恢复快照
+5. 错误处理：
+   - 可恢复（429/5xx/超时/网络）：指数退避后重试
+   - 硬阻塞（需求歧义/设计冲突）：暂停并请求用户决策
+
+**输出**
+- 运行进度：当前任务、重试状态、累计完成数
+- 完成总结：全部任务完成后建议归档
+- 暂停总结：说明阻塞原因与可选处理方向
+
+**边界**
+- 仅对可恢复错误自动重试
+- 每轮均以 \`phspec instructions apply --json\` 结果为准
+- 代码改动保持最小并紧扣任务`,
   };
 }
 

@@ -20,12 +20,14 @@ import {
   statusCommand,
   instructionsCommand,
   applyInstructionsCommand,
+  applyRalphCommand,
   templatesCommand,
   schemasCommand,
   newChangeCommand,
   DEFAULT_SCHEMA,
   type StatusOptions,
   type InstructionsOptions,
+  type ApplyRalphOptions,
   type TemplatesOptions,
   type SchemasOptions,
   type NewChangeOptions,
@@ -536,6 +538,27 @@ program
   );
 
 // Templates command
+program
+  .command("apply-ralph")
+  .description("使用 Ralph 稳健执行 apply 循环")
+  .option("--change <id>", "变更名")
+  .option("--schema <name>", "工作流模式覆盖（默认从 config.yaml 检测）")
+  .option("--snapshot <path>", "Ralph 快照文件路径")
+  .option("--max-retries <n>", "可恢复错误最大重试次数")
+  .option("--backoff-ms <n>", "初始退避毫秒")
+  .option("--max-backoff-ms <n>", "最大退避毫秒")
+  .option("--max-attempts <n>", "最大循环尝试次数")
+  .option("--json", "输出 JSON")
+  .action(async (options: ApplyRalphOptions) => {
+    try {
+      await applyRalphCommand(options);
+    } catch (error) {
+      console.log();
+      ora().fail(`Error: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  });
+
 program
   .command("templates")
   .description("显示某工作流模式中所有制品的解析后模板路径")

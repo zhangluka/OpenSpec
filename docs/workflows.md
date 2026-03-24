@@ -33,7 +33,7 @@ OPSX（灵活动作）：
 目标清晰、只需执行时：
 
 ```text
-/phsx:new ──► /phsx:ff ──► /phsx:apply ──► /phsx:verify ──► /phsx:archive
+/phsx:new ──► /phsx:ff ──► /phsx:apply-ralph ──► /phsx:verify ──► /phsx:archive
 ```
 
 **适合：** 中小功能、修 bug、简单变更。
@@ -69,9 +69,9 @@ OPSX（灵活动作）：
 推荐收尾流程：
 
 ```text
-/phsx:apply ──► /phsx:verify ──► /phsx:archive
-                    │                 │
-              校验实现            需要时提示同步
+/phsx:apply-ralph ──► /phsx:verify ──► /phsx:archive
+                        │                 │
+                  校验实现            需要时提示同步
 ```
 
 #### 校验：检查成果
@@ -83,6 +83,15 @@ OPSX（灵活动作）：
 `/phsx:archive` 完成变更并移入归档。若增量规范尚未同步到主规范，会提示是否同步。任务未完成时仍可归档，但会给出警告。
 
 ## 何时用哪个
+
+### `/phsx:apply` 与 `/phsx:apply-ralph`
+
+| 情况 | 使用 |
+| --- | --- |
+| 希望每遇阻塞都人工确认 | `/phsx:apply` |
+| 希望在限流/超时下自动恢复 | `/phsx:apply-ralph` |
+| 任务长、希望“一口气跑完” | `/phsx:apply-ralph` |
+| 需求仍频繁变化、需高频人工介入 | `/phsx:apply` |
 
 ### `/phsx:ff` 与 `/phsx:continue`
 
@@ -117,6 +126,7 @@ OPSX（灵活动作）：
 | `/phsx:continue`     | 创建下一制品     | 逐步创建制品          |
 | `/phsx:ff`           | 创建全部规划制品 | 范围清晰、准备实施    |
 | `/phsx:apply`        | 实施任务         | 准备写代码            |
+| `/phsx:apply-ralph`  | 稳健实施任务     | 需自动重试并持续推进  |
 | `/phsx:verify`       | 校验实现         | 归档前、发现偏差      |
 | `/phsx:sync`         | 合并增量规范     | 可选—需要时归档会提示 |
 | `/phsx:archive`      | 完成变更         | 工作全部完成          |

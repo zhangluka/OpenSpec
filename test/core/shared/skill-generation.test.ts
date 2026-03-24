@@ -8,9 +8,9 @@ import {
 
 describe('skill-generation', () => {
   describe('getSkillTemplates', () => {
-    it('should return all 10 skill templates', () => {
+    it('should return all 11 skill templates', () => {
       const templates = getSkillTemplates();
-      expect(templates).toHaveLength(10);
+      expect(templates).toHaveLength(11);
     });
 
     it('should have unique directory names', () => {
@@ -24,16 +24,17 @@ describe('skill-generation', () => {
       const templates = getSkillTemplates();
       const dirNames = templates.map(t => t.dirName);
 
-      expect(dirNames).toContain('openspec-explore');
-      expect(dirNames).toContain('openspec-new-change');
-      expect(dirNames).toContain('openspec-continue-change');
-      expect(dirNames).toContain('openspec-apply-change');
-      expect(dirNames).toContain('openspec-ff-change');
-      expect(dirNames).toContain('openspec-sync-specs');
-      expect(dirNames).toContain('openspec-archive-change');
-      expect(dirNames).toContain('openspec-bulk-archive-change');
-      expect(dirNames).toContain('openspec-verify-change');
-      expect(dirNames).toContain('openspec-onboard');
+      expect(dirNames).toContain('phspec-explore');
+      expect(dirNames).toContain('phspec-new-change');
+      expect(dirNames).toContain('phspec-continue-change');
+      expect(dirNames).toContain('phspec-apply-change');
+      expect(dirNames).toContain('phspec-apply-ralph');
+      expect(dirNames).toContain('phspec-ff-change');
+      expect(dirNames).toContain('phspec-sync-specs');
+      expect(dirNames).toContain('phspec-archive-change');
+      expect(dirNames).toContain('phspec-bulk-archive-change');
+      expect(dirNames).toContain('phspec-verify-change');
+      expect(dirNames).toContain('phspec-onboard');
     });
 
     it('should have valid template structure', () => {
@@ -49,9 +50,9 @@ describe('skill-generation', () => {
   });
 
   describe('getCommandTemplates', () => {
-    it('should return all 10 command templates', () => {
+    it('should return all 11 command templates', () => {
       const templates = getCommandTemplates();
-      expect(templates).toHaveLength(10);
+      expect(templates).toHaveLength(11);
     });
 
     it('should have unique IDs', () => {
@@ -69,6 +70,7 @@ describe('skill-generation', () => {
       expect(ids).toContain('new');
       expect(ids).toContain('continue');
       expect(ids).toContain('apply');
+      expect(ids).toContain('apply-ralph');
       expect(ids).toContain('ff');
       expect(ids).toContain('sync');
       expect(ids).toContain('archive');
@@ -79,9 +81,9 @@ describe('skill-generation', () => {
   });
 
   describe('getCommandContents', () => {
-    it('should return all 10 command contents', () => {
+    it('should return all 11 command contents', () => {
       const contents = getCommandContents();
-      expect(contents).toHaveLength(10);
+      expect(contents).toHaveLength(11);
     });
 
     it('should have valid content structure', () => {

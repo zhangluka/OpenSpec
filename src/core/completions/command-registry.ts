@@ -157,6 +157,48 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
     ],
   },
   {
+    name: "apply-ralph",
+    description: "使用 Ralph 稳健执行 apply 循环",
+    flags: [
+      {
+        name: "change",
+        description: "变更名",
+        takesValue: true,
+      },
+      {
+        name: "schema",
+        description: "工作流模式覆盖",
+        takesValue: true,
+      },
+      {
+        name: "snapshot",
+        description: "Ralph 快照文件路径",
+        takesValue: true,
+      },
+      {
+        name: "max-retries",
+        description: "可恢复错误最大重试次数",
+        takesValue: true,
+      },
+      {
+        name: "backoff-ms",
+        description: "初始退避毫秒",
+        takesValue: true,
+      },
+      {
+        name: "max-backoff-ms",
+        description: "最大退避毫秒",
+        takesValue: true,
+      },
+      {
+        name: "max-attempts",
+        description: "最大循环尝试次数",
+        takesValue: true,
+      },
+      COMMON_FLAGS.json,
+    ],
+  },
+  {
     name: "feedback",
     description: "提交 PhSpec 相关反馈",
     acceptsPositional: true,
