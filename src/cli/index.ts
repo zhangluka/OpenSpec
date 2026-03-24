@@ -492,6 +492,31 @@ program
     }
   });
 
+// Hidden command: built-in Ralph executor (called by RalphCliExecutor)
+program
+  .command("__ralph-exec", { hidden: true })
+  .description("内置 Ralph 执行器桩（供 apply-ralph 内部调用）")
+  .action(async () => {
+    try {
+      const chunks: Buffer[] = [];
+      for await (const chunk of process.stdin) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      const raw = Buffer.concat(chunks).toString("utf-8");
+      const payload = JSON.parse(raw);
+      const taskDesc = payload.task?.description ?? "(no task)";
+      const progress = payload.progress
+        ? `${payload.progress.complete}/${payload.progress.total}`
+        : "?/?";
+      console.log(
+        `[__ralph-exec] change=${payload.changeName} task="${taskDesc}" progress=${progress}`,
+      );
+    } catch (error) {
+      console.error(`[__ralph-exec] ${(error as Error).message}`);
+      process.exitCode = 1;
+    }
+  });
+
 // ═══════════════════════════════════════════════════════════
 // Workflow Commands (formerly experimental)
 // ═══════════════════════════════════════════════════════════

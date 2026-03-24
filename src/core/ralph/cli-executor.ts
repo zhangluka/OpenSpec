@@ -10,6 +10,8 @@ const RETRYABLE_ERROR_RE =
 const NEEDS_INPUT_RE =
   /(need(s)? user input|needs clarification|ambiguous|manual decision|human input)/i;
 
+const PHSPEC_BIN_PATH = process.argv[1];
+
 export interface RalphCliExecutorOptions {
   command?: string;
   args?: string[];
@@ -20,8 +22,16 @@ export class RalphCliExecutor implements RalphExecutor {
   private readonly args: string[];
 
   constructor(options: RalphCliExecutorOptions = {}) {
-    this.command = options.command ?? process.env.PHSPEC_RALPH_COMMAND ?? "ralph";
-    this.args = options.args ?? this.resolveArgsFromEnv();
+    if (options.command) {
+      this.command = options.command;
+      this.args = options.args ?? [];
+    } else if (process.env.PHSPEC_RALPH_COMMAND) {
+      this.command = process.env.PHSPEC_RALPH_COMMAND;
+      this.args = options.args ?? this.resolveArgsFromEnv();
+    } else {
+      this.command = process.execPath;
+      this.args = options.args ?? [PHSPEC_BIN_PATH, "__ralph-exec"];
+    }
   }
 
   async execute(input: RalphExecutionInput): Promise<RalphExecutionResult> {
