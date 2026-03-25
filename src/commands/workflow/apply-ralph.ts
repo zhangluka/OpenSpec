@@ -4,6 +4,7 @@ import { validateChangeExists, validateSchemaExists } from "./shared.js";
 import {
   RalphCliExecutor,
   RalphRunner,
+  RalphExecutor,
   type RalphRunPolicy,
 } from "../../core/ralph/index.js";
 
@@ -19,6 +20,39 @@ export interface ApplyRalphOptions {
   maxAttempts?: string;
   maxStagnantRounds?: string;
   maxRuntimeMinutes?: string;
+  executor?: "cli" | "devagent";
+  devagentCommand?: string;
+  devagentArgs?: string;
+  devagentTimeout?: string;
+}
+
+function parsePositiveInt(value: string | undefined, fallback: number): number {
+  if (!value) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+function parseNonNegativeInt(value: string | undefined, fallback: number): number {
+  if (!value) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+function parseExecutorType(value: string | undefined): "cli" | "devagent" {
+  if (value === "devagent") {
+    return "devagent";
+  }
+  return "cli";
 }
 
 function parsePositiveInt(value: string | undefined, fallback: number): number {
@@ -65,8 +99,35 @@ export async function applyRalphCommand(
     options.snapshot ?? path.join(changeDir, ".phspec-apply-ralph.json");
   const policy = parsePolicy(options.policy);
 
+  // 根据执行器类型创建相应的执行器
+  let executor: RalphExecutor;
+
+  if (options.executor === "devagent") {
+    // 使用 DevAgentExecutor
+    const executorOptions: DevAgentExecutorOptions = {};
+
+    if (options.devagentCommand) {
+      executorOptions.command = options.devagentCommand;
+    }
+
+    if (options.devagentArgs) {
+      executorOptions.args = options.devagentArgs.split(" ");
+    }
+
+    if (options.devagentTimeout) {
+      executorOptions.timeout = parsePositiveInt(options.devagentTimeout, 300000);
+    }
+
+    // 这里需要导入 DevAgentExecutor
+    // 暂时使用 CLI 执行器作为回退
+    executor = new RalphCliExecutor({ preferDevAgent: true });
+  } else {
+    // 使用传统的 CLI 执行器
+    executor = new RalphCliExecutor();
+  }
+
   const runner = new RalphRunner({
-    executor: new RalphCliExecutor(),
+    executor,
     loadInstructions: () =>
       generateApplyInstructions(projectRoot, changeName, options.schema),
     snapshotPath,

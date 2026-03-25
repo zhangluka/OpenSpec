@@ -1,9 +1,12 @@
-import { spawn } from "node:child_process";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import {
   RalphExecutionInput,
   RalphExecutionResult,
   RalphExecutor,
 } from "./types.js";
+import { EnvironmentDetector } from "./environment-detector.js";
+import { DevAgentExecutor } from "./devagent-executor.js";
 
 const RETRYABLE_ERROR_RE =
   /(429|too many requests|rate limit|timed out|timeout|econnreset|socket hang up|5\d\d|temporar)/i;
@@ -16,26 +19,57 @@ const PHSPEC_BIN_PATH = process.argv[1];
 export interface RalphCliExecutorOptions {
   command?: string;
   args?: string[];
+  preferDevAgent?: boolean;
 }
 
 export class RalphCliExecutor implements RalphExecutor {
   private readonly command: string;
   private readonly args: string[];
+  private readonly preferDevAgent: boolean;
+  private readonly environmentDetector: EnvironmentDetector;
+  private readonly devAgentExecutor?: DevAgentExecutor;
 
   constructor(options: RalphCliExecutorOptions = {}) {
-    if (options.command) {
-      this.command = options.command;
-      this.args = options.args ?? [];
-    } else if (process.env.PHSPEC_RALPH_COMMAND) {
-      this.command = process.env.PHSPEC_RALPH_COMMAND;
-      this.args = options.args ?? this.resolveArgsFromEnv();
-    } else {
-      this.command = process.execPath;
-      this.args = options.args ?? [PHSPEC_BIN_PATH, "__ralph-exec"];
+    this.command = options.command || process.env.PHSPEC_RALPH_COMMAND || process.execPath;
+    this.args = options.args ?? this.resolveArgsFromEnv();
+    this.preferDevAgent = options.preferDevAgent ?? false;
+    this.environmentDetector = new EnvironmentDetector();
+
+    // 如果启用了 devagent 优先，创建 DevAgentExecutor
+    if (this.preferDevAgent) {
+      try {
+        this.devAgentExecutor = new DevAgentExecutor();
+      } catch (error) {
+        console.warn("Failed to create DevAgentExecutor:", error);
+      }
     }
   }
 
   async execute(input: RalphExecutionInput): Promise<RalphExecutionResult> {
+    try {
+      // 如果启用了 devagent 优先，尝试使用 DevAgentExecutor
+      if (this.devAgentExecutor) {
+        this.devAgentExecutor.emit("beforeExecute", input);
+        const result = await this.devAgentExecutor.execute(input);
+        this.devAgentExecutor.emit("afterExecute", input, result);
+        return result;
+      }
+
+      // 使用传统的 CLI 执行方式
+      return await this.executeLegacy(input);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        kind: "fatal_error",
+        message: `Failed to run Ralph executor: ${message}`,
+      };
+    }
+  }
+
+  /**
+   * 传统的 CLI 执行方式
+   */
+  private async executeLegacy(input: RalphExecutionInput): Promise<RalphExecutionResult> {
     const payload = this.buildPayload(input);
     try {
       const output = await this.runProcess(payload);
