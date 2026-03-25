@@ -517,6 +517,23 @@ function parseEnvArgs(raw: string | undefined): string[] {
   return normalized.split(/\s+/).filter(Boolean);
 }
 
+function buildPrompt(payload: RalphExecPayload): string {
+  const changeName = payload.changeName ?? "(unknown)";
+  const changeDir = payload.changeDir ?? "(unknown)";
+  const schemaName = payload.schemaName ?? "spec-driven";
+
+  return `请为 OpenSpec 变更 "${changeName}" 实现当前任务。
+
+变更目录: ${changeDir}
+工作流模式: ${schemaName}
+
+你可以使用以下命令查询详细信息：
+- phspec status --change ${changeName}
+- phspec instructions apply --change ${changeName}
+
+请完成当前未勾选的任务，并确保任务完成后在 tasks 文件中标记为完成（- [x]）。`;
+}
+
 async function runRalphBackend(
   payloadRaw: string,
   command: string,
@@ -563,7 +580,8 @@ program
       const backendArgs = parseEnvArgs(process.env.PHSPEC_RALPH_EXEC_ARGS);
 
       if (backendCommand) {
-        const backendResult = await runRalphBackend(raw, backendCommand, backendArgs);
+        const prompt = buildPrompt(payload);
+        const backendResult = await runRalphBackend(prompt, backendCommand, backendArgs);
         if (backendResult.stdout.trim()) {
           process.stdout.write(backendResult.stdout);
         }
