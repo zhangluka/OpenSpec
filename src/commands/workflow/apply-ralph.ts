@@ -5,6 +5,7 @@ import {
   RalphCliExecutor,
   RalphRunner,
   RalphExecutor,
+  DevAgentExecutorOptions,
   type RalphRunPolicy,
 } from "../../core/ralph/index.js";
 
@@ -53,28 +54,6 @@ function parseExecutorType(value: string | undefined): "cli" | "devagent" {
     return "devagent";
   }
   return "cli";
-}
-
-function parsePositiveInt(value: string | undefined, fallback: number): number {
-  if (!value) {
-    return fallback;
-  }
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return fallback;
-  }
-  return parsed;
-}
-
-function parseNonNegativeInt(value: string | undefined, fallback: number): number {
-  if (!value) {
-    return fallback;
-  }
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return fallback;
-  }
-  return parsed;
 }
 
 function parsePolicy(value: string | undefined): RalphRunPolicy {

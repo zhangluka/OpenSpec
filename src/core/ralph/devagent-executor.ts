@@ -41,13 +41,13 @@ export class DevAgentExecutor extends EventEmitter implements RalphExecutor {
     this.command = options.command || detectedConfig.command;
     this.args = options.args || detectedConfig.args;
     this.env = {
-      ...process.env,
+      ...process.env as Record<string, string>,
       ...options.env,
       ...detectedConfig.env,
     };
     this.timeout = options.timeout || 300000; // 5分钟默认超时
     this.maxRetries = options.maxRetries || 3;
-    this.logger = new Logger("DevAgentExecutor");
+    this.logger = new Logger({ name: "DevAgentExecutor" });
     this.errorHandler = new ErrorHandler();
   }
 
@@ -141,6 +141,7 @@ export class DevAgentExecutor extends EventEmitter implements RalphExecutor {
       const child = spawn(this.command, this.args, {
         env: this.env,
         stdio: ["pipe", "pipe", "pipe"],
+        shell: true,
         timeout: this.timeout,
       });
 
@@ -299,7 +300,7 @@ export class DevAgentExecutor extends EventEmitter implements RalphExecutor {
     });
 
     // 分类错误类型
-    const errorType = this.errorHandler.classifyError(combined, exitCode);
+    const errorType = this.errorHandler.classifyError(combined, exitCode ?? undefined);
 
     switch (errorType.kind) {
       case "retryable_error":

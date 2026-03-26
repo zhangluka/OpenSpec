@@ -1,5 +1,5 @@
 import path from "node:path";
-import { promises as fs } from "node:fs";
+import { promises as fs, statSync, accessSync, readFileSync, appendFileSync, renameSync, unlinkSync, mkdirSync, readdirSync } from "node:fs";
 
 export interface LoggerOptions {
   name: string;
@@ -26,9 +26,9 @@ export interface LogEntry {
  */
 export class Logger {
   private readonly name: string;
-  private readonly level: "debug" | "info" | "warn" | "error";
-  private readonly consoleEnabled: boolean;
-  private readonly fileEnabled: boolean;
+  private level: "debug" | "info" | "warn" | "error";
+  private consoleEnabled: boolean;
+  private fileEnabled: boolean;
   private readonly filePath?: string;
   private readonly maxSize?: number;
   private readonly rotateEnabled: boolean;
@@ -182,7 +182,7 @@ export class Logger {
 
     try {
       if (this.fileExists()) {
-        const stats = fs.statSync(this.filePath!);
+        const stats = statSync(this.filePath!);
         return stats.size >= this.maxSize;
       }
     } catch {
@@ -205,7 +205,7 @@ export class Logger {
 
     try {
       // 重命名当前日志文件
-      await fs.rename(this.filePath, backupPath);
+      renameSync(this.filePath, backupPath);
       this.info("日志文件已轮转", { from: this.filePath, to: backupPath });
     } catch (error) {
       console.error(`[ERROR][Logger] Failed to rotate log file:`, error);
@@ -217,7 +217,7 @@ export class Logger {
    */
   private fileExists(): boolean {
     try {
-      fs.accessSync(this.filePath!);
+      accessSync(this.filePath!);
       return true;
     } catch {
       return false;
@@ -247,10 +247,10 @@ export class Logger {
     }
 
     try {
-      const dir = path.dirname(this.filePath);
+      const dir = path.dirname(this.filePath!);
       const files = await fs.readdir(dir);
       const logFiles = files
-        .filter(file => file.startsWith(path.basename(this.filePath)) && file !== path.basename(this.filePath))
+        .filter(file => file.startsWith(path.basename(this.filePath!)) && file !== path.basename(this.filePath!))
         .sort()
         .reverse();
 
@@ -279,7 +279,7 @@ export class Logger {
     }
 
     try {
-      const stats = fs.statSync(this.filePath);
+      const stats = statSync(this.filePath);
       const fileSize = stats.size;
       const fileModified = stats.mtime.toISOString();
 

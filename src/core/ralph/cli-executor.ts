@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import { spawn } from "node:child_process";
 import path from "node:path";
 import {
   RalphExecutionInput,
@@ -30,8 +31,8 @@ export class RalphCliExecutor implements RalphExecutor {
   private readonly devAgentExecutor?: DevAgentExecutor;
 
   constructor(options: RalphCliExecutorOptions = {}) {
-    this.command = options.command || process.env.PHSPEC_RALPH_COMMAND || process.execPath;
-    this.args = options.args ?? this.resolveArgsFromEnv();
+    this.command = options.command || process.env.PHSPEC_RALPH_COMMAND || "phspec";
+    this.args = options.args ?? this.resolveArgsFromEnv() ?? ["__ralph-exec"];
     this.preferDevAgent = options.preferDevAgent ?? false;
     this.environmentDetector = new EnvironmentDetector();
 
@@ -124,21 +125,27 @@ export class RalphCliExecutor implements RalphExecutor {
     payload: string,
   ): Promise<{ exitCode: number; stdout: string; stderr: string; combined: string }> {
     return new Promise((resolve, reject) => {
-      const child = spawn(this.command, this.args, {
-        stdio: ["pipe", "pipe", "pipe"],
-      });
+      // 使用 spawn 的第二个参数作为命令数组时，Windows 需要使用 shell 选项
+      const child = spawn(
+        process.platform === "win32" ? `"${this.command}"` : this.command,
+        this.args,
+        {
+          stdio: ["pipe", "pipe", "pipe"],
+          shell: true,
+        }
+      );
 
       let stdout = "";
       let stderr = "";
 
-      child.stdout.on("data", (chunk) => {
+      child.stdout.on("data", (chunk: Buffer) => {
         stdout += String(chunk);
       });
-      child.stderr.on("data", (chunk) => {
+      child.stderr.on("data", (chunk: Buffer) => {
         stderr += String(chunk);
       });
       child.on("error", reject);
-      child.on("close", (exitCode) => {
+      child.on("close", (exitCode: number | null) => {
         const code = typeof exitCode === "number" ? exitCode : 1;
         const combined = [stdout, stderr].filter(Boolean).join("\n").trim();
         resolve({ exitCode: code, stdout, stderr, combined });

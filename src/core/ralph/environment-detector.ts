@@ -1,5 +1,5 @@
 import path from "node:path";
-import { promises as fs } from "node:fs";
+import { promises as fs, existsSync, statSync, accessSync } from "node:fs";
 import { platform } from "node:os";
 
 export interface DevAgentConfig {
@@ -93,7 +93,7 @@ export class EnvironmentDetector {
 
     for (const configFile of configFiles) {
       try {
-        if (this.fileExists(configFile)) {
+        if (this.fileExistsSync(configFile)) {
           const config = this.parseConfigFile(configFile);
           if (config && config.devagent) {
             this.logger.debug(`从配置文件 ${configFile} 读取配置`);
@@ -125,7 +125,7 @@ export class EnvironmentDetector {
     for (const dir of pathDirs) {
       for (const name of executableNames) {
         const fullPath = path.join(dir, name);
-        if (this.fileExists(fullPath) && this.isExecutable(fullPath)) {
+        if (this.fileExistsSync(fullPath) && this.isExecutable(fullPath)) {
           this.logger.debug(`在 PATH 中找到 devagent: ${fullPath}`);
           return {
             command: fullPath,
@@ -146,7 +146,7 @@ export class EnvironmentDetector {
     const commonPaths = this.getCommonDevAgentPaths();
 
     for (const fullPath of commonPaths) {
-      if (this.fileExists(fullPath) && this.isExecutable(fullPath)) {
+      if (this.fileExistsSync(fullPath) && this.isExecutable(fullPath)) {
         this.logger.debug(`在常见路径中找到 devagent: ${fullPath}`);
         return {
           command: fullPath,
@@ -245,7 +245,7 @@ export class EnvironmentDetector {
    * 解析配置文件
    */
   private parseConfigFile(filePath: string): any {
-    const content = fs.readFileSync(filePath, "utf-8");
+    const content = require("fs").readFileSync(filePath, "utf-8");
 
     // 尝试解析为 JSON
     try {
@@ -313,15 +313,10 @@ export class EnvironmentDetector {
   }
 
   /**
-   * 检查文件是否存在
+   * 检查文件是否存在（同步）
    */
-  private async fileExists(filePath: string): Promise<boolean> {
-    try {
-      await fs.access(filePath);
-      return true;
-    } catch {
-      return false;
-    }
+  private fileExistsSync(filePath: string): boolean {
+    return existsSync(filePath);
   }
 
   /**
@@ -329,8 +324,21 @@ export class EnvironmentDetector {
    */
   private isExecutable(filePath: string): boolean {
     try {
-      const stats = fs.statSync(filePath);
+      accessSync(filePath);
+      const stats = statSync(filePath);
       return stats.isFile();
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * 检查文件是否存在
+   */
+  private async fileExists(filePath: string): Promise<boolean> {
+    try {
+      await fs.access(filePath);
+      return true;
     } catch {
       return false;
     }
@@ -376,8 +384,8 @@ export class EnvironmentDetector {
       let stdout = "";
       let stderr = "";
 
-      child.stdout.on("data", (chunk) => { stdout += chunk.toString(); });
-      child.stderr.on("data", (chunk) => { stderr += chunk.toString(); });
+      child.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString(); });
+      child.stderr.on("data", (chunk: Buffer) => { stderr += chunk.toString(); });
       child.on("close", () => {
         if (child.exitCode === 0) {
           resolve(stdout);
