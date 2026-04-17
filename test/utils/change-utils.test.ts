@@ -143,7 +143,7 @@ describe("createChange", () => {
         ".phspec.yaml",
       );
       const content = await fs.readFile(metaPath, "utf-8");
-      expect(content).toContain("schema: spec-driven");
+      expect(content).toContain("schema: lean-sdd");
       expect(content).toMatch(/created: \d{4}-\d{2}-\d{2}/);
     });
 
