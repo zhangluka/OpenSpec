@@ -1,0 +1,153 @@
+name: lean-sdd
+version: 1
+description: 精益 SDD 工作流 - 提案 → 规范 → 设计 → 任务
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: 概述本变更的初始提案文档
+    template: proposal.md
+    instruction: |
+      撰写建立「为何需要本变更」的提案文档。
+
+      章节：
+      - **动机**：用 1～2 句话说明问题或机会。解决什么问题？为什么是现在？
+      - **变更内容**：变更的要点列表。对新能力、修改或移除保持具体。破坏性变更用 **BREAKING** 标出。
+      - **能力**：标明将新增或修改的规范：
+        - **新增能力**：列出将要引入的能力。每项对应新的 `specs/<name>/spec.md`。使用 kebab-case 名称（如 `user-auth`、`data-export`）。
+        - **修改的能力**：其「需求」会发生变化的既有能力。仅当规范级行为变化时列入（而非仅实现细节）。每项需有对应的增量规范文件。在 `phspec/specs/` 中查看已有规范名称。若无需求级变化可留空。
+      - **影响**：受影响的代码、API、依赖或系统。
+
+      重要：能力一节是提案与规范阶段之间的契约，填写前请先查阅现有规范。
+      此处列出的每项能力都需有对应的规范文件。
+
+      保持简洁（1～2 页）。聚焦「为什么」而非「怎么做」——
+      实现细节放在 design.md。
+
+      这是基础——规范、设计和任务都建立在此之上。
+    requires: []
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: 本变更的详细规范
+    template: spec.md
+    instruction: |
+      请用中文撰写需求与场景的正文（标题与格式保持英文，如 Requirement/Scenario/WHEN/THEN）。
+
+      创建定义「系统应做什么」的规范文件。
+
+      按提案中「能力」一节列出的每项能力各写一个规范文件。
+      - 新增能力：使用提案中的 kebab-case 名称（specs/<capability>/spec.md）。
+      - 修改的能力：使用 phspec/specs/<capability>/ 下已有规范目录名，在变更目录下创建增量规范 specs/<capability>/spec.md。
+
+      增量操作（使用 ## 标题）：
+      - **ADDED Requirements**：新增能力
+      - **MODIFIED Requirements**：行为变更——必须包含完整更新后的内容
+      - **REMOVED Requirements**：废弃项——必须包含 **Reason** 与 **Migration**
+      - **RENAMED Requirements**：仅名称变更——使用 FROM:/TO: 格式
+
+      需求格式：
+      - 每条需求：`### Requirement: <name>` 后跟描述
+      - 规范性需求使用 SHALL/MUST（避免 should/may）
+      - 每个场景：`#### Scenario: <name>`，采用 WHEN/THEN 格式
+      - **关键**：场景必须使用恰好 4 个井号（`####`）。使用 3 个井号或列表会导致静默失败。
+      - 每条需求至少有一个场景。
+
+      MODIFIED 需求的操作步骤：
+      1. 在 phspec/specs/<capability>/spec.md 中找到现有需求
+      2. 复制整条需求块（从 `### Requirement:` 到其下所有场景）
+      3. 粘贴到 `## MODIFIED Requirements` 下并修改为新行为
+      4. 确保标题文字完全匹配（忽略首尾空白）
+
+      常见错误：MODIFIED 只写部分内容会在归档时丢失细节。
+      若只新增关注点而不改既有行为，请使用 ADDED。
+
+      示例：
+      ```
+      ## ADDED Requirements
+
+      ### Requirement: 用户可导出数据
+      系统 SHALL 允许用户以 CSV 格式导出其数据。
+
+      #### Scenario: 导出成功
+      - **WHEN** 用户点击「导出」按钮
+      - **THEN** 系统下载包含全部用户数据的 CSV 文件
+
+      ## REMOVED Requirements
+
+      ### Requirement: 旧版导出
+      **Reason**: 已由新导出系统替代
+      **Migration**: 使用新导出接口 /api/v2/export
+      ```
+
+      规范应可检验——每个场景都是潜在测试用例。
+    requires:
+      - proposal
+
+  - id: design
+    generates: design.md
+    description: 含实现细节的技术设计文档
+    template: design.md
+    instruction: |
+      撰写说明「如何实现本变更」的设计文档。
+
+      何时需要 design.md（仅当符合下列任一情况时创建）：
+      - 跨模块变更（多服务/多模块）或新架构模式
+      - 新增外部依赖或显著数据模型变更
+      - 安全、性能或迁移复杂度
+      - 需要在编码前做技术决策以消除歧义
+
+      章节：
+      - **背景**：背景、现状、约束、干系人
+      - **目标 / 非目标**：本设计要达成的结果及明确排除的内容
+      - **决策**：关键技术选择及理由（为何选 X 而非 Y？）。每项决策可简述考虑过的替代方案。
+      - **风险 / 权衡**：已知限制与可能问题。格式：[风险] → 缓解措施
+      - **迁移计划**：部署步骤、回滚策略（若适用）
+      - **待决问题**：尚未确定的决策或未知项
+
+      聚焦架构与方案，而非逐行实现。
+      动机参考提案，需求参考规范。
+
+      好的设计文档会解释技术决策背后的「为什么」。
+    requires:
+      - proposal
+
+  - id: tasks
+    generates: tasks.md
+    description: 可跟踪的实施任务清单
+    template: tasks.md
+    instruction: |
+      创建拆解实施工作的任务列表。
+
+      **重要：请严格按下列模板书写。** 应用阶段会解析勾选格式以跟踪进度，未使用 `- [ ]` 的任务不会被跟踪。
+
+      要点：
+      - 在 ## 编号标题下分组相关任务
+      - 每条任务必须是勾选项：`- [ ] X.Y 任务描述`
+      - 任务粒度以单次会话能完成为宜
+      - 按依赖顺序排列（什么必须先做？）
+
+      示例：
+      ```
+      ## 1. Setup
+
+      - [ ] 1.1 Create new module structure
+      - [ ] 1.2 Add dependencies to package.json
+
+      ## 2. Core Implementation
+
+      - [ ] 2.1 Implement data export function
+      - [ ] 2.2 Add CSV formatting utilities
+      ```
+
+      要做什么参考规范，怎么做参考设计。
+      每条任务应可验证——完成时能明确判断。
+    requires:
+      - specs
+      - design
+
+apply:
+  requires: [tasks]
+  tracks: tasks.md
+  instruction: |
+    阅读上下文文件，按顺序处理未完成任务，完成即勾选。
+    若遇阻塞或需要澄清，请先暂停。
