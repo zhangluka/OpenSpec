@@ -11,6 +11,7 @@ import {
   getReviewCodeSkillTemplate,
   getReviewDesignSkillTemplate,
   getReviewDesignCommandContent,
+  getVerifyChangeSkillTemplate,
 } from '../../../src/core/templates/skill-templates.js';
 
 describe('skill-generation', () => {
@@ -390,6 +391,73 @@ describe('skill-generation', () => {
       expect(content).toContain('设计完整性');
       expect(content).toContain('phspec status');
       expect(content).toContain('design.md');
+    });
+  });
+
+  describe('enhanced verify functionality', () => {
+    it('should generate verify skill template with four dimensions', () => {
+      const template = getVerifyChangeSkillTemplate();
+
+      expect(template.name).toBe('phspec-verify-change');
+      expect(template.description).toBe('校验实现与变更制品是否一致。适用于归档前确认实现完整、正确且一致时。');
+      expect(template.instructions).toBeTruthy();
+      expect(template.license).toBe('MIT');
+      expect(template.compatibility).toBe('Requires phspec CLI.');
+      expect(template.metadata?.author).toBe('phspec');
+      expect(template.metadata?.version).toBe('1.0');
+    });
+
+    it('should include code hygiene dimension in verify instructions', () => {
+      const template = getVerifyChangeSkillTemplate();
+
+      expect(template.instructions).toContain('代码卫生');
+      expect(template.instructions).toContain('四个维度建报告');
+      expect(template.instructions).toContain('Completeness/Correctness/Coherence/CodeHygiene');
+    });
+
+    it('should include specification compliance matrix check', () => {
+      const template = getVerifyChangeSkillTemplate();
+
+      expect(template.instructions).toContain('规范合规性矩阵');
+      expect(template.instructions).toContain('SHALL、MUST、REQUIRED、WILL');
+      expect(template.instructions).toContain('规范约束未实现');
+    });
+
+    it('should include code hygiene checks in instructions', () => {
+      const template = getVerifyChangeSkillTemplate();
+
+      expect(template.instructions).toContain('重复代码');
+      expect(template.instructions).toContain('错误处理');
+      expect(template.instructions).toContain('注释质量');
+      expect(template.instructions).toContain('命名规范');
+    });
+
+    it('should maintain suggestion-based approach (non-blocking)', () => {
+      const template = getVerifyChangeSkillTemplate();
+
+      expect(template.instructions).toContain('建议式校验');
+      expect(template.instructions).toContain('不强制阻塞归档');
+      expect(template.instructions).toContain('仅提示建议');
+      expect(template.instructions).toContain('不阻止用户归档');
+    });
+
+    it('should have structured report sections in verify instructions', () => {
+      const template = getVerifyChangeSkillTemplate();
+
+      expect(template.instructions).toContain('摘要表');
+      expect(template.instructions).toContain('CRITICAL');
+      expect(template.instructions).toContain('WARNING');
+      expect(template.instructions).toContain('SUGGESTION');
+      expect(template.instructions).toContain('按优先级列问题');
+    });
+
+    it('should include specific suggestions for code hygiene issues', () => {
+      const template = getVerifyChangeSkillTemplate();
+
+      expect(template.instructions).toContain('考虑抽取为共用函数');
+      expect(template.instructions).toContain('添加错误处理');
+      expect(template.instructions).toContain('添加注释说明意图');
+      expect(template.instructions).toContain('以符合项目规范');
     });
   });
 });
