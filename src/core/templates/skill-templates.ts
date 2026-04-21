@@ -3046,3 +3046,66 @@ export function getOpsxReviewDesignCommandTemplate(): CommandTemplate {
   };
 }
 
+/**
+ * Unified report template for all review commands
+ * Ensures consistent report format across review-spec, review-code, and review-design
+ */
+export interface ReviewReportTemplate {
+  artifactName: string;
+  date: string;
+  status: '✅ SOUND' | '⚠️ NEEDS WORK' | '❌ MAJOR ISSUES';
+  overallAssessment: string;
+  dimensions: Array<{
+    name: string;
+    score: number;
+    assessment: string;
+  }>;
+  recommendations: {
+    critical: string[];
+    important: string[];
+    optional: string[];
+  };
+  conclusion: string;
+  qualityLabel: string;
+  nextStepActionable: string;
+}
+
+/**
+ * Generate a standardized review report format
+ */
+export function getReviewReportTemplate(params: ReviewReportTemplate): string {
+  const dimensionsSection = params.dimensions
+    .map((dim) => `### ${dim.name}: ${dim.score}/5
+**评估：** ${dim.assessment}`)
+    .join('\n\n');
+
+  const recommendationsSection = [
+    `### Critical (Must Fix)
+${params.recommendations.critical.length > 0 ? params.recommendations.critical.map((r) => `- ${r}`).join('\n') : 'None'}`,
+    `### Important (Should Fix)
+${params.recommendations.important.length > 0 ? params.recommendations.important.map((r) => `- ${r}`).join('\n') : 'None'}`,
+    `### Optional (Nice to Have)
+${params.recommendations.optional.length > 0 ? params.recommendations.optional.map((r) => `- ${r}`).join('\n') : 'None'}`,
+  ].join('\n\n');
+
+  return `# ${params.artifactName}
+**Artifact:** ${params.artifactName}.md
+**Date:** ${params.date}
+**Status:** ${params.status}
+
+## Overall Assessment
+${params.overallAssessment}
+
+## Dimensions
+
+${dimensionsSection}
+
+## Recommendations
+
+${recommendationsSection}
+
+## Conclusion
+**${params.qualityLabel}：** ${params.conclusion}
+**下一步：** ${params.nextStepActionable}`;
+}
+

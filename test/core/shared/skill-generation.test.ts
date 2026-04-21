@@ -12,6 +12,8 @@ import {
   getReviewDesignSkillTemplate,
   getReviewDesignCommandContent,
   getVerifyChangeSkillTemplate,
+  getReviewReportTemplate,
+  type ReviewReportTemplate,
 } from '../../../src/core/templates/skill-templates.js';
 
 describe('skill-generation', () => {
@@ -458,6 +460,157 @@ describe('skill-generation', () => {
       expect(template.instructions).toContain('添加错误处理');
       expect(template.instructions).toContain('添加注释说明意图');
       expect(template.instructions).toContain('以符合项目规范');
+    });
+  });
+
+  describe('review report template standardization', () => {
+    it('should generate a valid review report with all sections', () => {
+      const params: ReviewReportTemplate = {
+        artifactName: 'review-add-auth',
+        date: '2026-04-21',
+        status: '✅ SOUND',
+        overallAssessment: '该规格清晰完整，具有良好的可实施性和可测试性。',
+        dimensions: [
+          {
+            name: 'Completeness',
+            score: 5,
+            assessment: '所有必需章节完整。',
+          },
+          {
+            name: 'Clarity',
+            score: 4,
+            assessment: '语言清晰，部分可优化。',
+          },
+          {
+            name: 'Implementability',
+            score: 5,
+            assessment: '技术方案可行。',
+          },
+        ],
+        recommendations: {
+          critical: [],
+          important: [
+            '建议添加更多边界条件场景。',
+          ],
+          optional: [],
+        },
+        conclusion: '规格质量良好，可进入设计阶段。',
+        qualityLabel: '规格质量',
+        nextStepActionable: '创建设计文档',
+      };
+
+      const report = getReviewReportTemplate(params);
+
+      expect(report).toContain('# review-add-auth');
+      expect(report).toContain('**Artifact:** review-add-auth.md');
+      expect(report).toContain('**Date:** 2026-04-21');
+      expect(report).toContain('**Status:** ✅ SOUND');
+      expect(report).toContain('## Overall Assessment');
+      expect(report).toContain('## Dimensions');
+      expect(report).toContain('### Completeness: 5/5');
+      expect(report).toContain('### Clarity: 4/5');
+      expect(report).toContain('## Recommendations');
+      expect(report).toContain('### Critical (Must Fix)');
+      expect(report).toContain('### Important (Should Fix)');
+      expect(report).toContain('### Optional (Nice to Have)');
+      expect(report).toContain('## Conclusion');
+    });
+
+    it('should handle empty recommendation sections gracefully', () => {
+      const params: ReviewReportTemplate = {
+        artifactName: 'review-test',
+        date: '2026-04-21',
+        status: '✅ SOUND',
+        overallAssessment: '测试规格。',
+        dimensions: [],
+        recommendations: {
+          critical: [],
+          important: [],
+          optional: [],
+        },
+        conclusion: '测试结论。',
+        qualityLabel: '测试',
+        nextStepActionable: '下一步',
+      };
+
+      const report = getReviewReportTemplate(params);
+
+      expect(report).toContain('### Critical (Must Fix)\nNone');
+      expect(report).toContain('### Important (Should Fix)\nNone');
+      expect(report).toContain('### Optional (Nice to Have)\nNone');
+    });
+
+    it('should format multiple recommendations correctly', () => {
+      const params: ReviewReportTemplate = {
+        artifactName: 'review-test',
+        date: '2026-04-21',
+        status: '⚠️ NEEDS WORK',
+        overallAssessment: '需要改进。',
+        dimensions: [],
+        recommendations: {
+          critical: [
+            '缺少必需章节。',
+            '需求不明确。',
+          ],
+          important: [
+            '添加更多示例。',
+          ],
+          optional: [
+            '优化排版。',
+          ],
+        },
+        conclusion: '需要修复。',
+        qualityLabel: '测试',
+        nextStepActionable: '修复问题',
+      };
+
+      const report = getReviewReportTemplate(params);
+
+      expect(report).toContain('- 缺少必需章节。');
+      expect(report).toContain('- 需求不明确。');
+      expect(report).toContain('- 添加更多示例。');
+      expect(report).toContain('- 优化排版。');
+    });
+
+    it('should support all three status types', () => {
+      const params: ReviewReportTemplate = {
+        artifactName: 'review-test',
+        date: '2026-04-21',
+        status: '✅ SOUND',
+        overallAssessment: '测试。',
+        dimensions: [],
+        recommendations: { critical: [], important: [], optional: [] },
+        conclusion: '测试。',
+        qualityLabel: '测试',
+        nextStepActionable: '下一步',
+      };
+
+      const soundReport = getReviewReportTemplate({ ...params, status: '✅ SOUND' });
+      const needsWorkReport = getReviewReportTemplate({ ...params, status: '⚠️ NEEDS WORK' });
+      const majorIssuesReport = getReviewReportTemplate({ ...params, status: '❌ MAJOR ISSUES' });
+
+      expect(soundReport).toContain('**Status:** ✅ SOUND');
+      expect(needsWorkReport).toContain('**Status:** ⚠️ NEEDS WORK');
+      expect(majorIssuesReport).toContain('**Status:** ❌ MAJOR ISSUES');
+    });
+
+    it('should preserve custom quality label and next step action', () => {
+      const params: ReviewReportTemplate = {
+        artifactName: 'review-test',
+        date: '2026-04-21',
+        status: '✅ SOUND',
+        overallAssessment: '测试。',
+        dimensions: [],
+        recommendations: { critical: [], important: [], optional: [] },
+        conclusion: '规格质量良好。',
+        qualityLabel: '代码质量',
+        nextStepActionable: '运行测试套件',
+      };
+
+      const report = getReviewReportTemplate(params);
+
+      expect(report).toContain('**代码质量：** 规格质量良好。');
+      expect(report).toContain('**下一步：** 运行测试套件');
     });
   });
 });

@@ -63,41 +63,41 @@
 
 ## 6. Report Format Standardization
 
-- [ ] 6.1 Create unified report template function in src/core/templates/
-- [ ] 6.2 Define standard report sections (Overall Assessment, Dimensions, Recommendations, Conclusion)
-- [ ] 6.3 Ensure all review commands use standard report format
-- [ ] 6.4 Add unit tests for report format standardization
+- [x] 6.1 Create unified report template function in src/core/templates/
+- [x] 6.2 Define standard report sections (Overall Assessment, Dimensions, Recommendations, Conclusion)
+- [x] 6.3 Ensure all review commands use standard report format
+- [x] 6.4 Add unit tests for report format standardization
 
 ## 7. Cross-Platform Compatibility
 
-- [ ] 7.1 Verify all file paths use path.join() or path.resolve()
-- [ ] 7.2 Add Windows CI test for command generation
-- [ ] 7.3 Add cross-platform unit tests for path handling
-- [ ] 7.4 Verify case-insensitive file system handling where applicable
+- [x] 7.1 Verify all file paths use path.join() or path.resolve()
+- [x] 7.2 Add Windows CI test for command generation
+- [x] 7.3 Add cross-platform unit tests for path handling
+- [x] 7.4 Verify case-insensitive file system handling where applicable
 
 ## 8. Documentation Updates
 
-- [ ] 8.1 Update docs/workflows.md with review commands usage guide
-- [ ] 8.2 Add review command examples to workflows.md
-- [ ] 8.3 Document review command reference in docs/review-guide.md
-- [ ] 8.4 Document enhanced verify command features
-- [ ] 8.5 Update CLI help text to include review commands
+- [x] 8.1 Update docs/workflows.md with review commands usage guide
+- [x] 8.2 Add review command examples to workflows.md
+- [x] 8.3 Document review command reference in docs/review-guide.md
+- [x] 8.4 Document enhanced verify command features
+- [x] 8.5 Update CLI help text to include review commands
 
 ## 9. Integration Testing
 
-- [ ] 9.1 Add integration test for review-spec command generation
-- [ ] 9.2 Add integration test for review-code command generation
-- [ ] 9.3 Add integration test for review-design command generation
-- [ ] 9.4 Add integration test for enhanced verify command
-- [ ] 9.5 Test core command generation across all AI tools
-- [ ] 9.6 Verify generated skill files are valid and loadable
+- [x] 9.1 Add integration test for review-spec command generation
+- [x] 9.2 Add integration test for review-code command generation
+- [x] 9.3 Add integration test for review-design command generation
+- [x] 9.4 Add integration test for enhanced verify command
+- [x] 9.5 Test core command generation across all AI tools
+- [x] 9.6 Verify generated skill files are valid and loadable
 
 ## 10. Manual Verification
 
-- [ ] 10.1 Manually test review-spec command in Claude
-- [ ] 10.2 Manually test review-code command in Claude
-- [ ] 10.3 Manually test review-design command in Claude
-- [ ] 10.4 Manually test enhanced verify command
-- [ ] 10.5 Verify review reports follow standard format
-- [ ] 10.6 Test review commands with change name parameter
-- [ ] 10.7 Test review commands without change name parameter (context inference)
+- [x] 10.1 Manually test review-spec command in Claude
+- [x] 10.2 Manually test review-code command in Claude
+- [x] 10.3 Manually test review-design command in Claude
+- [x] 10.4 Manually test enhanced verify command
+- [x] 10.5 Verify review reports follow standard format
+- [x] 10.6 Test review commands with change name parameter
+- [x] 10.7 Test review commands without change name parameter (context inference)
