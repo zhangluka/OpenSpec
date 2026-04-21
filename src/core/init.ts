@@ -693,7 +693,6 @@ export class InitCommand {
       spinner: PROGRESS_SPINNER,
     }).start();
   }
-}
 
   /**
    * Prompt user to select which tools should receive core command files.
@@ -742,3 +741,4 @@ export class InitCommand {
 
     return selectedTools;
   }
+}

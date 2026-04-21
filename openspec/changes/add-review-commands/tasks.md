@@ -8,31 +8,31 @@
 
 ## 2. Review Spec Command Implementation
 
-- [ ] 2.1 Add getReviewSpecSkillTemplate() to src/core/templates/skill-templates.ts
-- [ ] 2.2 Add getReviewSpecSkillInstructions() helper function with spec completeness checks
-- [ ] 2.3 Add getReviewSpecCommandContent() helper for command file generation
-- [ ] 2.4 Register review-spec command in getCommandTemplates() function
-- [ ] 2.5 Add adapter for Claude in src/core/command-generation/adapters/claude.ts
-- [ ] 2.6 Add adapter for DevAgent in src/core/command-generation/adapters/devagent.ts
-- [ ] 2.7 Add adapter for Continue in src/core/command-generation/adapters/continue.ts
-- [ ] 2.8 Add unit tests for review-spec template generation
-- [ ] 2.9 Add unit tests for review-spec adapter functions
+- [x] 2.1 Add getReviewSpecSkillTemplate() to src/core/templates/skill-templates.ts
+- [x] 2.2 Add getReviewSpecSkillInstructions() helper function with spec completeness checks
+- [x] 2.3 Add getReviewSpecCommandContent() helper for command file generation
+- [x] 2.4 Register review-spec command in getCommandTemplates() function
+- [x] 2.5 Add adapter for Claude in src/core/command-generation/adapters/claude.ts
+- [x] 2.6 Add adapter for DevAgent in src/core/command-generation/adapters/devagent.ts
+- [x] 2.7 Add adapter for Continue in src/core/command-generation/adapters/continue.ts
+- [x] 2.8 Add unit tests for review-spec template generation
+- [x] 2.9 Add unit tests for review-spec adapter functions
 
 ## 3. Review Code Command Implementation
 
-- [ ] 3.1 Add getReviewCodeSkillTemplate() to src/core/templates/skill-templates.ts
-- [ ] 3.2 Add getReviewCodeSkillInstructions() helper with functional correctness checks
-- [ ] 3.3 Add getReviewCodeSkillInstructions() helper with error handling checks
-- [ ] 3.4 Add getReviewCodeSkillInstructions() helper with edge case checks
-- [ ] 3.5 Add getReviewCodeSkillInstructions() helper with non-functional requirements checks
-- [ ] 3.6 Add getReviewCodeSkillInstructions() helper with specification drift detection
-- [ ] 3.7 Add getReviewCodeCommandContent() helper for command file generation
-- [ ] 3.8 Register review-code command in getCommandTemplates() function
-- [ ] 3.9 Add adapter for Claude in src/core/command-generation/adapters/claude.ts
-- [ ] 3.10 Add adapter for DevAgent in src/core/command-generation/adapters/devagent.ts
-- [ ] 3.11 Add adapter for Continue in src/core/command-generation/adapters/continue.ts
-- [ ] 3.12 Add unit tests for review-code template generation
-- [ ] 3.13 Add unit tests for review-code adapter functions
+- [x] 3.1 Add getReviewCodeSkillTemplate() to src/core/templates/skill-templates.ts
+- [x] 3.2 Add getReviewCodeSkillInstructions() helper with functional correctness checks
+- [x] 3.3 Add getReviewCodeSkillInstructions() helper with error handling checks
+- [x] 3.4 Add getReviewCodeSkillInstructions() helper with edge case checks
+- [x] 3.5 Add getReviewCodeSkillInstructions() helper with non-functional requirements checks
+- [x] 3.6 Add getReviewCodeSkillInstructions() helper with specification drift detection
+- [x] 3.7 Add getReviewCodeCommandContent() helper for command file generation
+- [x] 3.8 Register review-code command in getCommandTemplates() function
+- [x] 3.9 Add adapter for Claude in src/core/command-generation/adapters/claude.ts
+- [x] 3.10 Add adapter for DevAgent in src/core/command-generation/adapters/devagent.ts
+- [x] 3.11 Add adapter for Continue in src/core/command-generation/adapters/continue.ts
+- [x] 3.12 Add unit tests for review-code template generation
+- [x] 3.13 Add unit tests for review-code adapter functions
 
 ## 4. Review Design Command Command Implementation
 

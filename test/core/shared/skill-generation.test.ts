@@ -5,12 +5,18 @@ import {
   getCommandContents,
   generateSkillContent,
 } from '../../../src/core/shared/skill-generation.js';
+import {
+  getReviewSpecSkillTemplate,
+  getReviewSpecCommandContent,
+  getReviewCodeSkillTemplate,
+  getReviewDesignSkillTemplate,
+} from '../../../src/core/templates/skill-templates.js';
 
 describe('skill-generation', () => {
   describe('getSkillTemplates', () => {
-    it('should return all 10 skill templates', () => {
+    it('should return all 14 skill templates', () => {
       const templates = getSkillTemplates();
-      expect(templates).toHaveLength(10);
+      expect(templates).toHaveLength(14);
     });
 
     it('should have unique directory names', () => {
@@ -24,16 +30,19 @@ describe('skill-generation', () => {
       const templates = getSkillTemplates();
       const dirNames = templates.map(t => t.dirName);
 
-      expect(dirNames).toContain('openspec-explore');
-      expect(dirNames).toContain('openspec-new-change');
-      expect(dirNames).toContain('openspec-continue-change');
-      expect(dirNames).toContain('openspec-apply-change');
-      expect(dirNames).toContain('openspec-ff-change');
-      expect(dirNames).toContain('openspec-sync-specs');
-      expect(dirNames).toContain('openspec-archive-change');
-      expect(dirNames).toContain('openspec-bulk-archive-change');
-      expect(dirNames).toContain('openspec-verify-change');
-      expect(dirNames).toContain('openspec-onboard');
+      expect(dirNames).toContain('phspec-explore');
+      expect(dirNames).toContain('phspec-new-change');
+      expect(dirNames).toContain('phspec-continue-change');
+      expect(dirNames).toContain('phspec-apply-change');
+      expect(dirNames).toContain('phspec-ff-change');
+      expect(dirNames).toContain('phspec-sync-specs');
+      expect(dirNames).toContain('phspec-archive-change');
+      expect(dirNames).toContain('phspec-bulk-archive-change');
+      expect(dirNames).toContain('phspec-verify-change');
+      expect(dirNames).toContain('phspec-onboard');
+      expect(dirNames).toContain('phspec-review-spec');
+      expect(dirNames).toContain('phspec-review-code');
+      expect(dirNames).toContain('phspec-review-design');
     });
 
     it('should have valid template structure', () => {
@@ -49,9 +58,9 @@ describe('skill-generation', () => {
   });
 
   describe('getCommandTemplates', () => {
-    it('should return all 10 command templates', () => {
+    it('should return all 13 command templates', () => {
       const templates = getCommandTemplates();
-      expect(templates).toHaveLength(10);
+      expect(templates).toHaveLength(13);
     });
 
     it('should have unique IDs', () => {
@@ -74,14 +83,17 @@ describe('skill-generation', () => {
       expect(ids).toContain('archive');
       expect(ids).toContain('bulk-archive');
       expect(ids).toContain('verify');
+      expect(ids).toContain('review-spec');
+      expect(ids).toContain('review-code');
+      expect(ids).toContain('review-design');
       expect(ids).toContain('onboard');
     });
   });
 
   describe('getCommandContents', () => {
-    it('should return all 10 command contents', () => {
+    it('should return all 13 command contents', () => {
       const contents = getCommandContents();
-      expect(contents).toHaveLength(10);
+      expect(contents).toHaveLength(13);
     });
 
     it('should have valid content structure', () => {
@@ -218,6 +230,151 @@ describe('skill-generation', () => {
 
       expect(content).toContain('Some REPLACED text here.');
       expect(content).not.toContain('PLACEHOLDER');
+    });
+  });
+
+  describe('review-spec template generation', () => {
+    it('should generate review-spec skill template with correct structure', () => {
+      const template = getReviewSpecSkillTemplate();
+
+      expect(template.name).toBe('phspec-review-spec');
+      expect(template.description).toBe('规格质量审查 - 检查规格的完整性、清晰度、可实施性和可测试性');
+      expect(template.instructions).toBeTruthy();
+      expect(template.license).toBe('MIT');
+      expect(template.compatibility).toBe('Requires phspec CLI.');
+      expect(template.metadata?.author).toBe('phspec');
+      expect(template.metadata?.version).toBe('1.0');
+    });
+
+    it('should have review-spec skill template in skill templates', () => {
+      const templates = getSkillTemplates();
+      const reviewSpecTemplate = templates.find(t => t.dirName === 'phspec-review-spec');
+
+      expect(reviewSpecTemplate).toBeDefined();
+      expect(reviewSpecTemplate?.template.name).toBe('phspec-review-spec');
+    });
+
+    it('should generate review-spec command template with correct structure', () => {
+      const templates = getCommandTemplates();
+      const reviewSpecTemplate = templates.find(t => t.id === 'review-spec');
+
+      expect(reviewSpecTemplate).toBeDefined();
+      expect(reviewSpecTemplate?.template.name).toBe('PHSX: Review Spec');
+      expect(reviewSpecTemplate?.template.description).toBe('规格质量审查 - 检查规格的完整性、清晰度、可实施性和可测试性');
+      expect(reviewSpecTemplate?.template.category).toBe('Review');
+      expect(reviewSpecTemplate?.template.tags).toEqual(['review', 'spec', 'experimental']);
+    });
+
+    it('should generate review-spec command content with required elements', () => {
+      const content = getReviewSpecCommandContent();
+
+      expect(content).toBeTruthy();
+      expect(content).toContain('审查规格质量');
+      expect(content).toContain('完整性');
+      expect(content).toContain('清晰度');
+      expect(content).toContain('可实施性');
+      expect(content).toContain('可测试性');
+      expect(content).toContain('phspec status');
+      expect(content).toContain('phspec list');
+    });
+
+    it('should have review-spec command in command contents', () => {
+      const contents = getCommandContents();
+      const reviewSpecContent = contents.find(c => c.id === 'review-spec');
+
+      expect(reviewSpecContent).toBeDefined();
+      expect(reviewSpecContent?.name).toBe('PHSX: Review Spec');
+      expect(reviewSpecContent?.category).toBe('Review');
+      expect(reviewSpecContent?.tags).toContain('review');
+      expect(reviewSpecContent?.tags).toContain('spec');
+    });
+  });
+
+  describe('review-code template generation', () => {
+    it('should generate review-code skill template with correct structure', () => {
+      const template = getReviewCodeSkillTemplate();
+
+      expect(template.name).toBe('phspec-review-code');
+      expect(template.description).toBe('代码规范了规性审查 - 验证代码实现与规格的一致性');
+      expect(template.instructions).toBeTruthy();
+      expect(template.license).toBe('MIT');
+      expect(template.compatibility).toBe('Requires phspec CLI.');
+      expect(template.metadata?.author).toBe('phspec');
+      expect(template.metadata?.version).toBe('1.0');
+    });
+
+    it('should have review-code skill template in skill templates', () => {
+      const templates = getSkillTemplates();
+      const reviewCodeTemplate = templates.find(t => t.dirName === 'phspec-review-code');
+
+      expect(reviewCodeTemplate).toBeDefined();
+      expect(reviewCodeTemplate?.template.name).toBe('phspec-review-code');
+    });
+
+    it('should have review-code command template in command templates', () => {
+      const templates = getCommandTemplates();
+      const reviewCodeTemplate = templates.find(t => t.id === 'review-code');
+
+      expect(reviewCodeTemplate).toBeDefined();
+      expect(reviewCodeTemplate?.template.name).toBe('PHSX: Review Code');
+      expect(reviewCodeTemplate?.template.description).toBe('代码规范合规性审查 - 验证代码实现与规格的一致性');
+      expect(reviewCodeTemplate?.template.category).toBe('Review');
+      expect(reviewCodeTemplate?.template.tags).toEqual(['review', 'code', 'experimental']);
+    });
+
+    it('should have review-code command in command contents', () => {
+      const contents = getCommandContents();
+      const reviewCodeContent = contents.find(c => c.id === 'review-code');
+
+      expect(reviewCodeContent).toBeDefined();
+      expect(reviewCodeContent?.name).toBe('PHSX: Review Code');
+      expect(reviewCodeContent?.category).toBe('Review');
+      expect(reviewCodeContent?.tags).toContain('review');
+      expect(reviewCodeContent?.tags).toContain('code');
+    });
+  });
+
+  describe('review-design template generation', () => {
+    it('should generate review-design skill template with correct structure', () => {
+      const template = getReviewDesignSkillTemplate();
+
+      expect(template.name).toBe('phspec-review-design');
+      expect(template.description).toBe('设计一致性审查 - 检查设计方案与规格的关联性');
+      expect(template.instructions).toBeTruthy();
+      expect(template.license).toBe('MIT');
+      expect(template.compatibility).toBe('Requires phspec CLI.');
+      expect(template.metadata?.author).toBe('phspec');
+      expect(template.metadata?.version).toBe('1.0');
+    });
+
+    it('should have review-design skill template in skill templates', () => {
+      const templates = getSkillTemplates();
+      const reviewDesignTemplate = templates.find(t => t.dirName === 'phspec-review-design');
+
+      expect(reviewDesignTemplate).toBeDefined();
+      expect(reviewDesignTemplate?.template.name).toBe('phspec-review-design');
+    });
+
+    it('should have review-design command template in command templates', () => {
+      const templates = getCommandTemplates();
+      const reviewDesignTemplate = templates.find(t => t.id === 'review-design');
+
+      expect(reviewDesignTemplate).toBeDefined();
+      expect(reviewDesignTemplate?.template.name).toBe('PHSX: Review Design');
+      expect(reviewDesignTemplate?.template.description).toBe('设计一致性审查 - 检查设计方案与规格的关联性');
+      expect(reviewDesignTemplate?.template.category).toBe('Review');
+      expect(reviewDesignTemplate?.template.tags).toEqual(['review', 'design', 'experimental']);
+    });
+
+    it('should have review-design command in command contents', () => {
+      const contents = getCommandContents();
+      const reviewDesignContent = contents.find(c => c.id === 'review-design');
+
+      expect(reviewDesignContent).toBeDefined();
+      expect(reviewDesignContent?.name).toBe('PHSX: Review Design');
+      expect(reviewDesignContent?.category).toBe('Review');
+      expect(reviewDesignContent?.tags).toContain('review');
+      expect(reviewDesignContent?.tags).toContain('design');
     });
   });
 });
