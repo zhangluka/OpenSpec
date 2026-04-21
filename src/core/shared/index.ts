@@ -16,6 +16,8 @@ export {
   getToolVersionStatus,
   getConfiguredTools,
   getAllToolVersionStatus,
+  isCoreCommand,
+  CORE_COMMANDS,
 } from './tool-detection.js';
 
 export {

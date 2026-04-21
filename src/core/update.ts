@@ -23,6 +23,8 @@ import {
   getCommandContents,
   generateSkillContent,
   getToolsWithSkillsDir,
+  isCoreCommand,
+  CORE_COMMANDS,
   type ToolVersionStatus,
 } from "./shared/index.js";
 import {
@@ -212,6 +214,55 @@ export class UpdateCommand {
     console.log(chalk.dim(`  工具：${toolNames.join(", ")}`));
     console.log();
     console.log(chalk.dim("使用 --force 可强制刷新技能。"));
+  }
+
+  /**
+   * Prompt user to select which tools should receive core command files.
+   * Core commands (review-spec, review-code, review-design) should be available
+   * across AI tools, so we let the user choose which tools to generate them for.
+   */
+  private async promptForCoreCommandTools(projectPath: string): Promise<string[]> {
+    const availableTools = AI_TOOLS.filter((t) => t.skillsDir);
+
+    if (availableTools.length === 0) {
+      console.log(chalk.yellow("没有可用的 AI 工具生成核心命令。"));
+      return [];
+    }
+
+    if (!isInteractive()) {
+      // Non-interactive: use all available tools
+      return availableTools.map((t) => t.value);
+    }
+
+    const { searchableMultiSelect } = await import("../prompts/searchable-multi-select.js");
+
+    const choices = availableTools.map((tool) => ({
+      name: tool.name,
+      value: tool.value,
+      configured: false,
+    }));
+
+    console.log();
+    console.log(
+      chalk.cyan(
+        "核心命令（review-spec、review-code、review-design）将对以下工具生成：",
+      ),
+    );
+    console.log();
+
+    const selectedTools = await searchableMultiSelect({
+      message: "选择要生成核心命令的 AI 工具：",
+      pageSize: 15,
+      choices: choices,
+      validate: (selected: string[]) => {
+        if (selected.length === 0) {
+          return "至少选择一个工具";
+        }
+        return true;
+      },
+    });
+
+    return selectedTools;
   }
 
   /**
@@ -428,13 +479,34 @@ export class UpdateCommand {
         // Create commands
         const adapter = CommandAdapterRegistry.get(tool.value);
         if (adapter) {
-          const generatedCommands = generateCommands(commandContents, adapter);
+          // Separate core commands from regular commands
+          const coreCommands = commandContents.filter(cmd => isCoreCommand(cmd.id));
+          const regularCommands = commandContents.filter(cmd => !isCoreCommand(cmd.id));
 
-          for (const cmd of generatedCommands) {
+          // Generate regular commands for this tool
+          const regularGeneratedCommands = generateCommands(regularCommands, adapter);
+          for (const cmd of regularGeneratedCommands) {
             const commandFile = path.isAbsolute(cmd.path)
               ? cmd.path
               : path.join(projectPath, cmd.path);
             await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
+          }
+
+          // Generate core commands for selected tools
+          if (coreCommands.length > 0) {
+            const coreCommandTools = await this.promptForCoreCommandTools(projectPath);
+            for (const targetToolId of coreCommandTools) {
+              const targetAdapter = CommandAdapterRegistry.get(targetToolId);
+              if (targetAdapter) {
+                const coreGeneratedCommands = generateCommands(coreCommands, targetAdapter);
+                for (const cmd of coreGeneratedCommands) {
+                  const commandFile = path.isAbsolute(cmd.path)
+                    ? cmd.path
+                    : path.join(projectPath, cmd.path);
+                  await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
+                }
+              }
+            }
           }
         }
 

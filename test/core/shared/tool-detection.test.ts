@@ -5,6 +5,7 @@ import os from 'os';
 import { randomUUID } from 'crypto';
 import {
   SKILL_NAMES,
+  CORE_COMMANDS,
   getToolsWithSkillsDir,
   getToolSkillStatus,
   getToolStates,
@@ -12,6 +13,7 @@ import {
   getToolVersionStatus,
   getConfiguredTools,
   getAllToolVersionStatus,
+  isCoreCommand,
 } from '../../../src/core/shared/tool-detection.js';
 
 describe('tool-detection', () => {
@@ -31,13 +33,38 @@ describe('tool-detection', () => {
       expect(SKILL_NAMES).toHaveLength(9);
       expect(SKILL_NAMES).toContain('openspec-explore');
       expect(SKILL_NAMES).toContain('openspec-new-change');
-      expect(SKILL_NAMES).toContain('openspec-continue-change');
+      expect(SKILL_NAMES).toContain('phspec-continue-change');
       expect(SKILL_NAMES).toContain('openspec-apply-change');
       expect(SKILL_NAMES).toContain('openspec-ff-change');
       expect(SKILL_NAMES).toContain('openspec-sync-specs');
       expect(SKILL_NAMES).toContain('openspec-archive-change');
       expect(SKILL_NAMES).toContain('openspec-bulk-archive-change');
       expect(SKILL_NAMES).toContain('openspec-verify-change');
+    });
+  });
+
+  describe('CORE_COMMANDS', () => {
+    it('should contain review commands', () => {
+      expect(CORE_COMMANDS).toHaveLength(3);
+      expect(CORE_COMMANDS).toContain('review-spec');
+      expect(CORE_COMMANDS).toContain('review-code');
+      expect(CORE_COMMANDS).toContain('review-design');
+    });
+  });
+
+  describe('isCoreCommand', () => {
+    it('should return true for core commands', () => {
+      expect(isCoreCommand('review-spec')).toBe(true);
+      expect(isCoreCommand('review-code')).toBe(true);
+      expect(isCoreCommand('review-design')).toBe(true);
+    });
+
+    it('should return false for non-core commands', () => {
+      expect(isCoreCommand('explore')).toBe(false);
+      expect(isCoreCommand('new')).toBe(false);
+      expect(isCoreCommand('apply')).toBe(false);
+      expect(isCoreCommand('verify')).toBe(false);
+      expect(isCoreCommand('unknown-command')).toBe(false);
     });
   });
 

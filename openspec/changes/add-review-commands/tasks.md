@@ -1,10 +1,10 @@
 ## 1. Core Command Infrastructure
 
-- [ ] 1.1 Add CORE_COMMANDS constant to src/core/shared/tool-detection.ts
-- [ ] 1.2 Implement isCoreCommand() function in tool-detection.ts
-- [ ] 1.3 Modify generateCommands() in src/core/command-generation/gator.ts to handle core commands
-- [ ] 1.4 Add unit tests for isCoreCommand() function
-- [ ] 1.5 Add unit tests for core command generation logic
+- [x] 1.1 Add CORE_COMMANDS constant to src/core/shared/tool-detection.ts
+- [x] 1.2 Implement isCoreCommand() function in tool-detection.ts
+- [x] 1.3 Modify generateCommands() in src/core/command-generation/gator.ts to handle core commands
+- [x] 1.4 Add unit tests for isCoreCommand() function
+- [x] 1.5 Add unit tests for core command generation logic
 
 ## 2. Review Spec Command Implementation
 
