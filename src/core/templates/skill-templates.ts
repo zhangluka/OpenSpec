@@ -2875,7 +2875,6 @@ function getReviewDesignSkillInstructions(): string {
 - 不确定时优先 WARNING 再 CRITICAL
 - 报告使用标准格式，含评分、问题分类和可执行建议`;
 }
-
 /**
  * Template for /phsx:review-code slash command
  */
@@ -2915,6 +2914,87 @@ export function getOpsxReviewCodeCommandTemplate(): CommandTemplate {
 - 不确定时优先 WARNING 再 CRITICAL
 - 报告使用标准格式，含评分、问题分类和可执行建议`,
   };
+}
+
+/**
+ * Get review-design command content for slash command generation
+ */
+export function getReviewDesignCommandContent(): string {
+  return `审查设计一致性，检查设计方案与规格的关联性。
+
+**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
+
+**步骤**
+
+1. **获取变更信息**
+
+   运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态。
+
+2. **定位设计文件**
+
+   读取 \`phspec/changes/<name>/design.md\`。若不存在则告知用户并停止。
+
+3. **审查设计遵循度**
+
+   **检查项：**
+   - [ ] 实现是否遵循设计决策
+   - [ ] 架构选择是否与设计一致
+   - [ ] 技术栈是否符合设计
+   - [ ] 数据结构是否按设计实现
+
+   **发现问题记为：** CRITICAL - 「未遵循设计：<详情>」，建议调整实现或更新设计。
+
+4. **审查设计连贯性**
+
+   **检查项：**
+   - [ ] 设计决策是否内部一致
+   - [ ] 是否有相互冲突的设计
+   - [ ] 设计模式是否一致使用
+   - [ ] 命名约定是否统一
+
+   **发现问题记为：** WARNING - 「设计不一致：<详情>」，建议统一设计。
+
+5. **审查架构对齐**
+
+   **检查项：**
+   - [ ] 设计是否与系统架构对齐
+   - [ ] 是否遵循项目架构模式
+   - [ ] 组件交互是否符合架构设计
+   - [ ] 是否引入架构不一致的方案
+
+   **发现问题记为：** WARNING - 「架构不对齐：<详情>」，建议调整设计以对齐架构。
+
+6. **审查可追溯性**
+
+   **检查项：**
+   - [ ] 设计决策是否能追溯到规格需求
+   - [ ] 每个设计选择是否有明确理由
+   - [ ] 是否记录了技术决策依据
+   - [ ] 设计是否覆盖所有关键需求
+
+   **发现问题记为：** WARNING - 「可追溯性问题：<详情>」，建议补充设计依据。
+
+7. **审查设计完整性**
+
+   **检查项：**
+   - [ ] 设计是否覆盖所有规格需求
+   - [ ] 关键组件是否都有设计
+   - [ ] 接口设计是否完整
+   - [ ] 数据模型是否充分定义
+
+   **发现问题记为：** CRITICAL - 「设计不完整：<详情>」，建议补充设计。
+
+8. **生成并输出审查报告**
+
+   使用标准报告格式：Overall Assessment、Dimensions (Design Adherence/Design Coherence/Architecture Alignment/Traceability/Design Completeness)、Recommendations (Critical/Important/Optional)、Conclusion。
+
+**边界**
+
+- 未提供变更时始终让用户选择，不猜测
+- 未找到设计时告知用户并停止
+- 评估基于现有设计和规格信息
+- 不确定时优先 WARNING 再 CRITICAL
+- 报告使用标准格式，含评分、问题分类和可执行建议`;
 }
 
 /**

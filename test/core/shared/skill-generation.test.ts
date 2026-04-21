@@ -10,13 +10,14 @@ import {
   getReviewSpecCommandContent,
   getReviewCodeSkillTemplate,
   getReviewDesignSkillTemplate,
+  getReviewDesignCommandContent,
 } from '../../../src/core/templates/skill-templates.js';
 
 describe('skill-generation', () => {
   describe('getSkillTemplates', () => {
-    it('should return all 14 skill templates', () => {
+    it('should return all 13 skill templates', () => {
       const templates = getSkillTemplates();
-      expect(templates).toHaveLength(14);
+      expect(templates).toHaveLength(13);
     });
 
     it('should have unique directory names', () => {
@@ -155,8 +156,8 @@ describe('skill-generation', () => {
       const content = generateSkillContent(template, '0.24.0');
 
       expect(content).toContain('license: MIT');
-      expect(content).toContain('compatibility: Requires openspec CLI.');
-      expect(content).toContain('author: openspec');
+      expect(content).toContain('compatibility: Requires phspec CLI.');
+      expect(content).toContain('author: phspec');
       expect(content).toContain('version: "1.0"');
       expect(content).toContain('generatedBy: "0.24.0"');
     });
@@ -375,6 +376,20 @@ describe('skill-generation', () => {
       expect(reviewDesignContent?.category).toBe('Review');
       expect(reviewDesignContent?.tags).toContain('review');
       expect(reviewDesignContent?.tags).toContain('design');
+    });
+
+    it('should generate review-design command content with required elements', () => {
+      const content = getReviewDesignCommandContent();
+
+      expect(content).toBeTruthy();
+      expect(content).toContain('审查设计一致性');
+      expect(content).toContain('设计遵循度');
+      expect(content).toContain('设计连贯性');
+      expect(content).toContain('架构对齐');
+      expect(content).toContain('可追溯性');
+      expect(content).toContain('设计完整性');
+      expect(content).toContain('phspec status');
+      expect(content).toContain('design.md');
     });
   });
 });

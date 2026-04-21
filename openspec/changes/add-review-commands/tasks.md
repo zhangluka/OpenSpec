@@ -36,19 +36,19 @@
 
 ## 4. Review Design Command Command Implementation
 
-- [ ] 4.1 Add getReviewDesignSkillTemplate() to src/core/templates/skill-templates.ts
-- [ ] 4.2 Add getReviewDesignSkillInstructions() helper with design adherence checks
-- [ ] 4.3 Add getReviewDesignSkillInstructions() helper with design coherence checks
-- [ ] 4.4 Add getReviewDesignSkillInstructions() helper with architecture alignment checks
-- [ ] 4.5 Add getReviewDesignSkillInstructions() helper with traceability checks
-- [ ] 4.6 Add getReviewDesignSkillInstructions() helper with design completeness checks
-- [ ] 4.7 Add getReviewDesignCommandContent() helper for command file generation
-- [ ] 4.8 Register review-design command in getCommandTemplates() function
-- [ ] 4.9 Add adapter for Claude in src/core/command-generation/adapters/claude.ts
-- [ ] 4.10 Add adapter for DevAgent in src/core/command-generation/adapters/devagent.ts
-- [ ] 4.11 Add adapter for Continue in src/core/command-generation/adapters/continue.ts
-- [ ] 4.12 Add unit tests for review-design template generation
-- [ ] 4.13 Add unit tests for review-design adapter functions
+- [x] 4.1 Add getReviewDesignSkillTemplate() to src/core/templates/skill-templates.ts
+- [x] 4.2 Add getReviewDesignSkillInstructions() helper with design adherence checks
+- [x] 4.3 Add getReviewDesignSkillInstructions() helper with design coherence checks
+- [x] 4.4 Add getReviewDesignSkillInstructions() helper with architecture alignment checks
+- [x] 4.5 Add getReviewDesignSkillInstructions() helper with traceability checks
+- [x] 4.6 Add getReviewDesignSkillInstructions() helper with design completeness checks
+- [x] 4.7 Add getReviewDesignCommandContent() helper for command file generation
+- [x] 4.8 Register review-design command in getCommandTemplates() function
+- [x] 4.9 Add adapter for Claude in src/core/command-generation/adapters/claude.ts
+- [x] 4.10 Add adapter for DevAgent in src/core/command-generation/adapters/devagent.ts
+- [x] 4.11 Add adapter for Continue in src/core/command-generation/adapters/continue.ts
+- [x] 4.12 Add unit tests for review-design template generation
+- [x] 4.13 Add unit tests for review-design adapter functions
 
 ## 5. Enhanced Verify Command Implementation
 
