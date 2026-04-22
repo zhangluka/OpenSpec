@@ -6,13 +6,24 @@ OpenSpec 提供三个审查命令，用于在实施过程中进行质量检查�
 
 审查命令是建议式的质量检查工具，不会强制阻塞工作流。它们提供结构化的评估和可执行的建议，帮助用户在适当的时候改进规格、设计和代码。
 
+**自动触发机制**：在 OPSX 工作流中，review 检查会自动触发，无需手动调用：
+
+| 触发时机                    | 自动调用的 Review 技能 |
+| --------------------------- | ---------------------- |
+| requirement/specs 制品创建后 | review-spec            |
+| plan/tasks 制品创建后      | review-design          |
+| 代码实施完成              | review-code            |
+
 ## 审查规格：`/phsx:review-spec`
 
 检查规格的完整性、清晰度、可实施性和可测试性。
 
 ### 使用时机
 
-- 完成规范后、实施前
+**自动触发**：在 `/phsx:continue` 或 `/phsx:ff` 命令中，当 `requirement.md` 或 `specs/**/*.md` 创建完成后自动调用。
+
+**手动调用**：
+- 完成规范后需要重新检查
 - 发现实施困难，需要回溯规格质量
 - 归档前进行最终质量检查
 
@@ -72,7 +83,10 @@ None
 
 ### 使用时机
 
-- 实施过程中检查代码质量
+**自动触发**：在 `/phsx:apply` 命令中，所有任务完成后自动调用。
+
+**手动调用**：
+- 实施过程中需要检查代码质量
 - 发现 bug 时分析原因
 - 归档前确认代码符合规范
 
@@ -139,7 +153,10 @@ None
 
 ### 使用时机
 
-- 完成设计后、实施前
+**自动触发**：在 `/phsx:continue` 或 `/phsx:ff` 命令中，当 `plan.md` 或 `tasks.md` 创建完成后自动调用。
+
+**手动调用**：
+- 完成设计后需要重新检查
 - 实施中发现设计问题
 - 归档前确认设计符合规范
 
@@ -199,20 +216,39 @@ None
 
 ## 使用建议
 
-### 审查工作流
+### 自动审查工作流
+
+在 OPSX 工作流中，review 检查会自动触发：
 
 ```text
-/phsx:new ──► /phsx:ff ──► /phsx:review-spec ──► /phsx:review-design
-                                    │                    │
-                                    ▼                    ▼
-                              调整规格              调整设计
-                                    │                    │
-                                    └────────┬───────────┘
-                                             ▼
-                                    /phsx:apply ──► /phsx:review-code
-                                                          │
-                                                          ▼
-                                                 /phsx:verify ──► /phsx:archive
+/phsx:new ──► /phsx:continue (或 /phsx:ff)
+                │
+                ├──► 创建 requirement.md ──► [自动: review-spec]
+                │       │
+                │       ▼
+                │   创建 specs/**/*.md ──► [自动: review-spec]
+                │       │
+                │       ▼
+                │   创建 plan.md ──► [自动: review-design]
+                │       │
+                │       ▼
+                │   创建 tasks.md ──► [自动: review-design]
+                │       │
+                │       ▼
+                └──► /phsx:apply ──► 完成所有任务 ──► [自动: review-code]
+                                                            │
+                                                            ▼
+                                                   /phsx:verify ──► /phsx:archive
+```
+
+### 手动审查工作流
+
+如需手动审查（如修改制品后重新检查），可以直接调用对应的 review 命令：
+
+```text
+/phsx:review-spec    # 审查规格
+/phsx:review-design  # 审查设计
+/phsx:review-code    # 审查代码
 ```
 
 ### 最佳实践

@@ -1624,7 +1624,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
     tags: ["workflow", "artifacts", "experimental"],
     content: `继续当前变更：创建下一个制品。
 
-**执行约定（DevAgent / Cline 等 workflow）**：本 workflow 每次调用**只创建一个制品**。创建完该制品后必须先调用用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）询问是否继续或要修改，**调用后立即结束本次执行**。不得在本轮中连续创建第二个制品。
+**执行约定（DevAgent / Cline 等 workflow）**：本 workflow 每次调用调用**只创建一个制品**。制品创建后会自动调用对应的 review 技能进行质量检查。review 通过后必须先调用用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）询问是否继续或要修改，**调用后立即结束本次执行**。不得在本轮中连续创建第二个制品。
 
 **输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
@@ -1648,8 +1648,17 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
 
    **若全部制品已完成（\`isComplete: true\`）**：祝贺用户，展示最终状态，建议「全部制品已就绪！可以用 \`/phsx:apply\` 实施或归档。」并停止。
 
-   **若有制品可创建**（存在 \`status: "ready"\`）：选第一个 ready 制品，运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 \`context\`、\`rules\`、\`template\`、\`instruction\`、\`outputPath\`、\`dependencies\`；先读依赖制品，按 template 填写，遵守 context/rules 但不抄入文件，写入 outputPath；说明创建了什么、接下来可做哪些。然后**必须结束本次执行**：
-   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`**，例如：「已创建 <artifact-id>。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」**调用后立即结束**，不得在本轮中创建下一个制品。
+   **若有制品可创建**（存在 \`status: "ready"\`）：选第一个 ready 制品，运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 \`context\`、\`rules\`、\`template\`、\`instruction\`、\`outputPath\`、\`dependencies\`；先读依赖制品，按 template 填写，遵守 context/rules 但不抄入文件，写入 outputPath。
+
+   **自动调用 Review 检查**：制品创建完成后，根据制品类型自动调用对应的 review 技能进行质量检查：
+
+   - **requirement** 或 **specs** → 调用 **phspec-review-spec**（规格质量审查）
+   - **plan** 或 **tasks** → 调用 **phspec-review-design**（设计一致性审查）
+
+   使用 Skill 工具调用对应的 review 技能，对刚创建的制品进行质量检查。review 技能会输出审查报告，包含评分、问题分类和可执行建议。展示审查结果，若发现严重问题（如关键指标不达标），建议用户先修复问题再继续。
+
+   然后必须结束本次执行：
+   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`**，例如：「已创建 <artifact-id> 并完成 review 检查。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」**调用后立即结束**，不得在本轮中创建下一个制品。
    - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作后结束。
    - **若环境无上述工具**：输出上述问题文字并写明「请回复后再继续」，然后结束。
 
@@ -1660,11 +1669,11 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
    phspec status --change "<name>"
    \`\`\`
 
-**输出**：每次调用后展示创建了哪个制品、所用工作流、当前进度（N/M 已完成）、当前可创建的制品，并通过用户确认工具或文字提示「要继续吗？要修改刚创建的内容吗？说继续或告诉我下一步即可。」
+**输出**：每次调用后展示创建了哪个制品、review 检查结果、所用工作流、当前进度（N/M 已完成）、当前可创建的制品，并通过用户确认工具或文字提示「要继续吗？要修改刚创建的内容吗？说继续或告诉我下一步即可。」
 
-**边界**：本命令每次调用**仅**创建一个制品；创建完一个制品后必须先调用 ask_followup_question/AskUserQuestion（或输出问题并结束），然后停止，等用户回复后再次调用本命令再创建下一个。不得在本轮中连续创建多个制品。
+**边界**：本命令每次调用**仅**创建一个制品；制品创建后自动进行 review 检查；review 完成后必须先调用 ask_followup_question/AskUserQuestion（或输出问题并结束），然后停止，等用户回复后再次调用本命令再创建下一个。不得在本轮中连续创建多个制品。
 
-**制品创建指引**：制品类型与用途由模式决定，以指令输出中的 \`instruction\` 为准。常见模式（spec-driven）：proposal → specs → design → tasks；proposal.md / specs/<capability>/spec.md / design.md / tasks.md 的用途见 schema。**重要**：\`context\` 与 \`rules\` 是给你的约束，不要将 \`<context>\`、\`<rules>\`、\`<project_context>\` 抄进制品。`,
+**制品创建指引**：制品类型与用途由模式决定，以指令输出中的 \`instruction\` 为准。常见模式（spec-driven）：requirement → specs → plan → tasks；制品创建后会自动调用对应的 review 技能：requirement/specs 用 review-spec，plan/tasks 用 review-design。**重要**：\`context\` 与 \`rules\` 是给你的约束，不要将 \`<context>\`、\`<rules>\`、\`<project_context>\` 抄进制品。`,
   };
 }
 
@@ -1699,7 +1708,7 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
    \`\`\`bash
    phspec instructions apply --change "<name>" --json
    \`\`\`
-   返回：上下文文件路径、进度、任务列表及状态、根据当前状态的动态指令。
+   返回：上下文文件路径、进度、任务列表及状态、根据当前状态的动态。
 
    **状态处理**：\`state: "blocked"\` 时建议先用 \`/phsx:continue\`；\`state: "all_done"\` 时祝贺并建议归档；否则进入实施。
 
@@ -1719,13 +1728,26 @@ export function getOpsxApplyCommandTemplate(): CommandTemplate {
 
    **以下情况必须暂停**（不要自行假设或继续下一项任务）：任务不清晰 → 先澄清（若环境无 AskUserQuestion 或 ask_followup_question，直接输出问题并写明「请回复后再继续」）；实施暴露出设计问题 → 建议更新制品并等待指示；报错或受阻 → 说明并等待指示；用户打断。
 
-7. **完成或暂停时展示状态**
+7. **全部任务完成后进行代码 review 检查**
 
-   展示：本轮完成的任务、总进度「N/M 任务已完成」；若全部完成则建议归档；若暂停则说明原因并等待指示。
+   当所有任务都标记为已完成时，使用 Skill 工具调用 **phspec-review-code**（代码规范合规性审查），对本次实施的代码进行质量检查。
+
+   review-code 会检查：
+   - 功能正确性：代码实现是否与规格一致
+   - 错误处理：异常情况是否正确处理
+   - 边界情况：边界条件和异常路径是否考虑
+   - 非功能需求：性能、安全等非功能需求是否满足
+   - 规格漂移：代码实现是否偏离原始规格
+
+   展示审查报告，包含评分、问题分类和可执行建议。若发现严重问题（如关键指标不达标），建议用户先修复问题再进行验收和归档。
+
+8. **完成或暂停时展示状态**
+
+   展示：本轮完成的任务、总进度「N/M 任务已完成」；review-code 检查结果（若已进行）；若全部完成且 review 通过则建议归档；若暂停则说明原因并等待指示。
 
 **实施过程输出示例**：见技能指令中的「实施过程输出示例」「全部完成时输出」「暂停时输出」。
 
-**边界**：始终先读上下文文件；任务不明确时暂停并询问（若环境无用户确认工具，直接输出问题并写明「请回复后再继续」）；改动最小化并紧扣任务；完成每项后立即勾选；遇错或受阻时暂停不猜测；以 CLI 的 contextFiles 为准。本技能可随时调用（制品未全完成时若已有任务、部分实施后、与其他操作交替），实施中若发现设计问题可建议更新制品。`,
+**边界**：始终先读上下文文件；任务不明确时暂停并询问（若环境无用户确认工具，直接输出问题并写明「请回复后再继续」）；改动最小化并紧扣任务；完成每项后立即勾选；遇错或受阻时暂停不猜测；以 CLI 的 contextFiles 为准。全部任务完成后自动调用 review-code 进行代码质量检查。本技能可随时调用（制品未全完成时若已有任务、部分实施后、与其他操作交替），实施中若发现设计问题可建议更新制品。`,
   };
 }
 
@@ -1762,16 +1784,26 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
 
 4. **按顺序创建制品直至可实施**
 
-   用 **TodoWrite 工具** 跟踪进度。按依赖顺序遍历：对每个 \`ready\` 制品运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 context/rules/template/instruction/outputPath/dependencies；先读依赖制品，按 template 创建文件，遵守 context 与 rules 但不抄入文件；简要提示「✓ 已创建 <artifact-id>」。每创建一个制品后重跑 status，当 \`applyRequires\` 中制品均为 \`done\` 时停止。若某制品需用户输入则用 AskUserQuestion 或 ask_followup_question 澄清后继续；若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
+   用 **TodoWrite 工具** 跟踪进度。按依赖顺序遍历：对每个 \`ready\` 制品运行 \`phspec instructions <artifact-id> --change "<name>" --json\`，解析 context/rules/template/instruction/outputPath/dependencies；先读依赖制品，按 template 创建文件，遵守 context 与 rules 但不抄入文件；简要提示「✓ 已创建 <artifact-id>」。
 
-5. **展示最终状态**
+   **自动调用 Review 检查**：制品创建完成后，根据制品类型自动调用对应的 review 技能进行质量检查：
+   - **requirement** 或 **specs** → 调用 **phspec-review-spec**（规格质量审查）
+   - **plan** 或 **tasks** → 调用 **phspec-review-design**（设计一致性审查）
+
+   使用 Skill 工具调用对应的 review 技能，对刚创建的制品进行质量检查。展示简要的审查结果，若发现严重问题（如关键指标不达标），提示用户后继续创建下一个制品。
+
+   每创建一个制品后重跑 status，当 \`applyRequires\` 中制品均为 \`done\` 时停止。若某制品需用户输入则用 AskUserQuestion 或 ask_followup_question 澄清后继续；若环境无该工具，直接输出问题并写明「请回复后再继续」，不要自行假设后继续。
+
+5. **展示最终状态和 review 摘要**
    \`\`\`bash
    phspec status --change "<name>"
    \`\`\`
 
-**输出**：总结变更名与路径、已创建制品列表、「全部制品已就绪，可以开始实施。」、提示「运行 \`/phsx:apply\` 或让我实施即可开始任务。」
+   展示各制品的 review 检查结果摘要，包含每个制品的评分和主要问题。
 
-**制品创建**：按 \`phspec instructions\` 的 \`instruction\` 与模式定义。**边界**：创建模式 \`apply.requires\` 所需的全部制品；先读依赖再创建；名称已存在时建议继续该变更；写入后确认文件存在再继续。`,
+**输出**：总结变更名与路径、已创建制品列表、各制品 review 检查结果、「全部制品已就绪，可以开始实施。」、提示「运行 \`/phsx:apply\` 或让我实施即可开始任务。」
+
+**制品创建**：按 \`phspec instructions\` 的 \`instruction\` 与模式定义。**边界**：创建模式 \`apply.requires\` 所需的全部制品；先读依赖再创建；每个制品创建后自动进行 review 检查；名称已存在时建议继续该变更；写入后确认文件存在再继续。`,
   };
 }
 
