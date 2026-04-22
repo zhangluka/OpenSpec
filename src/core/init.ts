@@ -104,6 +104,9 @@ export class InitCommand {
     // Validate selected tools
     const validatedTools = this.validateTools(selectedToolIds, toolStates);
 
+    // Prompt for core command tools (only once, before generation)
+    const coreCommandTools = await this.promptForCoreCommandTools();
+
     // Create directory structure and config
     await this.createDirectoryStructure(phspecPath, extendMode);
 
@@ -111,6 +114,7 @@ export class InitCommand {
     const results = await this.generateSkillsAndCommands(
       projectPath,
       validatedTools,
+      coreCommandTools,
     );
 
     // Create config.yaml if needed
@@ -444,6 +448,7 @@ export class InitCommand {
       skillsDir: string;
       wasConfigured: boolean;
     }>,
+    coreCommandTools: string[],
   ): Promise<{
     createdTools: typeof tools;
     refreshedTools: typeof tools;
@@ -503,18 +508,15 @@ export class InitCommand {
           }
 
           // Generate core commands for selected tools
-          if (coreCommands.length > 0) {
-            const coreCommandTools = await this.promptForCoreCommandTools();
-            for (const targetToolId of coreCommandTools) {
-              const targetAdapter = CommandAdapterRegistry.get(targetToolId);
-              if (targetAdapter) {
-                const coreGeneratedCommands = generateCommands(coreCommands, targetAdapter);
-                for (const cmd of coreGeneratedCommands) {
-                  const commandFile = path.isAbsolute(cmd.path)
-                    ? cmd.path
-                    : path.join(projectPath, cmd.path);
-                  await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
-                }
+          for (const targetToolId of coreCommandTools) {
+            const targetAdapter = CommandAdapterRegistry.get(targetToolId);
+            if (targetAdapter) {
+              const coreGeneratedCommands = generateCommands(coreCommands, targetAdapter);
+              for (const cmd of coreGeneratedCommands) {
+                const commandFile = path.isAbsolute(cmd.path)
+                  ? cmd.path
+                  : path.join(projectPath, cmd.path);
+                await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
               }
             }
           }
