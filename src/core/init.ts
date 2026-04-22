@@ -2,7 +2,7 @@
  * Init Command
  *
  * Sets up PhSpec with Agent Skills and /phsx:* slash commands.
- * This is the unified setup command that replaces both the old init and experimental commands.
+ * This is unified setup command that replaces both the old init and experimental commands.
  */
 
 import path from "path";
@@ -295,7 +295,7 @@ export class InitCommand {
     const raw = this.toolsArg.trim();
     if (raw.length === 0) {
       throw new Error(
-        '--tools 需要取值。可使用 "all"、"none" 或逗号分隔的工具 ID 列表。',
+        '--tools �需要取值。可使用 "all"、"none" 或逗号分隔的工具 ID 列表。',
       );
     }
 
@@ -464,6 +464,10 @@ export class InitCommand {
     const skillTemplates = getSkillTemplates();
     const commandContents = getCommandContents();
 
+    // Separate core commands from regular commands (do this once)
+    const coreCommands = commandContents.filter(cmd => isCoreCommand(cmd.id));
+    const regularCommands = commandContents.filter(cmd => !isCoreCommand(cmd.id));
+
     // Process each tool
     for (const tool of tools) {
       const spinner = ora(`正在配置 ${tool.name}...`).start();
@@ -487,17 +491,13 @@ export class InitCommand {
             transformer,
           );
 
-          // Write the skill file
+          // Write skill file
           await FileSystemUtils.writeFile(skillFile, skillContent);
         }
 
-        // Generate commands using the adapter system
+        // Generate commands using adapter system
         const adapter = CommandAdapterRegistry.get(tool.value);
         if (adapter) {
-          // Separate core commands from regular commands
-          const coreCommands = commandContents.filter(cmd => isCoreCommand(cmd.id));
-          const regularCommands = commandContents.filter(cmd => !isCoreCommand(cmd.id));
-
           // Generate regular commands for this tool
           const regularGeneratedCommands = generateCommands(regularCommands, adapter);
           for (const cmd of regularGeneratedCommands) {
@@ -507,17 +507,14 @@ export class InitCommand {
             await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
           }
 
-          // Generate core commands for selected tools
-          for (const targetToolId of coreCommandTools) {
-            const targetAdapter = CommandAdapterRegistry.get(targetToolId);
-            if (targetAdapter) {
-              const coreGeneratedCommands = generateCommands(coreCommands, targetAdapter);
-              for (const cmd of coreGeneratedCommands) {
-                const commandFile = path.isAbsolute(cmd.path)
-                  ? cmd.path
-                  : path.join(projectPath, cmd.path);
-                await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
-              }
+          // Generate core commands if this tool is in coreCommandTools
+          if (coreCommandTools.includes(tool.value)) {
+            const coreGeneratedCommands = generateCommands(coreCommands, adapter);
+            for (const cmd of coreGeneratedCommands) {
+              const commandFile = path.isAbsolute(cmd.path)
+                ? cmd.path
+                : path.join(projectPath, cmd.path);
+              await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
             }
           }
         } else {
@@ -699,7 +696,7 @@ export class InitCommand {
   /**
    * Resolve which tools should receive core command files.
    * Core commands (review-spec, review-code, review-design) are generated
-   * for all tools that the user selected in the main tool selection prompt.
+   * for all tools that user selected in the main tool selection prompt.
    */
   private resolveCoreCommandTools(selectedToolIds: string[]): string[] {
     return selectedToolIds;
