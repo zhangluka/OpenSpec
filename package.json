@@ -1,6 +1,6 @@
 {
   "name": "@bobby_z/phspec",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "OpenSpec-based system with internalization support and internal Agent tools for spec-driven development",
   "keywords": [
     "phspec",

@@ -1,5 +1,7 @@
 # cc-spex 项目阅读路径
 
+项目本地路径：/Users/bobby/Projects/Github/open-sources/cc-spex
+
 ## 第一层：理解架构和入口点
 
 ```

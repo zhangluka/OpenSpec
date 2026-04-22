@@ -36,7 +36,7 @@ import {
   getCommandContents,
   generateSkillContent,
   type ToolSkillStatus,
-} from "./shared/index.js";
+  isCoreCommand,} from "./shared/index.js";
 
 const require = createRequire(import.meta.url);
 const { version: OPENSPEC_VERSION } = require("../../package.json");
@@ -104,6 +104,9 @@ export class InitCommand {
     // Validate selected tools
     const validatedTools = this.validateTools(selectedToolIds, toolStates);
 
+    // Prompt for core command tools (only once, before generation)
+    const coreCommandTools = await this.promptForCoreCommandTools();
+
     // Create directory structure and config
     await this.createDirectoryStructure(phspecPath, extendMode);
 
@@ -111,6 +114,7 @@ export class InitCommand {
     const results = await this.generateSkillsAndCommands(
       projectPath,
       validatedTools,
+      coreCommandTools,
     );
 
     // Create config.yaml if needed
@@ -444,6 +448,7 @@ export class InitCommand {
       skillsDir: string;
       wasConfigured: boolean;
     }>,
+    coreCommandTools: string[],
   ): Promise<{
     createdTools: typeof tools;
     refreshedTools: typeof tools;
@@ -489,13 +494,31 @@ export class InitCommand {
         // Generate commands using the adapter system
         const adapter = CommandAdapterRegistry.get(tool.value);
         if (adapter) {
-          const generatedCommands = generateCommands(commandContents, adapter);
+          // Separate core commands from regular commands
+          const coreCommands = commandContents.filter(cmd => isCoreCommand(cmd.id));
+          const regularCommands = commandContents.filter(cmd => !isCoreCommand(cmd.id));
 
-          for (const cmd of generatedCommands) {
+          // Generate regular commands for this tool
+          const regularGeneratedCommands = generateCommands(regularCommands, adapter);
+          for (const cmd of regularGeneratedCommands) {
             const commandFile = path.isAbsolute(cmd.path)
               ? cmd.path
               : path.join(projectPath, cmd.path);
             await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
+          }
+
+          // Generate core commands for selected tools
+          for (const targetToolId of coreCommandTools) {
+            const targetAdapter = CommandAdapterRegistry.get(targetToolId);
+            if (targetAdapter) {
+              const coreGeneratedCommands = generateCommands(coreCommands, targetAdapter);
+              for (const cmd of coreGeneratedCommands) {
+                const commandFile = path.isAbsolute(cmd.path)
+                  ? cmd.path
+                  : path.join(projectPath, cmd.path);
+                await FileSystemUtils.writeFile(commandFile, cmd.fileContent);
+              }
+            }
           }
         } else {
           commandsSkipped.push(tool.value);
@@ -671,5 +694,53 @@ export class InitCommand {
       color: "gray",
       spinner: PROGRESS_SPINNER,
     }).start();
+  }
+
+  /**
+   * Prompt user to select which tools should receive core command files.
+   * Core commands (review-spec, review-code, review-design) should be available
+   * across AI tools, so we let the user choose which tools to generate them for.
+   */
+  private async promptForCoreCommandTools(): Promise<string[]> {
+    const availableTools = AI_TOOLS.filter((t) => t.skillsDir);
+
+    if (availableTools.length === 0) {
+      console.log(chalk.yellow("没有可用的 AI 工具生成核心命令。"));
+      return [];
+    }
+
+    if (!this.canPromptInteractively()) {
+      return availableTools.map((t) => t.value);
+    }
+
+    const { searchableMultiSelect } = await import("../prompts/searchable-multi-select.js");
+
+    const choices = availableTools.map((tool) => ({
+      name: tool.name,
+      value: tool.value,
+      configured: false,
+    }));
+
+    console.log();
+    console.log(
+      chalk.cyan(
+        "核心命令（review-spec、review-code、review-design）将对以下工具生成：",
+      ),
+    );
+    console.log();
+
+    const selectedTools = await searchableMultiSelect({
+      message: "选择要生成核心命令的 AI 工具：",
+      pageSize: 15,
+      choices: choices,
+      validate: (selected: string[]) => {
+        if (selected.length === 0) {
+          return "至少选择一个工具";
+        }
+        return true;
+      },
+    });
+
+    return selectedTools;
   }
 }

@@ -25,4 +25,10 @@ export {
   getOpsxArchiveCommandTemplate,
   getOpsxBulkArchiveCommandTemplate,
   getOpsxVerifyCommandTemplate,
+  getReviewSpecSkillTemplate,
+  getReviewCodeSkillTemplate,
+  getReviewDesignSkillTemplate,
+  getOpsxReviewSpecCommandTemplate,
+  getOpsxReviewCodeCommandTemplate,
+  getOpsxReviewDesignCommandTemplate,
 } from './skill-templates.js';

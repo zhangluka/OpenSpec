@@ -96,15 +96,16 @@ rules:
 
 ## 命令速查
 
-| 命令             | 作用                                         |
-| ---------------- | -------------------------------------------- |
-| `/phsx:explore`  | 梳理想法、排查问题、澄清需求                 |
-| `/phsx:new`      | 新建变更                                     |
-| `/phsx:continue` | 创建下一个就绪的制品                         |
-| `/phsx:ff`       | 快进 — 一次性创建全部规划制品                |
-| `/phsx:apply`    | 实施任务，按需更新制品                       |
-| `/phsx:sync`     | 将增量规范同步到主规范（可选，归档时会提示） |
-| `/phsx:archive`  | 完成后归档                                   |
+| 命令`             | 作用                                         |
+| ----------------- | -------------------------------------------- |
+| `/phsx:explore`   | 梳理想法、排查问题、澄清需求                 |
+| `/phsx:new`        | 新建变更                                     |
+| `/phsx:continue`  | 创建下一个就绪的制品（自动 review）           |
+| `/phsx:ff`        | 快进 — 一次性创建全部规划制品（自动 review）  |
+| `/phsx:apply`     | 实施任务，按需更新制品（完成后自动 review）   |
+| `/phsx:sync`      | 将增量规范同步到主规范（可选，归档时会提示） |
+| `/phsx:archive`    | 完成后归档                                   |
+| `/phsx:review-*`   | 手动审查规格、设计或代码                      |
 
 ## 使用要点
 
@@ -113,6 +114,40 @@ rules:
 - **创建制品**：`/phsx:continue` 按依赖逐个创建；`/phsx:ff <name>` 一次性创建全部规划制品
 - **实施**：`/phsx:apply`，按任务推进并勾选；多变更时可用 `/phsx:apply <name>`
 - **收尾**：`/phsx:archive`，会提示是否同步规范
+
+## 自动审查机制
+
+OPSX 工作流会在关键节点自动进行质量检查，确保制品和代码符合规范：
+
+| 触发时机                    | 自动调用的 Review 技能 | 检查内容               |
+| --------------------------- | ---------------------- | ---------------------- |
+| requirement/specs 制品创建后 | review-spec            | 规格完整性、清晰度、可测试性 |
+| plan/tasks 制品创建后      | review-design          | 设计与规范一致性、影响范围分析 |
+| 代码实施完成              | review-code            | 代码与规格一致性、实现规范性 |
+
+**自动触发流程：**
+
+```text
+/phsx:continue /phsx:ff
+   │
+   ├──► 创建 requirement.md ──► [自动: review-spec]
+   │       │
+   │       ▼
+   │   创建 specs/**/*.md ──► [自动: review-spec]
+   │       │
+   │       ▼
+   │   创建 plan.md ──► [自动: review-design]
+   │       │
+   │       ▼
+   │   创建 tasks.md ──► [自动: review-design]
+   │       │
+   │       ▼
+   └──► /phsx:apply ──► 完成所有任务 ──► [自动: review-code]
+```
+
+**手动审查**：如需重新审查（如修改制品后），可直接调用 `/phsx:review-spec`、`/phsx:review-design` 或 `/phsx:review-code`。
+
+详见 [审查命令指南](review-guide.md)。
 
 ## 更新既有变更 vs 新建变更
 

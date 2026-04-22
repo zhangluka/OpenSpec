@@ -15,6 +15,9 @@ import {
   getBulkArchiveChangeSkillTemplate,
   getVerifyChangeSkillTemplate,
   getOnboardSkillTemplate,
+  getReviewSpecSkillTemplate,
+  getReviewCodeSkillTemplate,
+  getReviewDesignSkillTemplate,
   getOpsxExploreCommandTemplate,
   getOpsxNewCommandTemplate,
   getOpsxContinueCommandTemplate,
@@ -25,6 +28,9 @@ import {
   getOpsxBulkArchiveCommandTemplate,
   getOpsxVerifyCommandTemplate,
   getOpsxOnboardCommandTemplate,
+  getOpsxReviewSpecCommandTemplate,
+  getOpsxReviewCodeCommandTemplate,
+  getOpsxReviewDesignCommandTemplate,
   type SkillTemplate,
 } from "../templates/skill-templates.js";
 import type { CommandContent } from "../command-generation/index.js";
@@ -71,6 +77,9 @@ export function getSkillTemplates(): SkillTemplateEntry[] {
       template: getVerifyChangeSkillTemplate(),
       dirName: "phspec-verify-change",
     },
+    { template: getReviewSpecSkillTemplate(), dirName: "phspec-review-spec" },
+    { template: getReviewCodeSkillTemplate(), dirName: "phspec-review-code" },
+    { template: getReviewDesignSkillTemplate(), dirName: "phspec-review-design" },
     { template: getOnboardSkillTemplate(), dirName: "phspec-onboard" },
   ];
 }
@@ -89,6 +98,9 @@ export function getCommandTemplates(): CommandTemplateEntry[] {
     { template: getOpsxArchiveCommandTemplate(), id: "archive" },
     { template: getOpsxBulkArchiveCommandTemplate(), id: "bulk-archive" },
     { template: getOpsxVerifyCommandTemplate(), id: "verify" },
+    { template: getOpsxReviewSpecCommandTemplate(), id: "review-spec" },
+    { template: getOpsxReviewCodeCommandTemplate(), id: "review-code" },
+    { template: getOpsxReviewDesignCommandTemplate(), id: "review-design" },
     { template: getOpsxOnboardCommandTemplate(), id: "onboard" },
   ];
 }

@@ -26,6 +26,27 @@ export const SKILL_NAMES = [
 export type SkillName = (typeof SKILL_NAMES)[number];
 
 /**
+ * Core OpenSpec commands that should be available across all AI tools.
+ * These are tool-agnostic fundamental features, not Claude-specific.
+ */
+export const CORE_COMMANDS = [
+  'review-spec',
+  'review-code',
+  'review-design',
+] as const;
+
+export type CoreCommand = (typeof CORE_COMMANDS)[number];
+
+/**
+ * Check if a command is a core command.
+ * @param command - The command identifier (e.g., 'review-spec')
+ * @returns True if command is a core command
+ */
+export function isCoreCommand(command: string): boolean {
+  return CORE_COMMANDS.includes(command as CoreCommand);
+}
+
+/**
  * Status of skill configuration for a tool.
  */
 export interface ToolSkillStatus {
