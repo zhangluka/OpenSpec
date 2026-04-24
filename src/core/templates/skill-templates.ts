@@ -2235,22 +2235,7 @@ export function getReviewSpecSkillTemplate(): SkillTemplate {
   return {
     name: "phspec-review-spec",
     description: "规格质量审查 - 检查规格的完整性、清晰度、可实施性和可测试性",
-    instructions: getReviewSpecSkillInstructions(),
-    license: "MIT",
-    compatibility: "Requires phspec CLI.",
-    metadata: { author: "phspec", version: "1.0" },
-  };
-}
-
-// -----------------------------------------------------------------------------
-// Review Command Helpers
-// -----------------------------------------------------------------------------
-
-/**
- * Helper function for review-spec skill instructions
- */
-function getReviewSpecSkillInstructions(): string {
-  return `审查规格质量，检查规格的完整性、清晰度、可实施性和可测试性。
+    instructions: `审查规格质量，检查规格的完整性、清晰度、可实施性和可测试性。
 
 **输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
@@ -2300,7 +2285,7 @@ function getReviewSpecSkillInstructions(): string {
 
    **检查项：**
    - [ ] 需求描述是否具体、可测量
-   - [ ] 避免模糊词汇（如「也许」、「可能」、「视情况」）
+   - [ ] 避免模糊词汇（如「也许」「可能」「视情况」）
    - [ ] 技术术语是否一致
    - [ ] 场景是否明确描述条件和结果
    - [ ] 是否有未定义的缩写或术语
@@ -2338,49 +2323,49 @@ function getReviewSpecSkillInstructions(): string {
    **报告格式：**
 
    \`\`\`markdown
-   # Review Spec: <Change Name or Capability Name>
-   **Artifact:** spec.md
-   **Date:** YYYY-MM-DD
-   **Status:** ✅ SOUND / ⚠️ NEEDS WORK / ❌ MAJOR ISSUES
+   # 规格审查：<变更名或能力名>
+   **制品：** spec.md
+   **日期：** YYYY-MM-DD
+   **状态：** ✅ 良好 / ⚠️ 需改进 / ❌ 严重问题
 
-   ## Overall Assessment
+   ## 整体评估
    [1-2 句话总结整体评估]
 
-   ## Dimensions
+   ## 审查维度
 
-   ### Completeness: <评分>/5
+   ### 完整性：<评分>/5
    **评估：** [评估说明]
    **结果：** [通过/需改进]
 
-   ### Clarity: <评分>/5
+   ### 清晰度：<评分>/5
    **评估：** [评估说明]
    **结果：** [通过/需改进]
 
-   ### Implementability: <评分>/5
+   ### 可实施性：<评分>/5
    **评估：** [评估说明]
    **结果：** [通过/需改进]
 
-   ### Testability: <评分>/5
+   ### 可测试性：<评分>/5
    **评估：** [评估说明]
    **结果：** [通过/需改进]
 
-   ## Recommendations
+   ## 建议
 
-   ### Critical (Must Fix)
+   ### 严重问题（必须修复）
    - [问题 1]
      - **建议：** [具体修复建议]
 
-   ### Important (Should Fix)
+   ### 重要问题（应该修复）
    - [问题 1]
      - **建议：** [具体修复建议]
 
-   ### Optional (Nice to Have)
+   ### 可选优化（建议改进）
    - [问题 1]
      - **建议：** [具体修复建议]
 
-   ## Conclusion
+   ## 结论
    **规格质量：** [整体评价]
-   **可归档/继续：** Yes/No
+   **可归档/继续：** 是/否
    **下一步：** [建议行动]
    \`\`\`
 
@@ -2404,688 +2389,22 @@ function getReviewSpecSkillInstructions(): string {
 - 未找到规格时告知用户并停止
 - 评估基于现有信息，不要求绝对确定
 - 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`;
-}
-
-/**
- * Get review-spec command content for slash command generation
- */
-export function getReviewSpecCommandContent(): string {
-  return `审查规格质量，检查规格的完整性、清晰度、可实施性和可测试性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取规格位置**
-
-   a. 若提供了变更名：
-      \`\`\`bash
-      phspec status --change "<name>" --json
-      \`\`\`
-
-   b. 若未提供变更名，让用户选择：
-      - 运行 \`phspec list --json\` 获取变更列表
-      - 用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）让用户选择
-      - 若环境无上述工具，直接输出选项并写明「请回复后再继续」
-
-2. **查找规格文件**
-
-   规格文件位于：
-   - 主规范：\`phspec/specs/<capability>/spec.md\`
-   - 增量规范：\`phspec/changes/<name>/specs/<capability>/spec.md\`
-
-   优先审查增量规范；若无则审查主规范。若未找到规格，告知用户并停止。
-
-3. **审查完整性**
-
-   检查必备部分：Purpose、需求结构、场景覆盖、增量规范格式。
-
-4. **审查清晰度**
-
-   评估需求是否具体无歧义、技术术语一致性、场景明确性。
-
-5. **审查可实施性**
-
-   评估技术可行性、依赖合理性、性能现实性、安全性、架构兼容性。
-
-6. **审查可测试性**
-
-   评估场景覆盖度、可触发性、可验证性、边界条件、错误路径。
-
-7. **生成并输出审查报告**
-
-   使用标准报告格式：Overall Assessment、Dimensions (Completeness/Clarity/Implementability/Testability)、Recommendations (Critical/Important/Optional)、Conclusion。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 优先审查增量规范，若无则审查主规范
-- 未找到规格时告知用户并停止
-- 评估基于现有信息，不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`;
-}
-
-// -----------------------------------------------------------------------------
-// Review Command Helpers
-// -----------------------------------------------------------------------------
-
-/**
- * Template for /phsx:review-spec slash command
- */
-export function getOpsxReviewSpecCommandTemplate(): CommandTemplate {
-  return {
-    name: "PHSX: Review Spec",
-    description: "规格质量审查 - 检查规格的完整性、清晰度、可实施性和可测试性",
-    category: "Review",
-    tags: ["review", "spec", "experimental"],
-    content: `审查规格质量，检查规格的完整性、清晰度、可实施性和可测试性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取规格位置**
-
-   a. 若提供了变更名：
-      \`\`\`bash
-      phspec status --change "<name>" --json
-      \`\`\`
-
-   b. 若未提供变更名，让用户选择：
-      - 运行 \`phspec list --json\` 获取变更列表
-      - 用 **AskUserQuestion**（Cursor 等）或 **ask_followup_question**（DevAgent）让用户选择
-      - 若环境无上述工具，直接输出选项并写明「请回复后再继续」
-
-2. **查找规格文件**
-
-   规格文件位于：
-   - 主规范：\`phspec/specs/<capability>/spec.md\`
-   - 增量规范：\`phspec/changes/<name>/specs/<capability>/spec.md\`
-
-   优先审查增量规范；若无则审查主规范。若未找到规格，告知用户并停止。
-
-3. **审查完整性**
-
-   检查必备部分：Purpose、需求结构、场景覆盖、增量规范格式。
-
-4. **审查清晰度**
-
-   评估需求是否具体无歧义、技术术语一致性、场景明确性。
-
-5. **审查可实施性**
-
-   评估技术可行性、依赖合理性、性能现实性、安全性、架构兼容性。
-
-6. **审查可测试性**
-
-   评估场景覆盖度、可触发性、可验证性、边界条件、错误路径。
-
-7. **生成并输出审查报告**
-
-   使用标准报告格式：Overall Assessment、Dimensions (Completeness/Clarity/Implementability/Testability)、Recommendations (Critical/Important/Optional)、Conclusion。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 优先审查增量规范，若无则审查主规范
-- 未找到规格时告知用户并停止
-- 评估基于现有信息，不确定时优先 WARNING 再 CRITICAL
 - 报告使用标准格式，含评分、问题分类和可执行建议`,
-  };
-}
-
-/**
- * Get review-code command content for slash command generation
- */
-export function getReviewCodeCommandContent(): string {
-  return `审查代码规范合规性，验证代码实现与规格的一致性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取变更信息**
-
-   运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态。
-
-2. **定位规格文件**
-
-   查找增量规范或主规范，获取需求与场景信息。
-
-3. **审查功能正确性**
-
-   **检查项：**
-   - [ ] 代码是否正确实现需求功能
-   - [ ] 输入输出是否与预期一致
-   - [ ] 业务逻辑是否正确
-   - [ ] 数据流是否正确
-
-   **发现问题记为：** CRITICAL - 「功能错误：<详情>」，建议修正。
-
-4. **审查错误处理**
-
-   **检查项：**
-   - [ ] 是否处理所有预期错误
-   - [ ] 错误消息是否清晰
-   - [ ] 是否有适当的错误恢复机制
-   - [ ] 是否避免吞掉错误
-
-   **发现问题记为：** CRITICAL - 「错误处理缺失：<详情>」，建议补充错误处理。
-
-5. **审查边界情况**
-
-   **检查项：**
-   - [ ] 是否处理空输入、null/undefined
-   - [ ] 是否处理边界值（最小/最大）
-   - [ ] 是否处理数组边界
-   - [ ] 是否处理除零、索引越界等
-
-   **发现问题记为：** WARNING - 「边界情况未处理：<详情>」，建议补充边界处理。
-
-6. **审查非功能需求**
-
-   **检查项：**
-   - [ ] 性能是否满足要求
-   - [ ] 安全性是否考虑充分
-   - [ ] 可维护性是否良好
-   - [ ] 是否有适当的日志和监控
-
-   **发现问题记为：** WARNING - 「非功能性问题：<详情>」，建议改进。
-
-7. **检测规格漂移**
-
-   **检查项：**
-   - [ ] 代码是否超出规格范围
-   - [ ] 是否有未在规格中记录的功能
-   - [ ] 实现是否偏离规格意图
-
-   **发现问题记为：** WARNING - 「规格漂移：<详情>」，建议更新规格或调整实现。
-
-8. **生成并输出审查报告**
-
-   使用标准报告格式：Overall Assessment、Dimensions (Functional Correctness/Error Handling/Edge Cases/Non-Functional Requirements/Specification Alignment)、Recommendations (Critical/Important/Optional)、Conclusion。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 未找到规格时告知用户并停止
-- 评估基于现有代码和规格信息
-- 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`;
-}
-
-/**
- * Template for phspec-review-code skill
- * Review code compliance: functional correctness, error handling, edge cases, non-functional requirements, spec drift
- */
-export function getReviewCodeSkillTemplate(): SkillTemplate {
-  return {
-    name: "phspec-review-code",
-    description: "代码规范了规性审查 - 验证代码实现与规格的一致性",
-    instructions: getReviewCodeSkillInstructions(),
     license: "MIT",
     compatibility: "Requires phspec CLI.",
     metadata: { author: "phspec", version: "1.0" },
   };
 }
 
-/**
- * Helper function for review-code skill instructions
- */
-function getReviewCodeSkillInstructions(): string {
-  return `审查代码规范合规性，验证代码实现与规格的一致性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取变更信息**
-
-   运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态。
-
-2. **定位规格文件**
-
-   查找增量规范或主规范，获取需求与场景信息。
-
-3. **审查功能正确性**
-
-   **检查项：**
-   - [ ] 代码是否正确实现需求功能
-   - [ ] 输入输出是否与预期一致
-   - [ ] 业务逻辑是否正确
-   - [ ] 数据流是否正确
-
-   **发现问题记为：** CRITICAL - 「功能错误：<详情>」，建议修正。
-
-4. **审查错误处理**
-
-   **检查项：**
-   - [ ] 是否处理所有预期错误
-   - [ ] 错误消息是否清晰
-   - [ ] 是否有适当的错误恢复机制
-   - [ ] 是否避免吞掉错误
-
-   **发现问题记为：** CRITICAL - 「错误处理缺失：<详情>」，建议补充错误处理。
-
-5. **审查边界情况**
-
-   **检查项：**
-   - [ ] 是否处理空输入、null/undefined
-   - [ ] 是否处理边界值（最小/最大）
-   - [ ] 是否处理数组边界
-   - [ ] 是否处理除零、索引越界等
-
-   **发现问题记为：** WARNING - 「边界情况未处理：<详情>」，建议补充边界处理。
-
-6. **审查非功能需求**
-
-   **检查项：**
-   - [ ] 性能是否满足要求
-   - [ ] 安全性是否考虑充分
-   - [ ] 可维护性是否良好
-   - [ ] 是否有适当的日志和监控
-
-   **发现问题记为：** WARNING - 「非功能性问题：<详情>」，建议改进。
-
-7. **检测规格漂移**
-
-   **检查项：**
-   - [ ] 代码是否超出规格范围
-   - [ ] 是否有未在规格中记录的功能
-   - [ ] 实现是否偏离规格意图
-
-   **发现问题记为：** WARNING - 「规格漂移：<详情>」，建议更新规格或调整实现。
-
-8. **生成审查报告**
-
-   **报告格式：**
-
-   \`\`\`markdown
-   # Review Code: <Change Name>
-   **Artifact:** Implementation
-   **Date:** YYYY-MM-DD
-   **Status:** ✅ SOUND / ⚠️ NEEDS WORK / ❌ MAJOR ISSUES
-
-   ## Overall Assessment
-   [1-2 句话总结整体评估]
-
-   ## Dimensions
-
-   ### Functional Correctness: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Error Handling: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Edge Cases: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Non-Functional Requirements: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Specification Alignment: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ## Recommendations
-
-   ### Critical (Must Fix)
-   - [问题 1]
-     - **建议：** [具体修复建议]
-
-   ### Important (Should Fix)
-   - [问题 1]
-     - **建议：** [具体修复建议]
-
-   ### Optional (Nice to Have)
-   - [问题 1]
-     - **建议：** [具体修复建议]
-
-   ## Conclusion
-   **代码质量：** [整体评价]
-   **可继续/需修复：** Yes/No
-   **下一步：** [建议行动]
-   \`\`\`
-
-9. **输出报告**
-
-   展示完整的审查报告。若发现 CRITICAL 问题，建议修复；仅 WARNING 可考虑后继续。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 未找到规格时告知用户并停止
-- 评估基于现有代码和规格信息
-- 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`;
-}
 
 /**
- * Template for phspec-review-design skill
- * Review design consistency: design adherence, coherence, architecture alignment, traceability, completeness
- */
-export function getReviewDesignSkillTemplate(): SkillTemplate {
-  return {
-    name: "phspec-review-design",
-    description: "设计一致性审查 - 检查设计方案与规格的关联性",
-    instructions: getReviewDesignSkillInstructions(),
-    license: "MIT",
-    compatibility: "Requires phspec CLI.",
-    metadata: { author: "phspec", version: "1.0" },
-  };
-}
-
-/**
- * Helper function for review-design skill instructions
- */
-function getReviewDesignSkillInstructions(): string {
-  return `审查设计一致性，检查设计方案与规格的关联性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取变更信息**
-
-   运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态。
-
-2. **定位设计文件**
-
-   读取 \`phspec/changes/<name>/design.md\`。若不存在则告知用户并停止。
-
-3. **审查设计遵循度**
-
-   **检查项：**
-   - [ ] 实现是否遵循设计决策
-   - [ ] 架构选择是否与设计一致
-   - [ ] 技术栈是否符合设计
-   - [ ] 数据结构是否按设计实现
-
-   **发现问题记为：** CRITICAL - 「未遵循设计：<详情>」，建议调整实现或更新设计。
-
-4. **审查设计连贯性**
-
-   **检查项：**
-   - [ ] 设计决策是否内部一致
-   - [ ] 是否有相互冲突的设计
-   - [ ] 设计模式是否一致使用
-   - [ ] 命名约定是否统一
-
-   **发现问题记为：** WARNING - 「设计不一致：<详情>」，建议统一设计。
-
-5. **审查架构对齐**
-
-   **检查项：**
-   - [ ] 设计是否与系统架构对齐
-   - [ ] 是否遵循项目架构模式
-   - [ ] 组件交互是否符合架构设计
-   - [ ] 是否引入架构不一致的方案
-
-   **发现问题记为：** WARNING - 「架构不对齐：<详情>」，建议调整设计以对齐架构。
-
-6. **审查可追溯性**
-
-   **检查项：**
-   - [ ] 设计决策是否能追溯到规格需求
-   - [ ] 每个设计选择是否有明确理由
-   - [ ] 是否记录了技术决策依据
-   - [ ] 设计是否覆盖所有关键需求
-
-   **发现问题记为：** WARNING - 「可追溯性问题：<详情>」，建议补充设计依据。
-
-7. **审查设计完整性**
-
-   **检查项：**
-   - [ ] 设计是否覆盖所有规格需求
-   - [ ] 关键组件是否都有设计
-   - [ ] 接口设计是否完整
-   - [ ] 数据模型是否充分定义
-
-   **发现问题记为：** CRITICAL - 「设计不完整：<详情>」，建议补充设计。
-
-8. **生成审查报告**
-
-   **报告格式：**
-
-   \`\`\`markdown
-   # Review Design: <Change Name>
-   **Artifact:** design.md
-   **Date:** YYYY-MM-DD
-   **Status:** ✅ SOUND / ⚠️ NEEDS WORK / ❌ MAJOR ISSUES
-
-   ## Overall Assessment
-   [1-2 句话总结整体评估]
-
-   ## Dimensions
-
-   ### Design Adherence: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Design Coherence: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Architecture Alignment: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Traceability: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ### Design Completeness: <评分>/5
-   **评估：** [评估说明]
-   **结果：** [通过/需改进]
-
-   ## Recommendations
-
-   ### Critical (Must Fix)
-   - [问题 1]
-     - **建议：** [具体修复建议]
-
-   ### Important (Should Fix)
-   - [问题 1]
-     - **建议：** [具体修复建议]
-
-   ### Optional (Nice to Have)
-   - [问题 1]
-     - **建议：** [具体修复建议]
-
-   ## Conclusion
-   **设计质量：** [整体评价]
-   **可继续/需修改：** Yes/No
-   **下一步：** [建议行动]
-   \`\`\`
-
-9. **输出报告**
-
-   展示完整的审查报告。若发现 CRITICAL 问题，建议修改；仅 WARNING 可考虑后继续。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 未找到设计时告知用户并停止
-- 评估基于现有设计和规格信息
-- 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`;
-}
-/**
- * Template for /phsx:review-code slash command
- */
-export function getOpsxReviewCodeCommandTemplate(): CommandTemplate {
-  return {
-    name: "PHSX: Review Code",
-    description: "代码规范合规性审查 - 验证代码实现与规格的一致性",
-    category: "Review",
-    tags: ["review", "code", "experimental"],
-    content: `审查代码规范合规性，验证代码实现与规格的一致性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取变更信息**：运行 \`phspec status --change "<name>" --json\`。
-
-2. **定位规格文件**：查找增量规范或主规范。
-
-3. **审查功能正确性**：检查代码是否正确实现需求、输入输出是否一致、业务逻辑是否正确。
-
-4. **审查错误处理**：检查是否处理所有预期错误、错误消息是否清晰、是否有适当的错误恢复机制。
-
-5. **审查边界情况**：检查是否处理空输入、边界值、数组边界、除零等边界情况。
-
-6. **审查非功能需求**：检查性能、安全性、可维护性、日志和监控是否满足要求。
-
-7. **检测规格漂移**：检查代码是否超出规格范围、是否有未记录的功能、实现是否偏离规格意图。
-
-8. **生成并输出审查报告**：使用标准报告格式，含各维度评分和问题分类。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 未找到规格时告知用户并停止
-- 评估基于现有代码和规格信息
-- 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`,
-  };
-}
-
-/**
- * Get review-design command content for slash command generation
- */
-export function getReviewDesignCommandContent(): string {
-  return `审查设计一致性，检查设计方案与规格的关联性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取变更信息**
-
-   运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态。
-
-2. **定位设计文件**
-
-   读取 \`phspec/changes/<name>/design.md\`。若不存在则告知用户并停止。
-
-3. **审查设计遵循度**
-
-   **检查项：**
-   - [ ] 实现是否遵循设计决策
-   - [ ] 架构选择是否与设计一致
-   - [ ] 技术栈是否符合设计
-   - [ ] 数据结构是否按设计实现
-
-   **发现问题记为：** CRITICAL - 「未遵循设计：<详情>」，建议调整实现或更新设计。
-
-4. **审查设计连贯性**
-
-   **检查项：**
-   - [ ] 设计决策是否内部一致
-   - [ ] 是否有相互冲突的设计
-   - [ ] 设计模式是否一致使用
-   - [ ] 命名约定是否统一
-
-   **发现问题记为：** WARNING - 「设计不一致：<详情>」，建议统一设计。
-
-5. **审查架构对齐**
-
-   **检查项：**
-   - [ ] 设计是否与系统架构对齐
-   - [ ] 是否遵循项目架构模式
-   - [ ] 组件交互是否符合架构设计
-   - [ ] 是否引入架构不一致的方案
-
-   **发现问题记为：** WARNING - 「架构不对齐：<详情>」，建议调整设计以对齐架构。
-
-6. **审查可追溯性**
-
-   **检查项：**
-   - [ ] 设计决策是否能追溯到规格需求
-   - [ ] 每个设计选择是否有明确理由
-   - [ ] 是否记录了技术决策依据
-   - [ ] 设计是否覆盖所有关键需求
-
-   **发现问题记为：** WARNING - 「可追溯性问题：<详情>」，建议补充设计依据。
-
-7. **审查设计完整性**
-
-   **检查项：**
-   - [ ] 设计是否覆盖所有规格需求
-   - [ ] 关键组件是否都有设计
-   - [ ] 接口设计是否完整
-   - [ ] 数据模型是否充分定义
-
-   **发现问题记为：** CRITICAL - 「设计不完整：<详情>」，建议补充设计。
-
-8. **生成并输出审查报告**
-
-   使用标准报告格式：Overall Assessment、Dimensions (Design Adherence/Design Coherence/Architecture Alignment/Traceability/Design Completeness)、Recommendations (Critical/Important/Optional)、Conclusion。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 未找到设计时告知用户并停止
-- 评估基于现有设计和规格信息
-- 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`;
-}
-
-/**
- * Template for /phsx:review-design slash command
- */
-export function getOpsxReviewDesignCommandTemplate(): CommandTemplate {
-  return {
-    name: "PHSX: Review Design",
-    description: "设计一致性审查 - 检查设计方案与规格的关联性",
-    category: "Review",
-    tags: ["review", "design", "experimental"],
-    content: `审查设计一致性，检查设计方案与规格的关联性。
-
-**输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
-
-**步骤**
-
-1. **获取变更信息**：运行 \`phspec status --change "<name>" --json\`。
-
-2. **定位设计文件**：读取 \`phspec/changes/<name>/design.md\`。若不存在则告知用户并停止。
-
-3. **审查设计遵循度**：检查实现是否遵循设计决策、架构选择是否与设计一致、技术栈是否符合设计。
-
-4. **审查设计连贯性**：检查设计决策是否内部一致、是否有相互冲突的设计、设计模式是否一致使用。
-
-5. **审查架构对齐**：检查设计是否与系统架构对齐、是否遵循项目架构模式、组件交互是否符合架构设计。
-
-6. **审查可追溯性**：检查设计决策是否能追溯到规格需求、每个设计选择是否有明确理由、是否记录了技术决策依据。
-
-7. **审查设计完整性**：检查设计是否覆盖所有规格需求、关键组件是否都有设计、接口设计是否完整。
-
-8. **生成并输出审查报告**：使用标准报告格式，含各维度评分和问题分类。
-
-**边界**
-
-- 未提供变更时始终让用户选择，不猜测
-- 未找到设计时告知用户并停止
-- 评估基于现有设计和规格信息
-- 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`,
-  };
-}
-
-/**
- * Unified report template for all review commands
- * Ensures consistent report format across review-spec, review-code, and review-design
+ * 统一报告模板
+ * 确保 review-spec、review-code、review-design 三个审查命令的报告格式一致
  */
 export interface ReviewReportTemplate {
   artifactName: string;
   date: string;
-  status: '✅ SOUND' | '⚠️ NEEDS WORK' | '❌ MAJOR ISSUES';
+  status: '✅ 良好' | '⚠️ 需改进' | '❌ 严重问题';
   overallAssessment: string;
   dimensions: Array<{
     name: string;
@@ -3103,36 +2422,36 @@ export interface ReviewReportTemplate {
 }
 
 /**
- * Generate a standardized review report format
+ * 生成标准化的审查报告格式
  */
 export function getReviewReportTemplate(params: ReviewReportTemplate): string {
   const dimensionsSection = params.dimensions
-    .map((dim) => `### ${dim.name}: ${dim.score}/5
+    .map((dim) => `### ${dim.name}：${dim.score}/5
 **评估：** ${dim.assessment}`)
     .join('\n\n');
 
   const recommendationsSection = [
-    `### Critical (Must Fix)
-${params.recommendations.critical.length > 0 ? params.recommendations.critical.map((r) => `- ${r}`).join('\n') : 'None'}`,
-    `### Important (Should Fix)
-${params.recommendations.important.length > 0 ? params.recommendations.important.map((r) => `- ${r}`).join('\n') : 'None'}`,
-    `### Optional (Nice to Have)
-${params.recommendations.optional.length > 0 ? params.recommendations.optional.map((r) => `- ${r}`).join('\n') : 'None'}`,
+    `### 严重问题（必须修复）
+${params.recommendations.critical.length > 0 ? params.recommendations.critical.map((r) => `- ${r}`).join('\n') : '无'}`,
+    `### 重要问题（应该修复）
+${params.recommendations.important.length > 0 ? params.recommendations.important.map((r) => `- ${r}`).join('\n') : '无'}`,
+    `### 可选优化（建议改进）
+${params.recommendations.optional.length > 0 ? params.recommendations.optional.map((r) => `- ${r}`).join('\n') : '无'}`,
   ].join('\n\n');
 
   return `# ${params.artifactName}
-**Artifact:** ${params.artifactName}.md
-**Date:** ${params.date}
-**Status:** ${params.status}
+**制品：** ${params.artifactName}.md
+**日期：** ${params.date}
+**状态：** ${params.status}
 
-## Overall Assessment
+## 整体评估
 ${params.overallAssessment}
 
-## Dimensions
+## 审查维度
 
 ${dimensionsSection}
 
-## Recommendations
+## 建议
 
 ${recommendationsSection}
 
