@@ -2640,6 +2640,27 @@ function getReviewCodeSkillInstructions(): string {
 
 **步骤**
 
+0. **扫描项目配置（并行执行）**
+
+   同时扫描以下配置文件，获取项目编码规范依据：
+
+   **前端项目配置：**
+   - \`.eslintrc\`, \`.eslintrc.js\`, \`eslint.config.js\`
+   - \`.prettierrc\`, \`prettier.config.js\`
+   - \`tsconfig.json\`
+   - \`.editorconfig\`
+
+   **后端 Java 项目配置：**
+   - \`checkstyle.xml\`
+   - \`spotbugs.xml\`, \`spotbugs排除.xml\`
+   - \`pmd.xml\`, \`pmd-ruleset.xml\`
+   - \`sonar-project.properties\`
+
+   **项目规范文档：**
+   - \`phspec/specs/\` 目录下的规格文件
+
+   **若扫描到配置，将配置摘要加入上下文作为审查依据。若未扫描到任何规范配置，跳至步骤 1.1 询问用户。**
+
 1. **获取变更信息**
 
    运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态。
@@ -2647,6 +2668,32 @@ function getReviewCodeSkillInstructions(): string {
 2. **定位规格文件**
 
    查找增量规范或主规范，获取需求与场景信息。
+
+   **1.1 若未找到任何规范配置，请询问用户：**
+
+   \`\`\`
+   AskUserQuestion: {
+     "question": "未找到 PhSpec 规范和项目编码规范配置。是否需要补充项目规范？",
+     "options": [
+       {
+         "label": "创建项目规范",
+         "description": "创建 phspec/specs/ 下的项目规范文件"
+       },
+       {
+         "label": "跳过规范审查",
+         "description": "仅基于通用编程规范进行基础代码审查"
+       },
+       {
+         "label": "终止",
+         "description": "停止本次审查"
+       }
+     ]
+   }
+   \`\`\`
+
+   - 用户选择"创建项目规范"：提示用户运行 \`phspec init\` 或 \`phspec new-spec\`
+   - 用户选择"跳过规范审查"：使用通用编程规范继续审查
+   - 用户选择"终止"：结束本次审查
 
 3. **审查功能正确性**
 
@@ -2706,6 +2753,9 @@ function getReviewCodeSkillInstructions(): string {
    **Artifact:** Implementation
    **Date:** YYYY-MM-DD
    **Status:** ✅ SOUND / ⚠️ NEEDS WORK / ❌ MAJOR ISSUES
+
+   ## Review Rules
+   [简要说明本次审查使用的规范依据：扫描到的配置文件 + PhSpec 规范]
 
    ## Overall Assessment
    [1-2 句话总结整体评估]
