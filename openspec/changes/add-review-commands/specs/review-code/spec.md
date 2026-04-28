@@ -48,7 +48,7 @@ The system SHALL check handling of boundary conditions and edge cases.
 - **AND** review suggests edge case handling
 
 ### Requirement: Review code command shall verify non-functional requirements
-The system SHALL evaluate code against non-functional requirements (performance, security, maintainability).
+The system SHALL check that implemented code meets non-functional requirements (performance, security, maintainability).
 
 #### Scenario: Non-functional requirements met passes check
 - **WHEN** code meets non-functional requirements
@@ -59,6 +59,54 @@ The system SHALL evaluate code against non-functional requirements (performance,
 - **WHEN** code violates non-functional requirements
 - **THEN** review identifies non-functional violations
 - **AND** review suggests improvements
+
+### Requirement: Review code command shall verify testability
+The system SHALL check that the code can be effectively tested with appropriate unit and integration tests.
+
+#### Scenario: Testable code passes check
+- **WHEN** code has injectable dependencies and clear test boundaries
+- **AND** code does not have tight coupling to infrastructure
+- **THEN** review reports testability as satisfactory
+- **AND** no testability concerns are listed
+
+#### Scenario: Untestable code fails check
+- **WHEN** code has hard-coded dependencies that cannot be mocked
+- **OR** code makes direct infrastructure calls without abstraction
+- **THEN** review identifies testability barriers
+- **AND** review suggests refactoring for testability
+
+### Requirement: Review code command shall verify observability integration
+The system SHALL check that new code paths include appropriate logging, metrics, and tracing instrumentation.
+
+#### Scenario: Proper observability integration passes check
+- **WHEN** new code paths include structured logs for key operations
+- **AND** metrics are emitted for important business events
+- **AND** tracing spans cover cross-component operations
+- **THEN** review reports observability as satisfactory
+- **AND** no observability gaps are listed
+
+#### Scenario: Missing observability integration fails check
+- **WHEN** new code paths lack logging for error cases
+- **OR** important business operations lack metrics
+- **OR** cross-service calls lack tracing context propagation
+- **THEN** review identifies observability gaps
+- **AND** review suggests specific instrumentation points
+
+### Requirement: Review code command shall verify API contract stability
+The system SHALL check that changes maintain backward compatibility and do not introduce breaking changes.
+
+#### Scenario: Backward-compatible changes pass check
+- **WHEN** API changes preserve existing contracts
+- **AND** new fields are optional or have defaults
+- **AND** removed fields are deprecated first
+- **THEN** review reports API contract stability as satisfactory
+
+#### Scenario: Breaking changes fail check
+- **WHEN** API removes or renames existing fields
+- **OR** API changes field types incompatibly
+- **OR** API changes behavior of existing endpoints
+- **THEN** review identifies breaking changes
+- **AND** review suggests migration strategies or deprecation paths
 
 ### Requirement: Review code command shall detect specification drift
 The system SHALL identify discrepancies between current implementation and specification.

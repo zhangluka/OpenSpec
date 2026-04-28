@@ -73,6 +73,39 @@ The system SHALL check that design addresses all specification requirements.
 - **THEN** review identifies missing design elements
 - **AND** review suggests design additions
 
+### Requirement: Review design command shall evaluate operational readiness
+The system SHALL check that design includes sufficient operational considerations for deployment, monitoring, and debugging.
+
+#### Scenario: Operationally ready design passes check
+- **WHEN** design documents logging and monitoring strategy
+- **AND** design addresses error handling and recovery paths
+- **AND** design includes rollback and deployment considerations
+- **THEN** review reports operational readiness as satisfactory
+- **AND** no operational gaps are listed
+
+#### Scenario: Operationally incomplete design fails check
+- **WHEN** design lacks logging and observability strategy
+- **OR** design omits error recovery and fallback paths
+- **OR** design does not address deployment and rollback approach
+- **THEN** review identifies operational gaps
+- **AND** review suggests specific operational additions
+
+### Requirement: Review design command shall assess technical debt
+The system SHALL evaluate whether the design introduces or accumulates technical debt, and whether debt is appropriately acknowledged.
+
+#### Scenario: Low debt design passes check
+- **WHEN** design avoids unnecessary complexity
+- **AND** known trade-offs are explicitly documented
+- **AND** technical debt is minimal and justified
+- **THEN** review reports technical debt as manageable
+
+#### Scenario: High debt design flags concerns
+- **WHEN** design introduces significant complexity without justification
+- **OR** design defers important refactoring without acknowledgment
+- **OR** design copies existing patterns that are known to cause issues
+- **THEN** review identifies technical debt concerns
+- **AND** review recommends debt reduction strategies or explicit debt documentation
+
 ### Requirement: Review design command shall generate structured report
 The system SHALL generate a structured review report with clear sections and actionable feedback.
 

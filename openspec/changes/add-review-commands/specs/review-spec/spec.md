@@ -60,6 +60,37 @@ The system SHALL evaluate whether the specification can be effectively tested.
 - **THEN** review identifies untestable aspects
 - **AND** review suggests testable additions
 
+### Requirement: Review spec command shall check non-functional requirements clarity
+The system SHALL evaluate whether the specification clearly defines non-functional requirements (performance, security, scalability).
+
+#### Scenario: Non-functional requirements clearly defined passes check
+- **WHEN** specification includes explicit performance targets
+- **AND** security constraints are documented
+- **AND** scalability expectations are stated
+- **THEN** review reports non-functional clarity as satisfactory
+- **AND** no non-functional gaps are listed
+
+#### Scenario: Non-functional requirements unclear fails check
+- **WHEN** specification lacks performance targets or SLAs
+- **OR** security requirements are not documented
+- **OR** scalability expectations are absent
+- **THEN** review identifies non-functional gaps
+- **AND** review suggests specific non-functional requirements
+
+### Requirement: Review spec command shall check traceability
+The system SHALL evaluate whether specification requirements can be traced to specific capability statements.
+
+#### Scenario: Traceable specification passes check
+- **WHEN** each requirement references its source capability
+- **AND** ADDED/MODIFIED/REMOVED markers are consistently applied
+- **THEN** review reports traceability as satisfactory
+
+#### Scenario: Untraceable specification fails check
+- **WHEN** requirements lack capability references
+- **OR** ADDED/MODIFIED/REMOVED markers are inconsistent
+- **THEN** review identifies traceability gaps
+- **AND** review suggests specific traceability improvements
+
 ### Requirement: Review spec command shall generate structured report
 The system SHALL generate a structured review report with clear sections and actionable feedback.
 
