@@ -147,6 +147,19 @@ None
 **下一步：** 修复错误处理和边界条件问题
 ```
 
+### 项目配置扫描
+
+审查代码前会扫描项目规范文档（ESLint/Prettier/tsconfig.json/CONTRIBUTING.md/CODE_STANDARDS.md 等）作为审查依据。
+
+**若未找到任何项目规范文档**：
+- 审查会暂停，提示用户未找到项目规范
+- 询问用户是否要补充项目规范文档，或选择继续使用通用规范进行底线审查
+- 这有助于获得更有针对性的审查结果
+
+### 报告保存
+
+审查报告默认在聊天窗口显示，也可保存为本地 markdown 文件。详见下方「报告保存」小节。
+
 ## 审查设计：`/phsx:review-design`
 
 检查设计方案与规格的关联性，评估设计质量。
@@ -213,6 +226,18 @@ None
 **设计质量：** 良好，可进入实施阶段。
 **下一步：** 开始实施
 ```
+
+### 报告保存
+
+所有审查报告均可在聊天窗口查看，也可保存为本地 markdown 文件：
+
+| 命令 | 保存路径 |
+|------|----------|
+| `/phsx:review-spec` | `phspec/changes/<name>/reviews/review-spec-<timestamp>.md` |
+| `/phsx:review-design` | `phspec/changes/<name>/reviews/review-design-<timestamp>.md` |
+| `/phsx:review-code` | `phspec/changes/<name>/reviews/review-code-<timestamp>.md` |
+
+报告文件用于归档和追溯，建议保存。
 
 ## 使用建议
 

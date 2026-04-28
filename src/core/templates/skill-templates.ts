@@ -2444,6 +2444,19 @@ b. 若未提供变更名，让用户选择：
 **下一步**：<建议行动>
 \`\`\`
 
+**10. 保存审查报告（如用户请求）**
+
+报告默认在聊天窗口显示。如用户请求，可保存为本地 markdown 文件：
+
+\`\`\`bash
+mkdir -p phspec/changes/<name>/reviews
+cat > phspec/changes/<name>/reviews/review-spec-$(date +%Y%m%d-%H%M%S).md << 'EOF'
+<将上方生成的报告内容粘贴至此>
+EOF
+\`\`\`
+
+保存路径：\`phspec/changes/<name>/reviews/review-spec-<timestamp>.md\`
+
 ---
 
 ## 评分标准
@@ -2735,7 +2748,13 @@ function getReviewCodeSkillInstructions(): string {
 - 后端规范：\`checkstyle.xml\`, \`pmd.xml\`, \`spotbugs.xml\`（若存在 Java 项目）
 - 项目根目录的 \`CONTRIBUTING.md\` 或 \`CODE_STANDARDS.md\`（若存在）
 
-将扫描到的规范摘要加入上下文。若未扫描到任何规范，使用通用编程规范作为底线。
+将扫描到的规范摘要加入上下文。
+
+**若未扫描到任何规范**：
+- **暂停审查**，告知用户："未找到项目规范文档（ESLint/Prettier/tsconfig.json/CODE_STANDARDS.md 等）。使用通用编程规范作为底线进行审查，但审查结果的针对性可能有限。"
+- 询问用户是否要补充项目规范文档（如 \`CONTRIBUTING.md\`、\`CODE_STANDARDS.md\`、\`.eslintrc\` 等），或选择继续使用通用规范进行底线审查
+- 若用户选择补充规范，等待用户完成补充后重新扫描
+- 若用户选择继续，使用通用编程规范作为底线继续审查
 
 **2. 获取变更上下文**
 
@@ -2863,6 +2882,23 @@ c) **API 契约稳定性检查**（若改动涉及 API）
 **可继续/需修复**：Yes/No
 **下一步**：<建议行动>
 \`\`\`
+
+**9. 保存审查报告（如用户请求）**
+
+报告默认在聊天窗口显示。如用户请求，可保存为本地 markdown 文件：
+
+\`\`\`bash
+mkdir -p phspec/changes/<name>/reviews
+cat > phspec/changes/<name>/reviews/review-code-$(date +%Y%m%d-%H%M%S).md << 'EOF'
+<将上方生成的报告内容粘贴至此>
+EOF
+\`\`\`
+
+保存路径：\`phspec/changes/<name>/reviews/review-code-<timestamp>.md\`
+
+**注意**：
+- 报告文件用于归档和追溯，建议保存
+- 可用 \`phspec/changes/<name>/reviews/review-code-latest.md\` 作为最新报告的软链接
 
 ---
 
@@ -3057,6 +3093,19 @@ c) **部署与回滚**
 **可继续/需修改**：Yes/No
 **下一步**：<建议行动>
 \`\`\`
+
+**10. 保存审查报告（如用户请求）**
+
+报告默认在聊天窗口显示。如用户请求，可保存为本地 markdown 文件：
+
+\`\`\`bash
+mkdir -p phspec/changes/<name>/reviews
+cat > phspec/changes/<name>/reviews/review-design-$(date +%Y%m%d-%H%M%S).md << 'EOF'
+<将上方生成的报告内容粘贴至此>
+EOF
+\`\`\`
+
+保存路径：\`phspec/changes/<name>/reviews/review-design-<timestamp>.md\`
 
 ---
 
