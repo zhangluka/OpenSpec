@@ -1653,7 +1653,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
    **自动调用 Review 检查**：制品创建完成后，根据制品类型自动调用对应的 review 技能进行质量检查：
 
    - **requirement** 或 **specs** → 调用 **phspec-review-spec**（规格质量审查）
-   - **plan** 或 **tasks** → 调用 **phspec-review-design**（设计一致性审查）
+   - **plan**、**design** 或 **tasks** → 调用 **phspec-review-design**（设计一致性审查）
 
    使用 Skill 工具调用对应的 review 技能，对刚创建的制品进行质量检查。review 技能会输出审查报告，包含评分、问题分类和可执行建议。展示审查结果，若发现严重问题（如关键指标不达标），建议用户先修复问题再继续。
 
@@ -1788,7 +1788,7 @@ export function getOpsxFfCommandTemplate(): CommandTemplate {
 
    **自动调用 Review 检查**：制品创建完成后，根据制品类型自动调用对应的 review 技能进行质量检查：
    - **requirement** 或 **specs** → 调用 **phspec-review-spec**（规格质量审查）
-   - **plan** 或 **tasks** → 调用 **phspec-review-design**（设计一致性审查）
+   - **plan**、**design** 或 **tasks** → 调用 **phspec-review-design**（设计一致性审查）
 
    使用 Skill 工具调用对应的 review 技能，对刚创建的制品进行质量检查。展示简要的审查结果，若发现严重问题（如关键指标不达标），提示用户后继续创建下一个制品。
 
@@ -2367,7 +2367,7 @@ b. 若未提供变更名，让用户选择：
 
 **检查项：**
 - [ ] 每条 \`### Requirement:\` 是否在增量规范中有明确操作类型（ADDED/MODIFIED/REMOVED）
-- [ ] 每个 Requirement 名称是否与 proposal.md 中 capability 列表对应
+- [ ] 每个 Requirement 名称是否与需求文档中 capability 列表对应（spec-driven 为 proposal.md，lean-sdd 为 requirement.md）
 - [ ] 同一需求在不同文件中名称是否一致
 - [ ] 增量规范与主规范之间是否有明确的关联标记
 
@@ -2969,11 +2969,15 @@ function getReviewDesignSkillInstructions(): string {
 phspec status --change "<name>" --json
 \`\`\`
 
-解析工作流模式和制品状态，确认是否有 design.md 和增量规范。
+解析工作流模式和制品状态，确认是否有设计文件和增量规范。
 
 **2. 读取设计文件**
 
-读取 \`phspec/changes/<name>/design.md\`。若不存在，告知用户并停止。
+根据工作流模式读取对应的设计文件：
+- **spec-driven** 模式：读取 \`phspec/changes/<name>/design.md\`
+- **lean-sdd** 模式：读取 \`phspec/changes/<name>/plan.md\`
+
+若对应的设计文件不存在，告知用户并停止。
 
 **3. 读取关联规格（如有）**
 
@@ -2981,7 +2985,7 @@ phspec status --change "<name>" --json
 
 **4. 执行决策追溯检查**
 
-对 design.md 中每条 \`### Decision:\` 或 \`### Approach:\`：
+对设计文件中每条 \`### Decision:\` 或 \`### Approach:\`：
 
 a) **追溯到需求**
 - 该决策解决了哪个/哪些规格需求？
@@ -3036,7 +3040,7 @@ c) **部署与回滚**
 
 \`\`\`markdown
 # Review Design: <Change Name>
-**Artifact:** design.md
+**Artifact:** design.md 或 plan.md（根据工作流模式）
 **Date:** YYYY-MM-DD
 **Status:** ✅ SOUND / ⚠️ NEEDS WORK / ❌ MAJOR ISSUES
 
@@ -3124,9 +3128,9 @@ EOF
 ## 边界
 
 - 未提供变更时始终让用户选择，不猜测
-- 未找到 design.md 时告知用户并停止
+- 未找到设计文件时告知用户并停止（spec-driven 为 design.md，lean-sdd 为 plan.md）
 - 决策追溯是最核心的检查，优先执行
-- 每个发现必须有设计证据引用（"design.md 第 23 行提到"）
+- 每个发现必须有设计证据引用（"design.md 第 23 行提到"或"plan.md 第 23 行提到"）
 - 无法追溯的决策降级为 WARNING
 - 操作准备度和技术债务是增强检查，不要求满分
 - 报告使用标准格式，Critical/Important/Optional 分组，每条带证据和具体建议`;
@@ -3189,7 +3193,11 @@ export function getReviewDesignCommandContent(): string {
 
 2. **定位设计文件**
 
-   读取 \`phspec/changes/<name>/design.md\`。若不存在则告知用户并停止。
+   根据工作流模式读取对应的设计文件：
+   - **spec-driven** 模式：读取 \`phspec/changes/<name>/design.md\`
+   - **lean-sdd** 模式：读取 \`phspec/changes/<name>/plan.md\`
+
+   若对应的设计文件不存在，告知用户并停止。
 
 3. **审查设计遵循度**
 
@@ -3271,7 +3279,7 @@ export function getOpsxReviewDesignCommandTemplate(): CommandTemplate {
 
 1. **获取变更信息**：运行 \`phspec status --change "<name>" --json\`。
 
-2. **定位设计文件**：读取 \`phspec/changes/<name>/design.md\`。若不存在则告知用户并停止。
+2. **定位设计文件**：根据工作流模式读取对应的设计文件（spec-driven 为 design.md，lean-sdd 为 plan.md）。若不存在则告知用户并停止。
 
 3. **审查设计遵循度**：检查实现是否遵循设计决策、架构选择是否与设计一致、技术栈是否符合设计。
 
