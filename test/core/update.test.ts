@@ -424,7 +424,7 @@ Old instructions content
         testDir,
         ".claude",
         "skills",
-        "openspec-archive-change",
+        "phspec-archive-change",
       );
       await fs.mkdir(skillDir, { recursive: true });
       await fs.writeFile(path.join(skillDir, "SKILL.md"), "old");
@@ -480,14 +480,14 @@ Old instructions content
         recursive: true,
       });
       await fs.writeFile(
-        path.join(skillsDir, "openspec-apply-change", "SKILL.md"),
+        path.join(skillsDir, "phspec-apply-change", "SKILL.md"),
         "old",
       );
 
       await updateCommand.execute(testDir);
 
       const skillContent = await fs.readFile(
-        path.join(skillsDir, "openspec-apply-change", "SKILL.md"),
+        path.join(skillsDir, "phspec-apply-change", "SKILL.md"),
         "utf-8",
       );
 

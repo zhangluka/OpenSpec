@@ -2618,80 +2618,78 @@ export function getOpsxReviewSpecCommandTemplate(): CommandTemplate {
  * Get review-code command content for slash command generation
  */
 export function getReviewCodeCommandContent(): string {
-  return `审查代码规范合规性，验证代码实现与规格的一致性。
+  return `审查代码质量，验证实现与规格的一致性，检查安全性、架构合规性和死代码。
 
 **输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
+**严重级别**：P0（必须阻断合并）/ P1（合并前应修）/ P2（修或创建 follow-up）/ P3（可选改进）
+
 **步骤**
 
-1. **获取变更信息**
+1. **Preflight — 获取变更范围**
 
-   运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态。
+   - 运行 \`phspec status --change "<name>" --json\` 了解工作流和制品状态
+   - 若在 git 仓库中，运行 \`git diff --stat HEAD\` 获取变更文件列表
+   - 大 diff（500+ 行）警告用户建议分批审查
 
 2. **定位规格文件**
 
-   查找增量规范或主规范，获取需求与场景信息。
+   查找增量规范或主规范，提取所有 Requirement 及 Scenario、MUST/SHALL/SHOULD 关键字。
 
-3. **审查功能正确性**
+3. **Layer 1 — 快速扫描（必须全部检查）**
 
-   **检查项：**
-   - [ ] 代码是否正确实现需求功能
-   - [ ] 输入输出是否与预期一致
-   - [ ] 业务逻辑是否正确
-   - [ ] 数据流是否正确
+   - [ ] 增量规范中提到的每个文件是否存在
+   - [ ] MUST/SHALL 关键字在代码中是否有对应实现
+   - [ ] 是否有删除/重命名既有接口的 breaking change
 
-   **发现问题记为：** CRITICAL - 「功能错误：<详情>」，建议修正。
+4. **Layer 2 — 深度检查（每个需求逐条验证）**
 
-4. **审查错误处理**
+   - [ ] 场景覆盖：每个 Scenario 的 WHEN 条件是否被代码覆盖
+   - [ ] 错误处理：关键路径是否有 try/catch、错误返回或 fallback
+   - [ ] 边界情况：null/undefined、边界值、数组边界、除零/越界
 
-   **检查项：**
-   - [ ] 是否处理所有预期错误
-   - [ ] 错误消息是否清晰
-   - [ ] 是否有适当的错误恢复机制
-   - [ ] 是否避免吞掉错误
+5. **Layer 2.5 — 安全与架构检查**
 
-   **发现问题记为：** CRITICAL - 「错误处理缺失：<详情>」，建议补充错误处理。
+   **安全扫描（P0-P1）：**
+   - [ ] XSS：dangerouslySetInnerHTML、未转义模板、innerHTML 赋值
+   - [ ] 注入：SQL/NoSQL/命令注入（字符串拼接或模板字面量）
+   - [ ] SSRF：用户可控 URL 未做 allowlist 校验
+   - [ ] 路径穿越：用户输入进入文件路径未消毒
+   - [ ] 认证/授权：缺失 tenant/ownership 检查、新端点无 auth guard、IDOR
+   - [ ] JWT：算法混淆、弱/硬编码密钥、缺失 exp 验证、payload 含敏感数据
+   - [ ] 密钥泄露：API key/token/凭据出现在代码/配置/日志中
+   - [ ] 供应链：未锁定依赖、依赖混淆、CDN 引用无完整性校验
+   - [ ] 竞态条件：TOCTOU 模式、check-then-act、read-modify-write 无原子操作、并发写入无锁
 
-5. **审查边界情况**
+   **架构检查（P1-P2）：**
+   - [ ] SRP：单个函数/模块承担过多职责
+   - [ ] 依赖方向：高层模块直接依赖低层实现（无抽象）
+   - [ ] 副作用隔离：纯逻辑与 I/O 操作混合
 
-   **检查项：**
-   - [ ] 是否处理空输入、null/undefined
-   - [ ] 是否处理边界值（最小/最大）
-   - [ ] 是否处理数组边界
-   - [ ] 是否处理除零、索引越界等
+6. **Layer 3 — 质量检查（有则报告，不阻塞）**
 
-   **发现问题记为：** WARNING - 「边界情况未处理：<详情>」，建议补充边界处理。
-
-6. **审查非功能需求**
-
-   **检查项：**
-   - [ ] 性能是否满足要求
-   - [ ] 安全性是否考虑充分
-   - [ ] 可维护性是否良好
-   - [ ] 是否有适当的日志和监控
-
-   **发现问题记为：** WARNING - 「非功能性问题：<详情>」，建议改进。
+   - [ ] 可测试性：依赖是否可注入、是否有 mock 路径
+   - [ ] 可观测性：新逻辑是否有日志、metrics 或 tracing
+   - [ ] API 契约：改动是否向后兼容
+   - [ ] 死代码：未引用的函数/变量、注释掉的代码块、TODO/FIXME 临时代码
 
 7. **检测规格漂移**
 
-   **检查项：**
    - [ ] 代码是否超出规格范围
    - [ ] 是否有未在规格中记录的功能
    - [ ] 实现是否偏离规格意图
 
-   **发现问题记为：** WARNING - 「规格漂移：<详情>」，建议更新规格或调整实现。
-
 8. **生成并输出审查报告**
 
-   使用标准报告格式：Overall Assessment、Dimensions (Functional Correctness/Error Handling/Edge Cases/Non-Functional Requirements/Specification Alignment)、Recommendations (Critical/Important/Optional)、Conclusion。
+   报告包含：Overall Assessment、Review Scope、Layer 1 Quick Scan、Layer 2 Scenario Coverage、Layer 2.5 Security Scan + Architecture Check、Layer 3 Quality Checks、Dead Code Candidates、Recommendations (P0/P1/P2-P3)、Conclusion。
 
 **边界**
 
 - 未提供变更时始终让用户选择，不猜测
 - 未找到规格时告知用户并停止
-- 评估基于现有代码和规格信息
-- 不确定时优先 WARNING 再 CRITICAL
-- 报告使用标准格式，含评分、问题分类和可执行建议`;
+- 每条发现必须有代码证据（文件:行号），无法给出证据时降级为 SUGGESTION
+- 不确定时降级为 P1 而非 P0
+- 默认只读，不实施修复，除非用户明确要求`;
 }
 
 /**
@@ -2701,7 +2699,7 @@ export function getReviewCodeCommandContent(): string {
 export function getReviewCodeSkillTemplate(): SkillTemplate {
   return {
     name: "phspec-review-code",
-    description: "代码规范了规性审查 - 验证代码实现与规格的一致性",
+    description: "代码规范合规性审查 - 验证代码实现与规格的一致性",
     instructions: getReviewCodeSkillInstructions(),
     license: "MIT",
     compatibility: "Requires phspec CLI.",
@@ -2713,34 +2711,51 @@ export function getReviewCodeSkillTemplate(): SkillTemplate {
  * Helper function for review-code skill instructions
  */
 function getReviewCodeSkillInstructions(): string {
-  return `审查代码质量，验证实现与规格的一致性，并检查可测试性、可观测性和 API 契约稳定性。
+  return `审查代码质量，验证实现与规格的一致性，并检查安全性、架构合规性、可测试性、可观测性和死代码。
 
 **核心原则**：每条发现必须有代码证据（文件:行号），空洞的"建议增强错误处理"没有价值。
+
+**严重级别**：
+- **P0 — Critical**：安全漏洞、数据丢失风险、正确性 bug、spec 不合规。必须阻断合并。
+- **P1 — High**：错误处理缺失、边界条件未覆盖、架构违规。合并前应修。
+- **P2 — Medium**：可测试性、可观测性问题。修或创建 follow-up。
+- **P3 — Low**：死代码、风格建议。可选改进。
 
 ---
 
 ## 分层检查策略
 
-**Layer 1 - 快速扫描（必须全部检查）**
+**Layer 1 — 快速扫描（必须全部检查）**
 - 文件存在性：增量规范中提到的每个文件是否都存在
 - 关键字覆盖：增量规范中的 MUST/SHALL/SHOULD 关键字在代码中是否有对应实现
 - Breaking change 检测：是否有删除或重命名既有接口/函数/类型
 
-**Layer 2 - 深度检查（每个需求逐条验证）**
+**Layer 2 — 深度检查（每个需求逐条验证）**
 - 场景覆盖：spec 中每个 Scenario 的 WHEN 条件是否被代码覆盖
 - 错误处理：关键路径是否有 try/catch、错误返回或 fallback
 - 边界情况：spec 中的边界条件在代码中是否处理
 
-**Layer 3 - 质量检查（有则报告，不阻塞）**
+**Layer 2.5 — 安全与架构检查（逐项扫描）**
+- 安全漏洞：XSS、注入、SSRF、路径穿越、认证/授权、JWT、密钥泄露、供应链、竞态条件
+- 架构违规：SRP 违反、依赖方向错误、副作用隔离不当
+
+**Layer 3 — 质量检查（有则报告，不阻塞）**
 - 可测试性：依赖是否可注入、是否有 mock 路径
 - 可观测性：新逻辑是否有日志、metrics 或 tracing
 - API 契约：改动是否向后兼容、是否有 breaking change
+- 死代码：未引用的函数/变量、注释掉的代码、TODO/FIXME 临时代码
 
 ---
 
 ## 步骤
 
-**1. 扫描项目配置（并行）**
+**1. Preflight — 获取变更范围**
+
+- 若在 git 仓库中，运行 \`git diff --stat HEAD\` 获取变更文件列表和行数
+- 大 diff（500+ 行）：警告用户"变更较大（N 行），建议分批审查以提高准确性"
+- 混合关注点：若变更涉及多个不相关模块，提示用户考虑拆分审查
+
+**2. 扫描项目配置（并行）**
 
 扫描以下配置文件获取审查依据：
 - ESLint/Prettier 配置：\`.eslintrc\`, \`eslint.config.js\`, \`.prettierrc\`
@@ -2752,11 +2767,11 @@ function getReviewCodeSkillInstructions(): string {
 
 **若未扫描到任何规范**：
 - **暂停审查**，告知用户："未找到项目规范文档（ESLint/Prettier/tsconfig.json/CODE_STANDARDS.md 等）。使用通用编程规范作为底线进行审查，但审查结果的针对性可能有限。"
-- 询问用户是否要补充项目规范文档（如 \`CONTRIBUTING.md\`、\`CODE_STANDARDS.md\`、\`.eslintrc\` 等），或选择继续使用通用规范进行底线审查
+- 询问用户是否要补充项目规范文档，或选择继续使用通用规范进行底线审查
 - 若用户选择补充规范，等待用户完成补充后重新扫描
 - 若用户选择继续，使用通用编程规范作为底线继续审查
 
-**2. 获取变更上下文**
+**3. 获取变更上下文**
 
 \`\`\`bash
 phspec status --change "<name>" --json
@@ -2764,31 +2779,30 @@ phspec status --change "<name>" --json
 
 解析变更的工作流模式、制品状态，确认是否有增量规范和任务列表。
 
-**3. 读取增量规范**
+**4. 读取增量规范**
 
 读取所有 \`phspec/changes/<name>/specs/*/spec.md\` 文件，对每个 capability：
 - 提取所有 \`### Requirement: <name>\` 及其 \`#### Scenario:\` 列表
 - 提取 \`SHALL\`/\`MUST\`/\`SHOULD\` 关键字及约束
 - 记录 ADDED/MODIFIED/REMOVED 操作类型
 
-**4. 读取任务列表（如有）**
+**5. 读取任务列表（如有）**
 
 读取 \`phspec/changes/<name>/tasks.md\`，获取本次实施涉及的具体文件和改动范围。
 
-**5. 执行 Layer 1 快速扫描**
+**6. 执行 Layer 1 快速扫描**
 
 对每个增量规范中提到的文件路径：
-- 检查文件是否存在（若不存在 → CRITICAL）
-- 用 grep 搜索 SHALL/MUST 关键字对应的实现（若找不到 → CRITICAL）
-- 检查是否有删除既有函数/类型/接口的痕迹（若有 → CRITICAL，标记为 breaking change）
+- 检查文件是否存在（若不存在 → P0）
+- 用 grep 搜索 SHALL/MUST 关键字对应的实现（若找不到 → P0）
+- 检查是否有删除既有函数/类型/接口的痕迹（若有 → P0，标记为 breaking change）
 
-**6. 执行 Layer 2 深度检查**
+**7. 执行 Layer 2 深度检查**
 
 对每个 Requirement 和其每个 Scenario：
 
 a) **搜索实现证据**
 \`\`\`bash
-# 搜索 capability 关键字（用规范中的关键术语搜索）
 grep -rn "capability_keyword" --include="*.ts" --include="*.js" src/
 \`\`\`
 
@@ -2804,12 +2818,90 @@ d) **检查错误处理**
 - 关键函数是否有 try/catch？
 - 异步操作是否有错误回调？
 - 是否有静默吞错误的情况（catch 空块）？
+- 错误消息是否清晰、是否包含足够上下文？
 
 e) **检查边界情况**
 - 空输入、null/undefined 是否有防御性检查？
 - 数组边界、除零、索引越界是否有保护？
+- 数值极限（Number.MAX_SAFE_INTEGER、负数、NaN）是否考虑？
 
-**7. 执行 Layer 3 质量检查**
+**8. 执行 Layer 2.5 安全与架构检查**
+
+**8a. 安全扫描**（逐项检查，每项用 grep + 代码阅读验证）
+
+**XSS（跨站脚本）：**
+- [ ] React: \`dangerouslySetInnerHTML\` 使用是否经过消毒
+- [ ] 模板引擎: 是否有未转义的 \`{{{ }}}\` 或 \`!=\` 输出
+- [ ] DOM: \`innerHTML\`、\`outerHTML\`、\`document.write\` 赋值
+- [ ] URL: \`javascript:\`、\`data:\` 协议的用户输入拼接
+
+**注入攻击：**
+- [ ] SQL: 字符串拼接构建查询（而非参数化查询）
+- [ ] NoSQL: MongoDB 操作符注入（\`$gt\`、\`$ne\` 等来自用户输入）
+- [ ] 命令注入: \`exec()\`、\`spawn()\`、\`system()\` 中拼接用户输入
+- [ ] GraphQL: 查询中的字符串插值
+
+**SSRF（服务端请求伪造）：**
+- [ ] 用户可控的 URL 是否经过 allowlist 校验
+- [ ] 是否有 \`fetch()\`、\`axios()\`、\`http.request()\` 使用用户提供的 URL
+- [ ] 内网地址（\`127.0.0.1\`、\`169.254.*\`、\`10.*\`）是否被过滤
+
+**路径穿越：**
+- [ ] 用户输入是否直接用于文件路径（\`fs.readFile(userInput)\`）
+- [ ] 是否有 \`../\` 检测和消毒
+- [ ] 是否限制在预期目录内（chroot/sandbox）
+
+**认证与授权：**
+- [ ] 新端点是否有 auth 中间件/guard
+- [ ] 是否有 tenant 或 ownership 检查（防止 IDOR）
+- [ ] 是否信任客户端提供的角色/标志/ID
+- [ ] Session 管理是否安全（固定 session、过期策略）
+
+**JWT 与 Token 安全：**
+- [ ] 算法混淆：是否接受 \`none\` 或错误的算法（如期望 RS256 却接受 HS256）
+- [ ] 密钥强度：是否使用硬编码或弱密钥
+- [ ] 过期验证：是否校验 \`exp\` 字段
+- [ ] 敏感数据：JWT payload 是否包含不应暴露的信息（token 是 base64 非加密）
+- [ ] 签发者/受众：是否校验 \`iss\` 和 \`aud\`
+
+**密钥与 PII 泄露：**
+- [ ] API key、token、凭据是否出现在代码/配置/日志中
+- [ ] 环境变量是否暴露给客户端
+- [ ] 错误消息是否包含敏感数据或堆栈信息
+- [ ] 日志是否过度记录 PII
+
+**供应链安全：**
+- [ ] 依赖是否锁定版本（lock file 存在且最新）
+- [ ] 是否有依赖混淆风险（私有包名冲突）
+- [ ] CDN 引用是否有 integrity 校验（SRI）
+- [ ] 是否存在已知 CVE 的过期依赖
+
+**竞态条件：**
+- [ ] TOCTOU: \`if (exists(key)) { create(key) }\` 类非原子检查-执行模式
+- [ ] Check-then-act: 余额检查与扣款之间是否有并发窗口
+- [ ] Read-modify-write: 计数器递增是否使用原子操作
+- [ ] 数据库并发: 是否缺少乐观锁/悲观锁、事务隔离级别是否足够
+- [ ] 分布式锁: 缓存失效、leader 选举是否有竞态风险
+- 关键提问："两个请求同时命中这段代码会怎样？这个操作是原子的吗？"
+
+**8b. 架构检查**
+
+**单一职责（SRP）：**
+- [ ] 单个函数是否承担过多职责（超过 3 个独立关注点）
+- [ ] 模块是否混合了业务逻辑、数据访问和外部调用
+- [ ] 是否有"上帝函数"（超过 100 行的函数）
+
+**依赖方向：**
+- [ ] 高层模块是否直接 \`new\` 低层实现（而非通过抽象/接口）
+- [ ] 是否有循环依赖
+- [ ] 配置/常量是否硬编码在业务逻辑中
+
+**副作用隔离：**
+- [ ] 纯计算函数是否混入了 I/O 操作
+- [ ] 是否有隐藏的全局状态修改
+- [ ] 异步操作是否在预期的位置完成
+
+**9. 执行 Layer 3 质量检查**
 
 a) **可测试性检查**
 - 关键依赖是否通过构造函数注入（而非硬编码 new）？
@@ -2826,7 +2918,19 @@ c) **API 契约稳定性检查**（若改动涉及 API）
 - 删除字段是否先 deprecated 再删除？
 - 类型变更是否兼容（string → number 是 breaking）？
 
-**8. 生成审查报告**
+d) **死代码检测**
+- 新增代码中是否存在未被引用的函数/变量？
+- 是否有注释掉的代码块？（应删除，由版本控制保留历史）
+- 是否有 TODO/FIXME 标记的临时代码？
+- 是否有永远不会执行的分支（if false、return 后的代码）？
+
+**10. 检测规格漂移**
+
+- 代码是否超出规格范围（实现了 spec 中未要求的功能）？
+- 是否有未在规格中记录的功能？
+- 实现是否偏离规格意图？
+
+**11. 生成审查报告**
 
 \`\`\`markdown
 # Review Code: <Change Name>
@@ -2835,14 +2939,14 @@ c) **API 契约稳定性检查**（若改动涉及 API）
 **Status:** ✅ SOUND / ⚠️ NEEDS WORK / ❌ MAJOR ISSUES
 
 ## Overall Assessment
-[1-2 句话总结整体评估]
+[1-2 句话总结整体评估，涵盖 spec 合规性、安全性、架构质量]
 
 ## Review Scope
 - 增量规范：<capability-1>, <capability-2>
 - 实施文件：<列出本次改动涉及的文件>
 - 审查依据：<扫描到的配置文件列表>
 
-## Layer 1: Quick Scan Results
+## Layer 1: Quick Scan
 | 检查项 | 状态 | 证据 |
 |--------|------|------|
 | 文件存在性 | ✓/✗ | <文件路径> |
@@ -2854,25 +2958,56 @@ c) **API 契约稳定性检查**（若改动涉及 API）
 |-------------|----------|----------|------|
 | <req-name> | <scenario-name> | ✓/⚠️/✗ | <文件:行号> |
 
+## Layer 2.5: Security Scan
+| 漏洞类型 | 严重级别 | 状态 | 证据 |
+|----------|----------|------|------|
+| XSS | P0 | ✓/✗ | <详情> |
+| 注入 | P0 | ✓/✗ | <详情> |
+| SSRF | P0 | ✓/✗ | <详情> |
+| 路径穿越 | P0 | ✓/✗ | <详情> |
+| 认证/授权 | P0 | ✓/✗ | <详情> |
+| JWT | P0-P1 | ✓/✗ | <详情> |
+| 密钥泄露 | P0 | ✓/✗ | <详情> |
+| 供应链 | P1 | ✓/✗ | <详情> |
+| 竞态条件 | P0-P1 | ✓/✗ | <详情> |
+
+## Layer 2.5: Architecture Check
+| 检查项 | 状态 | 证据 |
+|--------|------|------|
+| 单一职责 | ✓/⚠️/✗ | <详情> |
+| 依赖方向 | ✓/⚠️/✗ | <详情> |
+| 副作用隔离 | ✓/⚠️/✗ | <详情> |
+
 ## Layer 3: Quality Checks
 | 维度 | 评分/5 | 发现 |
 |------|--------|------|
 | 可测试性 | X | <问题或"无问题"> |
 | 可观测性 | X | <问题或"无问题"> |
 | API 契约 | X | <问题或"无问题"> |
+| 规格漂移 | X | <问题或"无问题"> |
+
+## Dead Code Candidates
+| 位置 | 类型 | 建议处理 |
+|------|------|----------|
+| <文件:行号> | 未引用函数/注释代码/TODO | 安全删除 / 需评估 / 延迟处理 |
 
 ## Recommendations
-### Critical (Must Fix)
+### P0 — Critical (Must Fix)
 - [<问题描述>]
   - **证据**：<文件:行号>
   - **建议**：<具体修复方案>
 
-### Important (Should Fix)
+### P1 — High (Should Fix)
 - [<问题描述>]
   - **证据**：<文件:行号>
   - **建议**：<具体修复方案>
 
-### Optional (Nice to Have)
+### P2 — Medium (Fix or Follow-up)
+- [<问题描述>]
+  - **证据**：<文件:行号>
+  - **建议**：<具体修复方案>
+
+### P3 — Low (Optional)
 - [<问题描述>]
   - **证据**：<文件:行号>
   - **建议**：<优化建议>
@@ -2883,7 +3018,17 @@ c) **API 契约稳定性检查**（若改动涉及 API）
 **下一步**：<建议行动>
 \`\`\`
 
-**9. 保存审查报告（如用户请求）**
+**12. 下一步确认**
+
+统计问题数量后向用户呈现选项：
+1. 修复所有 P0 和 P1 问题
+2. 仅修复 P0 问题
+3. 修复指定的问题（列出编号）
+4. 不修复，仅记录
+
+**不实施任何修改，除非用户明确确认。**
+
+**13. 保存审查报告（如用户请求）**
 
 报告默认在聊天窗口显示。如用户请求，可保存为本地 markdown 文件：
 
@@ -2895,10 +3040,6 @@ EOF
 \`\`\`
 
 保存路径：\`phspec/changes/<name>/reviews/review-code-<timestamp>.md\`
-
-**注意**：
-- 报告文件用于归档和追溯，建议保存
-- 可用 \`phspec/changes/<name>/reviews/review-code-latest.md\` 作为最新报告的软链接
 
 ---
 
@@ -2912,6 +3053,7 @@ EOF
 | 可测试性 | 完全可测试 | 基本可测试 | 需要小调整 | 需要大调整 | 几乎不可测试 |
 | 可观测性 | 完整埋点 | 基本埋点 | 部分埋点 | 少量埋点 | 无埋点 |
 | API 契约 | 完全向后兼容 | 向后兼容 | 小调整后可兼容 | 需要迁移 | breaking change |
+| 规格漂移 | 完全一致 | 轻微偏离 | 部分偏离 | 明显偏离 | 严重偏离 |
 
 ---
 
@@ -2920,9 +3062,10 @@ EOF
 - 未提供变更时始终让用户选择，不猜测
 - 未找到增量规范时使用主规范；主规范也不存在时告知用户并停止
 - 每个发现必须有证据（文件:行号），无法给出证据时降级为 SUGGESTION 或不报告
-- 不确定时降级为 WARNING 而非 CRITICAL
+- 不确定时降级为 P1 而非 P0
 - Layer 3 发现不影响整体 status（除非发现 breaking change）
-- 报告使用标准格式，Critical/Important/Optional 分组，每条带证据和具体建议`;
+- 默认只读，不实施修复，除非用户明确确认
+- 安全检查宁可误报也不漏报：不确定时标记为 P1 并注明"需人工确认"`;
 }
 
 

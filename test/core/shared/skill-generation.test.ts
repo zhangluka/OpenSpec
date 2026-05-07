@@ -299,7 +299,7 @@ describe('skill-generation', () => {
       const template = getReviewCodeSkillTemplate();
 
       expect(template.name).toBe('phspec-review-code');
-      expect(template.description).toBe('代码规范了规性审查 - 验证代码实现与规格的一致性');
+      expect(template.description).toBe('代码规范合规性审查 - 验证代码实现与规格的一致性');
       expect(template.instructions).toBeTruthy();
       expect(template.license).toBe('MIT');
       expect(template.compatibility).toBe('Requires phspec CLI.');

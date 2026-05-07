@@ -12,15 +12,19 @@ import { AI_TOOLS } from '../config.js';
  * Names of skill directories created by openspec init.
  */
 export const SKILL_NAMES = [
-  'openspec-explore',
-  'openspec-new-change',
+  'phspec-explore',
+  'phspec-new-change',
   'phspec-continue-change',
-  'openspec-apply-change',
-  'openspec-ff-change',
-  'openspec-sync-specs',
-  'openspec-archive-change',
-  'openspec-bulk-archive-change',
-  'openspec-verify-change',
+  'phspec-apply-change',
+  'phspec-ff-change',
+  'phspec-sync-specs',
+  'phspec-archive-change',
+  'phspec-bulk-archive-change',
+  'phspec-verify-change',
+  'phspec-review-spec',
+  'phspec-review-code',
+  'phspec-review-design',
+  'phspec-onboard',
 ] as const;
 
 export type SkillName = (typeof SKILL_NAMES)[number];
