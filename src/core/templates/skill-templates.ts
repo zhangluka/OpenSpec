@@ -321,8 +321,6 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
       "新建 PhSpec 变更（制品工作流）。适用于用户想按步骤创建新功能、修复或改动时。",
     instructions: `使用实验性制品驱动方式新建变更。
 
-**执行约定（DevAgent / Cline 等）**：本技能在步骤 6 **必须结束**。步骤 6 中你必须**先调用**用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）向用户提问，**调用后立即结束本次执行**，不得在本轮中创建 proposal.md、design.md、specs、tasks.md 等任何制品。用户回复后再由其主动运行 \`/phsx:continue\` 或说「继续」来创建制品。
-
 **输入**：用户请求应包含变更名（kebab-case）或要做的内容描述。
 
 **步骤**
@@ -367,12 +365,11 @@ export function getNewChangeSkillTemplate(): SkillTemplate {
    \`\`\`
    会输出创建该制品所需的模板与上下文。
 
-6. **在此暂停，等待用户指示（必须结束）**
+6. **在此暂停，等待用户指示**
 
-   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`** 工具，向用户提问，例如：「变更 <name> 已创建，第一个待建制品是 proposal。要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或回复继续让我创建。」**调用后立即结束本次执行**，不得再执行任何写文件操作。
-   - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作，调用后结束本次执行。
-   - **若环境无上述工具**：直接输出上述问题文字并写明「请回复后再继续」，然后结束，不要创建任何制品文件。
-   - **禁止**：在本轮中创建或写入 proposal.md、design.md、specs/*、tasks.md；禁止在未调用用户确认工具（或输出问题并结束）的情况下继续执行后续步骤。
+   向用户提问：「变更 <name> 已创建，第一个待建制品是 proposal。要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或回复继续让我创建。」
+
+   **禁止**：在本轮中创建或写入 proposal.md、design.md、specs/*、tasks.md；禁止在未向用户提问并等待回复的情况下继续执行后续步骤。
 
 **输出**
 
@@ -405,8 +402,6 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
     description:
       "继续当前变更：创建下一个制品。适用于用户想推进变更、创建下一份制品或继续工作流时。",
     instructions: `继续当前变更：创建下一个制品。
-
-**执行约定（DevAgent / Cline 等）**：本技能每次调用**只创建一个制品**。创建完该制品后必须先调用用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）询问是否继续或要修改，**调用后立即结束本次执行**。不得在本轮中连续创建第二个制品。
 
 **输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
@@ -465,10 +460,7 @@ export function getContinueChangeSkillTemplate(): SkillTemplate {
      - 按 \`template\` 填好各节
      - 写作时遵守 \`context\` 与 \`rules\`，但不要原样抄进文件
      - 写入指令中的 outputPath
-   - 说明创建了什么、接下来可做哪些。然后**必须结束本次执行**：
-     - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`**，例如：「已创建 <artifact-id>。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」**调用后立即结束**，不得在本轮中创建下一个制品。
-     - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作后结束。
-     - **若环境无上述工具**：输出上述问题文字并写明「请回复后再继续」，然后结束。
+   - 说明创建了什么、接下来可做哪些，然后询问用户：「已创建 <artifact-id>。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」等待用户回复后再继续。
 
    ---
 
@@ -1542,8 +1534,6 @@ export function getOpsxNewCommandTemplate(): CommandTemplate {
     tags: ["workflow", "artifacts", "experimental"],
     content: `使用实验性制品驱动工作流新建变更。
 
-**执行约定（DevAgent / Cline 等 workflow）**：本 workflow 在步骤 6 **必须结束**。步骤 6 中你必须**先调用**用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）向用户提问，**调用后立即结束本次执行**，不得在本轮中创建 proposal.md、design.md、specs、tasks.md 等任何制品。用户回复后再由其主动运行 \`/phsx:continue\` 或说「继续」来创建制品。
-
 **输入**：\`/phsx:new\` 后的参数为变更名（kebab-case），或用户想做什么的描述。
 
 **步骤**
@@ -1588,12 +1578,11 @@ export function getOpsxNewCommandTemplate(): CommandTemplate {
    \`\`\`
    会输出创建该制品所需的模板与上下文。
 
-6. **在此暂停，等待用户指示（必须结束）**
+6. **在此暂停，等待用户指示**
 
-   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`** 工具，向用户提问，例如：「变更 <name> 已创建，第一个待建制品是 proposal。要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或回复继续让我创建。」**调用后立即结束本次 workflow 执行**，不得再执行任何写文件操作。
-   - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作，调用后结束本次执行。
-   - **若环境无上述工具**：直接输出上述问题文字并写明「请回复后再继续」，然后结束，不要创建任何制品文件。
-   - **禁止**：在本轮中创建或写入 proposal.md、design.md、specs/*、tasks.md；禁止在未调用用户确认工具（或输出问题并结束）的情况下继续执行后续步骤。
+   向用户提问：「变更 <name> 已创建，第一个待建制品是 proposal。要创建第一个制品了吗？直接说说这个变更要做什么，我来起草；或回复继续让我创建。」
+
+   **禁止**：在本轮中创建或写入 proposal.md、design.md、specs/*、tasks.md；禁止在未向用户提问并等待回复的情况下继续执行后续步骤。
 
 **输出**
 
@@ -1623,8 +1612,6 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
     category: "Workflow",
     tags: ["workflow", "artifacts", "experimental"],
     content: `继续当前变更：创建下一个制品。
-
-**执行约定（DevAgent / Cline 等 workflow）**：本 workflow 每次调用调用**只创建一个制品**。制品创建后会自动调用对应的 review 技能进行质量检查。review 通过后必须先调用用户确认工具（DevAgent：\`ask_followup_question\`；Cursor 等：\`AskUserQuestion\`）询问是否继续或要修改，**调用后立即结束本次执行**。不得在本轮中连续创建第二个制品。
 
 **输入**：可指定变更名。未指定时从对话上下文推断；若含糊或有歧义，必须让用户从可用变更中选择。
 
@@ -1657,10 +1644,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
 
    使用 Skill 工具调用对应的 review 技能，对刚创建的制品进行质量检查。review 技能会输出审查报告，包含评分、问题分类和可执行建议。展示审查结果，若发现严重问题（如关键指标不达标），建议用户先修复问题再继续。
 
-   然后必须结束本次执行：
-   - **在 DevAgent 中**：必须先调用 **\`ask_followup_question\`**，例如：「已创建 <artifact-id> 并完成 review 检查。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」**调用后立即结束**，不得在本轮中创建下一个制品。
-   - **在 Cursor 等环境中**：使用 **AskUserQuestion** 等价操作后结束。
-   - **若环境无上述工具**：输出上述问题文字并写明「请回复后再继续」，然后结束。
+   然后询问用户：「已创建 <artifact-id> 并完成 review 检查。要修改刚写的内容，还是继续创建下一个制品？回复继续或说明要改的地方。」等待用户回复后再继续。
 
    **若没有可创建制品（全部 blocked）**：展示状态并建议检查问题。
 
@@ -1671,7 +1655,7 @@ export function getOpsxContinueCommandTemplate(): CommandTemplate {
 
 **输出**：每次调用后展示创建了哪个制品、review 检查结果、所用工作流、当前进度（N/M 已完成）、当前可创建的制品，并通过用户确认工具或文字提示「要继续吗？要修改刚创建的内容吗？说继续或告诉我下一步即可。」
 
-**边界**：本命令每次调用**仅**创建一个制品；制品创建后自动进行 review 检查；review 完成后必须先调用 ask_followup_question/AskUserQuestion（或输出问题并结束），然后停止，等用户回复后再次调用本命令再创建下一个。不得在本轮中连续创建多个制品。
+**边界**：本命令每次调用**仅**创建一个制品；制品创建后自动进行 review 检查；review 完成后询问用户并等待回复，再由用户决定是否继续创建下一个。不得在本轮中连续创建多个制品。
 
 **制品创建指引**：制品类型与用途由模式决定，以指令输出中的 \`instruction\` 为准。常见模式（spec-driven）：requirement → specs → plan → tasks；制品创建后会自动调用对应的 review 技能：requirement/specs 用 review-spec，plan/tasks 用 review-design。**重要**：\`context\` 与 \`rules\` 是给你的约束，不要将 \`<context>\`、\`<rules>\`、\`<project_context>\` 抄进制品。`,
   };
